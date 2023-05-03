@@ -1,7 +1,7 @@
 ﻿@page
-@model Boletaje.Pages.OrdenVenta.IndexModel
+@model Boletaje.Pages.OfertaVenta.IndexModel
 @{
-    ViewData["Title"] = "Ordenes de Venta";
+    ViewData["Title"] = "Ofertas de Venta";
 }
 @using System.Globalization;
 @{
@@ -14,7 +14,7 @@
 @section breadcrumb{
 
     <li class="breadcrumb-item">
-        <a asp-page="./Index">Ordenes de Venta</a>
+        <a asp-page="./Index">Ofertas de Venta</a>
     </li>
 
 
@@ -196,10 +196,10 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-md-8">
-                            <h5>Ordenes de Venta</h5>
+                            <h5>Ofertas de Venta</h5>
                         </div>
                         <div class="col-md-4">
-                            <a asp-page="Nuevo" class="btn btn-rounded btn-outline-primary" asp-route-id="0" title="Agregar">+  Agregar</a>
+                            <a asp-page="Nuevo" class="btn btn-rounded btn-outline-primary" title="Agregar">+  Agregar</a>
                         </div>
                     </div>
                 </div>
@@ -246,7 +246,10 @@
                                                 <img src="~/sap.png" style="width: 15%;height: 15%; cursor: pointer;" title="Procesar a SAP" onclick="javascript: ProcesarSAP(@item.id)" />
                                             }
 
-                                        }
+                                        }&nbsp;
+                                        <a asp-page="/OrdenVenta/Nuevo" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-success"> Crear Orden Venta</a> 
+
+
                                     </td>
 
                                 </tr>

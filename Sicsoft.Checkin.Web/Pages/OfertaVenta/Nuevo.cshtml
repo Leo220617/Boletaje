@@ -1,16 +1,16 @@
-﻿@page "{id}"
-@model Boletaje.Pages.OrdenVenta.NuevoModel
+﻿@page
+@model Boletaje.Pages.OfertaVenta.NuevoModel
 @{
-    ViewData["Title"] = "Generar Orden Venta";
+    ViewData["Title"] = "Generar Oferta Venta";
 }
 
 @section breadcrumb{
 
     <li class="breadcrumb-item">
-        <a asp-page="./Index">Ordenes Venta</a>
+        <a asp-page="./Index">Ofertas Venta</a>
     </li>
     <li class="breadcrumb-item active">
-        <a>Generar Orden</a>
+        <a>Generar Oferta</a>
     </li>
 
 }
@@ -44,8 +44,6 @@
         var Clientes = [];
         var Impuestos = [];
         var Productos = [];
-        var Documento = [];
-
         var subtotal = 0;
         var impuestos = 0;
         var descuentos = 0;
@@ -95,8 +93,6 @@
             try {
                 Clientes = JSON.parse($("#Clientes").val());
                 Impuestos = JSON.parse($("#Impuestos").val());
-                Documento = JSON.parse($("#Documento").val());
-
 
                 $('.select2').select2({
                     width: 'resolve',
@@ -104,12 +100,7 @@
                 });
                 TipodeCambio();
                 ModificaMoneda();
-                if (Documento != null && Documento != undefined && Documento.BaseEntry != 0) {
-                     $("#cliente").val(Documento.CardCode);
-                      cambiarCliente(1);
-                    
 
-                }
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -123,103 +114,10 @@
 
         }
 
-        function RecuperarInformacion() {
-            try {  
-                $("#moneda").val(Documento.Moneda);
-                $("#tipoDocumento").val(Documento.TipoDocumento);
-                $("#referencia").val(Documento.NumAtCard);
-                $("#Comentario").val(Documento.Comentarios);
-               
-
-                for (var i = 0; i < Documento.Detalle.length; i++) { 
-
-                      var Prod = Productos.find(a => a.codigo == Documento.Detalle[i].ItemCode);
-
-                    var detalle = {
-                        id: 0,
-                        idEncabezado: 0,
-                        NumLinea: 0,
-                        ItemCode: Documento.Detalle[i].ItemCode,
-                        Bodega: Documento.Detalle[i].Bodega,
-                        PorcentajeDescuento: Documento.Detalle[i].PorcentajeDescuento,
-                        Cantidad: Documento.Detalle[i].Cantidad,
-                        Impuesto: parseFloat(Documento.Detalle[i].Impuesto),
-                        TaxOnly: Documento.Detalle[i].TaxOnly,
-                        PrecioUnitario: Documento.Detalle[i].PrecioUnitario,
-                        Total: 0,
-                        Nombre: Prod.nombre,
-                        Moneda: Documento.Monedaa,
-                        PrecioUnitario1: 0
-
-                    };
-                    var Moneda = $("#moneda").val();
-
-                    //if (detalle.Moneda != Moneda) {
-                    //    if (Moneda != "COL") {
-
-                    //        detalle.Moneda = Moneda;
-                    //        detalle.PrecioUnitario = parseFloat((detalle.PrecioUnitario / TipoCambio).toFixed(2));
-                    //    } else {
-
-                    //        detalle.Moneda = Moneda;
-                    //        detalle.PrecioUnitario = parseFloat((detalle.PrecioUnitario * TipoCambio).toFixed(2));
-                    //    }
-                    //}
-
-
-                    if (!detalle.TaxOnly) {
-
-                        var subtotalL = detalle.Cantidad * detalle.PrecioUnitario;
-                        var descuentosL = (subtotalL * (detalle.PorcentajeDescuento / 100));
-                        var impuestosL = ((subtotalL - descuentosL) * (parseFloat(detalle.Impuesto) / 100));
-
-                        detalle.Total = subtotalL - descuentosL + impuestosL;
-
-
-                        subtotal += subtotalL;
-                        descuentos += descuentosL;
-                        impuestos += impuestosL;
-
-                    } else {
-                        var subtotalL = detalle.Cantidad * detalle.PrecioUnitario;
-                        var descuentosL = (subtotalL * detalle.PorcentajeDescuento / 100);
-                        var impuestosL = ((subtotalL - descuentosL) * (parseFloat(detalle.Impuesto) / 100));
-
-                        detalle.Total = impuestosL;
-
-                        impuestos += impuestosL;
-
-                    }
-                    ProdCadena.push(detalle);
-                    
-
-
-                }
-
-             
-                    ActualizaDatos();
-                    RellenaTabla();
-
-
-
-
-            } catch (e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Ha ocurrido un error al intentar recuperar informacion ' + e
-
-                })
-            }
-        }
-
-        function cambiarCliente(primeraVez) {
+        function cambiarCliente() {
             try {
                 var idCliente = $("#cliente").val().split("/")[0].trim();
-                if(primeraVez == 1)
-                {
-                    $("#cliente").val(idCliente + " / " + Clientes.find(a => a.CardCode == idCliente).CardName);
-                }
+
                 if (idCliente != "0") {
                     var ListaPrecio = Clientes.find(a => a.CardCode == idCliente).ListNum;
                     var Bodega = "@Model.Bodega";
@@ -254,10 +152,7 @@
 
                             $("#ProductoSeleccionado").html(sOptions);
 
-                            if(primeraVez == 1)
-                            {
-                                RecuperarInformacion();
-                            }
+
                         },
 
                         beforeSend: function(xhr) {
@@ -297,8 +192,17 @@
                 if ($("#ProductoSeleccionado").val() != "0") {
                     var Precio = Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).precioUnitario;
                     var Moneda = Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).moneda;
+                    var Nombre = Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).nombre;
                     $("#inputPrecio").val(parseInt(Precio));
                     $("#inputMoneda").val(Moneda);
+                    if(Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).editable == 1)
+                    {
+                       $("#nombre").prop('readonly', false);
+                    }else{
+                       $("#nombre").prop('readonly', true);
+
+                    }
+                    $("#nombre").val(Nombre);
 
                 }
             } catch (e) {
@@ -399,6 +303,7 @@
                         idEncabezado: 0,
                         NumLinea: 0,
                         ItemCode: $("#ProductoSeleccionado").val(),
+                        ItemName:  $("#nombre").val(),
                         Bodega: Prod.idBodega,
                         PorcentajeDescuento: $("#descuento").val(),
                         Cantidad: $("#cantidad").val(),
@@ -406,7 +311,7 @@
                         TaxOnly: document.getElementById("taxonly").checked,
                         PrecioUnitario: parseFloat($("#inputPrecio").val()),
                         Total: 0,
-                        Nombre: Prod.nombre,
+                        Nombre:  $("#nombre").val(),
                         Moneda: Prod.moneda,
                         PrecioUnitario1: 0
 
@@ -652,7 +557,6 @@
 
                 var recibidos = {
                     id: 0,
-                    BaseEntry: $("#BaseEntry").val(),
                     DocEntry: 0,
                     DocNum: 0,
                     CardCode: $("#cliente").val(),
@@ -673,7 +577,7 @@
 
                 if (validar(recibidos)) {
                     Swal.fire({
-                        title: '¿Desea guardar los cambios de esta orden de venta?',
+                        title: '¿Desea guardar los cambios de esta oferta de venta?',
                         showDenyButton: true,
                         showCancelButton: false,
                         confirmButtonText: `Aceptar`,
@@ -812,18 +716,15 @@
 
                     <input hidden id="Clientes" value="@JsonConvert.SerializeObject(Model.Clientes.Clientes)" />
                     <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
-                    <input hidden id="Documento" value="@JsonConvert.SerializeObject(Model.Orden)" />
-                    <input hidden id="BaseEntry" value="@Model.Orden.BaseEntry" />
-
 
                     <div class="row">
                         <div class="col-sm-6">
-                            <h5 class="title">Orden de Venta</h5>
+                            <h5 class="title">Oferta de Venta</h5>
                         </div>
 
                         <div class="col-sm-6" style="text-align: right">
 
-                            <a asp-page="/OrdenVenta/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                            <a asp-page="/OfertaVenta/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
 
                         </div>
                     </div>
@@ -947,7 +848,15 @@
                 </div>
                 <br />
                 <div class="row">
+                    <div class="col-md-12">
+                         <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control" id="nombre" placeholder="Nombre" readonly>
 
+
+                        </div>
+                    </div>
+                    <br />
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>Cantidad</label>

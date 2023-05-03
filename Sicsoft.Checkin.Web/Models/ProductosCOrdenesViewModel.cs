@@ -17,5 +17,6 @@
         public decimal PrecioUnitario { get; set; }
 
         public decimal StockReal { get; set; }
+        public int Editable { get; set; }
     }
 }
