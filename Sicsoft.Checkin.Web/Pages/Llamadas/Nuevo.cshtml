@@ -622,7 +622,7 @@
                     DocEntry: 0,
                     DocNum: 0,
                     SerieFabricante: "",
-                    ItemCode: $("#productos").val(),
+                    ItemCode: $("#producto").val(),
                     Asunto: $("#asunto").val(),
                     TipoCaso: $("#tp").val(),
                     FechaSISO: null,
@@ -785,11 +785,11 @@
                 var sOptions = '';
 
                 $("#productos").html('');
-                    sOptions += ' <option selected value="0">Seleccione</option>';
+                sOptions += ' <option selected value="0">Seleccione</option>';
 
                 for (var i = 0; i < lista.length; i++) {
 
-                    sOptions += ' <option value="' + lista[i].itemCode + ' / ' + lista[i].manufSN + '">' + lista[i].itemCode + ' - ' + lista[i].itemName + ' - ' + lista[i].manufSN + '</option>';
+                    sOptions += ' <option value="' + lista[i].itemCode + ' / ' + lista[i].manufSN + ' / ' + lista[i].itemName + '">' + lista[i].itemCode + ' - ' + lista[i].itemName + ' - ' + lista[i].manufSN + '</option>';
 
                 }
                 $("#productos").html(sOptions);
@@ -834,7 +834,7 @@
 
                 var CardCode = $("#cardcode").val();
                 CardCode = CardCode.split("/")[0];
-                 
+
 
 
                 if ($("#rBusqueda").val() == 0) {
@@ -850,21 +850,23 @@
                         success: function(json) {
 
                             console.log(json);
-                    $("#productos").val('');
+                            $("#productos").val('');
+                       
 
                             rellenaProductos(json);
+                      
 
                         },
 
                         beforeSend: function(xhr) {
 
-
+                            
                         },
                         complete: function() {
-
+                     
                         },
                         error: function(error) {
-
+                             
                         }
                     });
                 }
@@ -906,20 +908,23 @@
                     success: function(json) {
 
                         console.log(json);
-
+                         $("#divProcesando").modal("hide"); 
                         rellenaProductos(json);
+                         $("#divProcesando").modal("hide");
+
+                        $("#divProcesando").modal("hide");
 
                     },
 
                     beforeSend: function(xhr) {
 
-
+                        $("#divProcesando").modal("show");
                     },
                     complete: function() {
-
+                        $("#divProcesando").modal("hide");
                     },
                     error: function(error) {
-
+                        $("#divProcesando").modal("hide");
                     }
                 });
 
@@ -941,8 +946,8 @@
 
         function cambiarCliente() {
             try {
-                var itemcode = $("#productos").val();
-              
+                var itemcode = $("#producto").val();
+
 
 
                 //itemcode = itemcode.split("/")[1];
@@ -960,20 +965,21 @@
 
                             console.log(json);
                             $("#cardcode").val("");
-
+                             
                             rellenaClientes(json);
+                           
 
                         },
 
                         beforeSend: function(xhr) {
 
-
+                            
                         },
                         complete: function() {
-
+                            
                         },
                         error: function(error) {
-
+                          
                         }
                     });
                 }
@@ -1010,20 +1016,24 @@
                     success: function(json) {
 
                         console.log(json);
+                         $("#divProcesando").modal("hide");
 
+                        $("#divProcesando").modal("hide");
                         rellenaClientes(json);
+                         $("#divProcesando").modal("hide"); 
+                        $("#divProcesando").modal("hide");
 
                     },
 
                     beforeSend: function(xhr) {
 
-
+                        $("#divProcesando").modal("show");
                     },
                     complete: function() {
-
+                        $("#divProcesando").modal("hide");
                     },
                     error: function(error) {
-
+                        $("#divProcesando").modal("hide");
                     }
                 });
 
@@ -1047,14 +1057,14 @@
                     $("#cardcodes").html('');
                     $("#cardcode").val("");
                     $("#productos").html('');
-                    $("#productos").val('');
+                    $("#producto").val('');
 
                     cambiarCliente2("0");
                 } else {
                     $("#cardcodes").html('');
                     $("#cardcode").val("");
                     $("#productos").html('');
-                    $("#productos").val('');
+                    $("#producto").val('');
 
                     cambiarProducto2("0");
                 }
@@ -1412,6 +1422,7 @@
                             </select>
                         </div>
                     </div>
+                    <br />
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -1435,13 +1446,20 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Producto:</label>
-                            <select id="productos" class="form-control select2" asp-for="Input.ItemCode" required onchange="javascript: cambiarCliente();">
+                            <input type="text" list="productos" class="form-control form-control-lg" id="producto" placeholder="Producto" asp-for="Input.ItemCode" onchange="javascript: cambiarCliente();" autocomplete="off">
+
+                            <datalist id="productos">
                                 <option value="0">Seleccione</option>
-                                @*  @foreach (var item in Model.Productos.Productos)
-                                {
-                                <option value="@item.itemCode / @item.manufSN"> @item.itemCode  -  @item.itemName  -  @item.manufSN</option>
-                                }*@
-                            </select>
+
+
+                            </datalist>
+                            @* <select id="productos" class="form-control select2" asp-for="Input.ItemCode" required onchange="javascript: cambiarCliente();">
+                            <option value="0">Seleccione</option>
+                            @*  @foreach (var item in Model.Productos.Productos)
+                            {
+                            <option value="@item.itemCode / @item.manufSN"> @item.itemCode  -  @item.itemName  -  @item.manufSN</option>
+                            }
+                            </select>*@
                             <a asp-page="/Boletas/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Tarjeta Equipo</a>
                         </div>
                     </div>
