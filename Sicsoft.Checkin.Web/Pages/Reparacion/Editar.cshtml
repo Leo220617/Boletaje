@@ -444,7 +444,12 @@
                 ProdCadenaM[i].Cantidad = $("#cantidad-" + i).val();
             }catch(e)
             {
+                 Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e + ' - ' + e.stack
 
+                })
             }
         }
         function RellenaTablaM() {
