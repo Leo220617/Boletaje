@@ -27,6 +27,7 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<StatusViewModel, int> status;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<AsuntosViewModel, int> asuntos;
+        private readonly ICrudApi<EncReparacionViewModel, int> serviceE;
 
 
 
@@ -69,7 +70,7 @@ namespace Boletaje.Pages.Llamadas
         public AsuntosViewModel[] Asuntos { get; set; }
 
         public EditarModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
-            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos)
+            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE)
         {
             this.service = service;
             this.clientes = clientes;
@@ -80,6 +81,7 @@ namespace Boletaje.Pages.Llamadas
             this.status = status;
             this.tp = tp;
             this.asuntos = asuntos;
+            this.serviceE = serviceE;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -103,6 +105,13 @@ namespace Boletaje.Pages.Llamadas
                 Sucursales = await sucursales.ObtenerLista("");
                 Tecnicos = await tecnicos.ObtenerLista("");
                 Status = await status.ObtenerLista("");
+                ParametrosFiltros filtroE = new ParametrosFiltros();
+                filtroE.Codigo4 = Input.id;
+                var EncReparacion = await serviceE.ObtenerLista(filtroE);
+                var Enc = EncReparacion.FirstOrDefault();
+
+                Input.AdjuntosIdentificacion = Enc.AdjuntosIdentificacion.ToList();
+                Input.Adjuntos = Enc.Adjuntos.ToList();
 
 
                 return Page();
@@ -129,6 +138,100 @@ namespace Boletaje.Pages.Llamadas
                 ModelState.AddModelError(string.Empty, error.Message);
 
                 return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostGenerar(LlamadasViewModel recibido)
+        {
+            try
+            {
+
+
+                LlamadasViewModel coleccion = new LlamadasViewModel();
+                coleccion.id = recibido.id;
+                coleccion.TipoLlamada = recibido.TipoLlamada;
+                coleccion.Status = recibido.Status;
+                coleccion.Asunto = recibido.Asunto;
+                coleccion.TipoCaso = recibido.TipoCaso;
+                coleccion.FechaSISO = recibido.FechaSISO;
+                coleccion.LugarReparacion = recibido.LugarReparacion;
+                coleccion.SucRecibo = recibido.SucRecibo;
+                coleccion.SucRetiro = recibido.SucRetiro;
+                coleccion.Comentarios = recibido.Comentarios;
+                coleccion.Tecnico = recibido.Tecnico;
+              //  coleccion.Firma = recibido.Firma;
+                coleccion.Horas = recibido.Horas;
+
+                coleccion.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+            //    coleccion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
+                //var item = recibido.ItemCode;
+                //coleccion.ItemCode = item.Split("/")[0].Replace(" ", "");
+                //coleccion.SerieFabricante = item.Split("/")[1].Replace(" ", "");
+                coleccion.PersonaContacto = recibido.PersonaContacto;
+                coleccion.EmailPersonaContacto = recibido.EmailPersonaContacto;
+                coleccion.NumeroPersonaContacto = recibido.NumeroPersonaContacto;
+                coleccion.Adjuntos = new List<AdjuntosViewModel>();
+                coleccion.AdjuntosIdentificacion = new List<AdjuntosIdentificacionViewModel>();
+
+
+                if (recibido.Adjuntos != null)
+                {
+                    var cantidad = 1;
+                    foreach (var item1 in recibido.Adjuntos)
+                    {
+                        var adjunto = new AdjuntosViewModel();
+                        adjunto.base64 = item1.base64;
+                        coleccion.Adjuntos.Add(adjunto);
+                        cantidad++;
+                    }
+                }
+                if (recibido.AdjuntosIdentificacion != null)
+                {
+                    var cantidad = 1;
+                    foreach (var item1 in recibido.AdjuntosIdentificacion)
+                    {
+                        var adjunto = new AdjuntosIdentificacionViewModel();
+                        adjunto.base64 = item1.base64;
+                        coleccion.AdjuntosIdentificacion.Add(adjunto);
+                        cantidad++;
+                    }
+                }
+
+
+
+                await service.Editar(coleccion);
+
+                var obj = new
+                {
+                    success = true,
+                    mensaje = ""
+                };
+
+                return new JsonResult(obj);
+
+            }
+            catch (ApiException ex)
+            {
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
+            }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString()
+                };
+                return new JsonResult(obj);
             }
         }
     }

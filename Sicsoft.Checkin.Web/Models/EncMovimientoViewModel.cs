@@ -23,6 +23,8 @@ namespace Boletaje.Models
         public decimal Impuestos { get; set; }
         public decimal TotalComprobante { get; set; }
         public bool Generar { get; set; }
+        public bool Regenerar { get; set; }
+
         public string Moneda { get; set; }
         public DetMovimientoViewModel[] Detalle { get; set; }
     }

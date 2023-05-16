@@ -111,6 +111,14 @@ namespace Boletaje.Pages.Reparacion
 
                 return Page();
             }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message.ToString());
+
+
+                return Page();
+            }
         }
 
         public async Task<IActionResult> OnGetEstado(int id)

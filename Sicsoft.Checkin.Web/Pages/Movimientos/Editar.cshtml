@@ -49,7 +49,7 @@
         var RolAceptacion = false;
         var Rate = 0;
         var banderaConversion = false;
-
+        var regenerar = false;
         function Recuperar() {
 
             var detalles = JSON.parse($("#Detalle").val());
@@ -85,6 +85,10 @@
                 };
                 Detalles.push(detalle);
 
+            }
+            if("@Model.Input.DocEntry" != "0")
+            {
+                regenerar = true;
             }
 
             RellenaTabla();
@@ -366,6 +370,8 @@
                 TotalComprobante: $("#TotalGeneral").text(),
                 Moneda: $("#Moneda").val(),
                 Generar: generar,
+                Regenerar: regenerar,
+
                 Detalle: Detalles
 
             }
@@ -762,13 +768,21 @@
 
             var btn = document.getElementById('agregaManoObra');
             btn.disabled = true;
+            var Precio = 0;
+            if($("#Moneda").val() != "COL")
+            {
+                Precio = ManoObra.Precio / ManoObra.Rate;
+            }else
+            {
+                Precio = ManoObra.Precio;
+            }
             var detalle = {
                 id: ManoObra.id,
                 NumLinea: Detalles.length + 1,
                 idEncabezado: 0,
                 ItemCode: ManoObra.codSAP,
                 ItemName: ManoObra.Nombre,
-                PrecioUnitario: ManoObra.Precio,
+                PrecioUnitario: Precio,
                 Cantidad: 1,
                 PorDescuento: 0,
                 Descuento: 0,
@@ -943,17 +957,17 @@
                             {
                                 case 1:
                                     {
-                                        <h3 class="text-dark mb-1">Oferta de Venta</h3>
+                                                                <h3 class="text-dark mb-1">Oferta de Venta</h3>
                                         break;
                                     }
                                 case 2:
                                     {
-                                        <h3 class="text-dark mb-1">Entrega</h3>
+                                                                <h3 class="text-dark mb-1">Entrega</h3>
                                         break;
                                     }
                                 case 3:
                                     {
-                                        <h3 class="text-dark mb-1">Cotización BackOffice</h3>
+                                                                <h3 class="text-dark mb-1">Cotización BackOffice</h3>
                                         break;
                                     }
                             }

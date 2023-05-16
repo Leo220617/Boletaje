@@ -145,6 +145,14 @@ namespace Boletaje.Pages.Reparacion
 
                 return Page();
             }
+            catch (ApiException ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Content.ToString());
+
+               
+                return Page();
+            }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
@@ -219,6 +227,18 @@ namespace Boletaje.Pages.Reparacion
 
                 return new JsonResult(obj);
 
+            }
+            catch (ApiException ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Content.ToString());
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
             }
             catch (Exception ex)
             {

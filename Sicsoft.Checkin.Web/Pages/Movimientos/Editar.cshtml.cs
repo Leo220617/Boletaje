@@ -126,6 +126,8 @@ namespace Boletaje.Pages.Movimientos
                 coleccion.Subtotal = recibido.Subtotal;
                 coleccion.PorDescuento = recibido.PorDescuento;
                 coleccion.Generar = recibido.Generar;
+                coleccion.Regenerar = recibido.Regenerar;
+
                 coleccion.TotalComprobante = recibido.TotalComprobante;
                 coleccion.Moneda = recibido.Moneda;
 
@@ -163,6 +165,18 @@ namespace Boletaje.Pages.Movimientos
 
                 return new JsonResult(obj);
 
+            }
+            catch (ApiException ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
             }
             catch (Exception ex)
             {

@@ -83,6 +83,14 @@ namespace Boletaje.Pages.Llamadas
 
                 return Page();
             }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message.ToString());
+
+
+                return Page();
+            }
         }
 
         ///Reenviar el correo

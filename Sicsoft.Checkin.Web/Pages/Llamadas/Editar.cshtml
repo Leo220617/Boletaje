@@ -15,19 +15,244 @@
 }
     @section styles{
 
+    <style>
 
+        #menu {
+            float: left;
+            width: 100%;
+            background-color: #fff;
+        }
+
+            #menu img {
+                width: 12%;
+                margin: 2%;
+                cursor: pointer;
+            }
+
+        #principal {
+            float: left;
+            width: 75%;
+        }
+
+        #visor {
+            width: 60%;
+            margin: 10%
+        }
+
+            #visor img {
+                width: 100%
+            }
+
+
+
+        h4 {
+            font-size: 22px !important;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        img {
+            border: none;
+        }
+
+        button, h1 {
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper {
+            width: 100%;
+        }
+
+        h1 {
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .preload2 {
+            padding-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .preload {
+            padding-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .activate-preload {
+            display: block;
+        }
+
+        .activate-preload2 {
+            display: block;
+        }
+
+        #container-input {
+            width: 640px;
+            margin: 0 auto;
+            border: solid 1px #CCC;
+            position: relative;
+            overflow: hidden;
+        }
+
+
+            #container-input .wrap-file .content-icon-camera #file2 {
+                padding: 15px;
+                opacity: 0;
+                position: relative;
+                cursor: pointer;
+                left: -120px;
+                z-index: 1;
+            }
+
+
+
+
+
+
+            #container-input .wrap-file .content-icon-camera {
+                width: 55px;
+                overflow: hidden;
+            }
+
+                #container-input .wrap-file .content-icon-camera:hover {
+                    background-color: #e6e6e6;
+                }
+
+                #container-input .wrap-file .content-icon-camera .icon-camera {
+                    width: 36px;
+                    height: 36px;
+                    background: url('../../camera.png') no-repeat;
+                    cursor: pointer;
+                    position: absolute;
+                    top: 8px;
+                    left: 8px;
+                }
+
+                #container-input .wrap-file .content-icon-camera #file {
+                    padding: 15px;
+                    opacity: 0;
+                    position: relative;
+                    cursor: pointer;
+                    left: -120px;
+                    z-index: 1;
+                }
+
+            #container-input .wrap-file #preview-images .thumbnail {
+                width: 120px;
+                height: 120px;
+                display: inline-block;
+                vertical-align: middle;
+                border: solid 2px #CCC;
+                background-size: cover;
+                position: relative;
+            }
+
+                #container-input .wrap-file #preview-images .thumbnail:not(:last-child) {
+                    margin-right: 5px;
+                }
+
+                #container-input .wrap-file #preview-images .thumbnail .close-button {
+                    width: 20px;
+                    height: 20px;
+                    background-color: black;
+                    color: white;
+                    text-align: center;
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    border-radius: 100px;
+                    cursor: pointer;
+                }
+
+
+            #container-input .wrap-file #preview-images2 .thumbnail {
+                width: 120px;
+                height: 120px;
+                display: inline-block;
+                vertical-align: middle;
+                border: solid 2px #CCC;
+                background-size: cover;
+                position: relative;
+            }
+
+                #container-input .wrap-file #preview-images2 .thumbnail:not(:last-child) {
+                    margin-right: 5px;
+                }
+
+                #container-input .wrap-file #preview-images2 .thumbnail .close-button {
+                    width: 20px;
+                    height: 20px;
+                    background-color: black;
+                    color: white;
+                    text-align: center;
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    border-radius: 100px;
+                    cursor: pointer;
+                }
+
+            #container-input #publish {
+                padding: 15px 35px;
+                font-size: 1.1em;
+                float: right;
+                border: none;
+                cursor: pointer;
+                background-color: #8ECA67;
+                color: #FFF;
+            }
+
+                #container-input #publish:hover {
+                    background-color: #6EAD45;
+                }
+    </style>
 }
 
     @section scripts{
+    <script>
+        // Get the modal
+        var modal = document.getElementById('myModal');
 
+
+        // Get the image and insert it inside the modal - use its "alt" text as a caption
+        //   var img = document.getElementById('myImg');
+        var modalImg = document.getElementById("img01");
+        //var captionText = document.getElementById("caption");
+        function onclickImage(id) {
+            modal.style.display = "block";
+            modalImg.src = $("#" + id).attr('src');
+
+        }
+        function onclickImageAdj(id) {
+            modal.style.display = "block";
+            modalImg.src = $("#" + id + "-Adj").attr('src');
+
+        }
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+    </script>
     <script>
         var btn = document.getElementById('Guardar');
-        function onGuardar() {
-            btn.disabled = true;
-            $("#formTipos").submit();
+        //function onGuardar() {
+        //    btn.disabled = true;
 
-            btn.disabled = false;
-        }
+
+
+        //    $("#formTipos").submit();
+
+        //    btn.disabled = false;
+        //}
 
         function ImprimeEtiqueta(boleta, cliente) {
             var html = htmlLlamada;
@@ -43,7 +268,7 @@
             html = html.replace("SucursalR", $("#sr option:selected").text());
             html = html.replace("SucE", $("#srt option:selected").text());
 
-           
+
             html = html.replace("ObservacionesR", $("#asunto").val());
             html = html.replace("DiagnosticosDelCliente", $("#comentarios").val());
 
@@ -52,7 +277,7 @@
 
 
 
-            html = html.replace("Imagen", "<img src='" + '@Model.Input.Firma' + "' width='100'   />" );
+            html = html.replace("Imagen", "<img src='" + '@Model.Input.Firma' + "' width='100'   />");
 
 
 
@@ -60,11 +285,11 @@
 
             var opt = {
                 margin: 0,
-                pagebreak: { mode:[ 'avoid-all','css', 'legacy']  },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
 
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 1,logging:true,dpi:192,letterRendering:true },
-                jsPDF: { unit:'mm',format: 'a3', orientation: 'portrait' }
+                html2canvas: { scale: 1, logging: true, dpi: 192, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }
             };
 
 
@@ -73,9 +298,361 @@
                 .from(item)
                 .save("Llamada.pdf");
 
-        }         
+        }
     </script>
+    <script>
+        var btn = document.getElementById('Guardar');
+        $(document).ready(function() {
 
+            onChangeStatus();
+        });
+        function onChangeStatus() {
+            try {
+                if ($("#status").val() == -1) {
+                    $("#rowIdentificacion").show();
+                } else {
+                    $("#rowIdentificacion").hide();
+
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar cambiar ' + e
+
+                })
+            }
+
+        }
+        function ValidaForm(recibido1) {
+            if (recibido1.PersonaContacto == undefined || recibido1.PersonaContacto == "") {
+                return false;
+            } else if (recibido1.NumeroPersonaContacto == undefined || recibido1.NumeroPersonaContacto == "") {
+                return false;
+
+            } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {
+                return false;
+
+            } else if (recibido1.Status == -1) {
+                if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
+                    return false;
+                }
+            }
+
+            return true;
+
+        }
+
+        function onGuardar() {
+            try {
+                var btn = document.getElementById('Guardar');
+
+                btn.disabled = true;
+
+
+                var bases64I = [];
+
+                for (var i = 0; i < documentosbase642.length; i++) {
+
+                    var det = {
+                        id: 0,
+                        idEncabezado: 0,
+                        base64: documentosbase642[i].base64
+
+                    };
+                    bases64I.push(det);
+
+                }
+                var recibido1 =
+                {
+                    id: $("#idLlamada").val(),
+                    TipoLlamada: null,
+                    Series: 0,
+                    Status: $("#status").val(),
+                    FechaSISO: $("#fecsiso").val(),
+                    CardCode: $("#cardcode").val(),
+                    DocEntry: 0,
+                    DocNum: 0,
+                    SerieFabricante: "",
+                    ItemCode: $("#productos").val(),
+                    Asunto: $("#asunto").val(),
+                    TipoCaso: $("#tp").val(),
+                    LugarReparacion: $("#lReparacion").val(),
+                    SucRecibo: $("#sr").val(),
+                    SucRetiro: $("#srt").val(),
+                    Comentarios: $("#comentarios").val(),
+                    TratadoPor: 0,
+                    Garantia: 0,
+                    Tecnico: $("#tecnico").val(),
+                    ProcesadaSAP: false,
+                    Firma: "",
+                    Horas: $("#horas").val(),
+                    PersonaContacto: $("#personaContacto").val(),
+                    EmailPersonaContacto: $("#emailPersonaContacto").val(),
+                    NumeroPersonaContacto: $("#telefonoPersonaContacto").val(),
+
+                    Adjuntos: [],
+                    AdjuntosIdentificacion: bases64I
+                }
+
+                if (!ValidaForm(recibido1)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Faltan datos por rellenar '
+
+                    })
+                } else {
+                    Swal.fire({
+                        title: '¿Desea guardar los cambios?',
+                        showDenyButton: true,
+                        showCancelButton: false,
+                        confirmButtonText: `Aceptar`,
+                        denyButtonText: `Cancelar`,
+                        customClass: {
+                            confirmButton: 'swalBtnColor',
+                            denyButton: 'swalDeny'
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var recibidos = recibido1;
+
+                            $.ajax({
+                                type: 'POST',
+
+                                url: '@Url.Page("Editar", "Generar")',
+                                dataType: 'json',
+                                data: { recibido: recibidos },
+                                headers: {
+                                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                                },
+                                success: function(json) {
+
+                                    $("#divProcesando").hide();
+
+                                    if ($('.modal-backdrop').is(':visible')) {
+
+                                        $('body').removeClass('modal-open');
+                                        $('.modal-backdrop').hide();
+                                    }
+                                    console.log("resultado " + json.mensaje);
+                                    if (json.success == true) {
+                                        Swal.fire({
+                                            title: "Ha sido generado con éxito",
+
+                                            icon: 'success',
+                                            showCancelButton: false,
+
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'swalBtnColor',
+
+                                            },
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+
+                                                window.location.href = window.location.href.split("/Editar")[0];
+                                            }
+                                        })
+
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Oops...',
+                                            text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+
+                                        })
+                                    }
+                                },
+
+                                beforeSend: function(xhr) {
+
+                                    $("#divProcesando").modal("show");
+                                },
+                                complete: function() {
+
+                                },
+                                error: function(error) {
+                                    btn.disabled = false;
+
+                                }
+                            });
+                        } else {
+                            btn.disabled = false;
+                        }
+                    }
+                    )
+                }
+
+
+                btn.disabled = false;
+                //$("#formTipos").submit();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar guardar ' + e
+
+                })
+            }
+
+
+
+        }
+    </script>
+    <script type="text/javascript">
+        var file2 = document.getElementById('file2');
+        var preload2 = document.querySelector('.preload2');
+
+        var formData2 = new FormData();
+        var documentosbase642 = [];
+
+
+
+        function resizedataURL2(datas, wantedWidth, wantedHeight) {
+
+            return new Promise((resolve, reject) => {
+                // We create an image to receive the Data URI
+                var img2 = document.createElement('img');
+                var retornar = "";
+                // We put the Data URI in the image's src attribute
+                img2.src = datas;
+                // When the event "onload" is triggered we can resize the image.
+                img2.onload = function() {
+
+                    var height = this.height;
+                    var width = this.width;
+
+
+
+
+
+                    if (height > wantedHeight && width > wantedWidth) {
+                        while (height > wantedHeight) {
+
+                            height = height - 100;
+                        }
+                        while (width > wantedWidth) {
+                            width = width - 100;
+                        }
+                        // We create a canvas and get its context.
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+
+                        // We set the dimensions at the wanted size.
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // We resize the image with the canvas method drawImage();
+                        ctx.drawImage(this, 0, 0, width, height);
+
+                        var dataURI = canvas.toDataURL();
+                        retornar = dataURI;
+                        resolve(retornar);
+                        /////////////////////////////////////////
+                        // Use and treat your Data URI here !! //
+                        /////////////////////////////////////////
+                    } else {
+                        resolve(datas);
+                    }
+
+
+                };
+            })
+
+
+
+
+
+
+        }
+        function getBase6422(event, id) {
+            var input = event.target;
+
+            var reader = new FileReader();
+            reader.onload = function() {
+                var dataURL = reader.result;
+
+
+                var imgResized = "";
+
+                resizedataURL2(dataURL, 600, 600).then((resized) => {
+                    imgResized = resized;
+                    var detalle = {
+                        id: id,
+                        base64: imgResized//dataURL
+                    }
+                    documentosbase642.push(detalle);
+                });
+
+
+
+
+
+            };
+            reader.readAsDataURL(input.files[0]);
+
+
+        }
+
+        function eliminar2(id) {
+            documentosbase642.splice(documentosbase642.indexOf(documentosbase642.find(a => a.id == id)), 1)
+        }
+
+        file2.addEventListener('change', function(e) {
+
+            for (var i = 0; i < file2.files.length; i++) {
+                var thumbnail_id = Math.floor(Math.random() * 30000) + '_' + Date.now();
+                createThumbnail2(file2, i, thumbnail_id);
+                formData2.append(thumbnail_id, file2.files[i]);
+            }
+            getBase6422(e, thumbnail_id);
+            e.target.value = '';
+
+        });
+
+
+
+        var createThumbnail2 = function(file, iterator, thumbnail_id) {
+            var thumbnail = document.createElement('div');
+            thumbnail.classList.add('thumbnail', thumbnail_id);
+            thumbnail.dataset.id = thumbnail_id;
+
+            thumbnail.setAttribute('style', `background-image: url(${URL.createObjectURL(file.files[iterator])})`);
+            document.getElementById('preview-images2').appendChild(thumbnail);
+            createCloseButton(thumbnail_id);
+        }
+
+        var createCloseButton = function(thumbnail_id) {
+            var closeButton = document.createElement('div');
+            closeButton.classList.add('close-button');
+            closeButton.innerText = 'x';
+            document.getElementsByClassName(thumbnail_id)[0].appendChild(closeButton);
+        }
+
+        var clearFormDataAndThumbnails = function() {
+            for (var key of formData2.keys()) {
+                formData2.delete(key);
+            }
+
+            document.querySelectorAll('.thumbnail').forEach(function(thumbnail) {
+                thumbnail.remove();
+            });
+        }
+
+
+        document.body.addEventListener('click', function(e) {
+            if (e.target.classList.contains('close-button')) {
+                e.target.parentNode.remove();
+                formData2.delete(e.target.parentNode.dataset.id);
+                eliminar2(e.target.parentNode.dataset.id);
+
+            }
+        });
+
+
+    </script>
 }
     @using Microsoft.AspNetCore.Http
     @using System;
@@ -115,7 +692,7 @@
                 </div>
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input asp-for="Input.id" hidden />
+                    <input asp-for="Input.id" hidden id="idLlamada" />
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -146,11 +723,11 @@
                                     if (!string.IsNullOrEmpty(Roles.Where(a => a == "33").FirstOrDefault()))
                                     {
 
-                                                    <input type="date" class="form-control form-control-lg" id="fecsiso" placeholder="" asp-for="Input.FechaSISO">
+                                        <input type="date" class="form-control form-control-lg" id="fecsiso" placeholder="" asp-for="Input.FechaSISO">
                                     }
                                     else
                                     {
-                                                    <input type="date" class="form-control form-control-lg" id="fecsiso" placeholder="" asp-for="Input.FechaSISO" readonly>
+                                        <input type="date" class="form-control form-control-lg" id="fecsiso" placeholder="" asp-for="Input.FechaSISO" readonly>
                                     }
 
                                 }
@@ -163,7 +740,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Estado:</label>
-                                <select id="status" class="form-control" asp-for="Input.Status" required>
+                                <select id="status" class="form-control" asp-for="Input.Status" required onchange="javascript:onChangeStatus()">
                                     <!-- <option value="0">Seleccione</option> -->
                                     @foreach (var item in Model.Status)
                                     {
@@ -246,19 +823,10 @@
                         </div>
 
                         <div class="col-sm-6">
-                            @*<div class="form-group">
-                            <label>Garantía:</label>
-                            <select id="garantia" class="form-control" asp-for="Input.Garantia" required>
-                            <option value="0">Seleccione</option>
-                            @foreach (var item in Model.Garantias)
-                            {
-                            <option value="@item.idSAP">@item.Nombre</option>
-                            }
-                            </select>
-                            </div>*@
+
                             <div class="form-group">
                                 <label>Técnico:</label>
-                                <select id="srt" class="form-control" asp-for="Input.Tecnico" required>
+                                <select id="tecnico" class="form-control" asp-for="Input.Tecnico" required>
                                     <option value="0">Seleccione</option>
                                     @foreach (var item in Model.Tecnicos)
                                     {
@@ -303,7 +871,7 @@
 
                                     }
                                 </select>
-@*
+                                @*
                                 //<input type="text" class="form-control form-control-lg" id="asunto" placeholder="Asunto" asp-for="Input.Asunto">*@
 
 
@@ -323,6 +891,45 @@
             </div>
         </div>
     </div>
+    <div class="row" id="rowIdentificacion">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Entregado a:</h5>
+
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div id="wrapper">
+
+                        <div id="container-input">
+                            <div class="wrap-file">
+                                <div class="content-icon-camera">
+                                    <input type="file" id="file2" name="file[]" accept="image/*" multiple />
+                                    <div class="icon-camera"></div>
+                                </div>
+                                <div id="preview-images2">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="preload2">
+                            <img src="~/preloader.gif" alt="preload" />
+                        </div>
+                        <h2 id="success"></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
@@ -339,12 +946,81 @@
 
     </div>
     <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Adjuntos</h5>
+
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div id="menu">
+                        @foreach (var item in Model.Input.Adjuntos)
+                        {
+                            <img src='data:image/png;base64,@item.base64' id="@item.id-Adj" name='fotos1' onclick="javascript: onclickImageAdj(@item.id)" />
+
+                        }
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Documentos de Identidad</h5>
+
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div id="menu">
+                        @foreach (var item in Model.Input.AdjuntosIdentificacion)
+                        {
+                            <img src='data:image/png;base64,@item.base64' id="@item.id" name='fotos1' onclick="javascript: onclickImage(@item.id)" />
+
+                        }
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
         <div class="col-md-12">
             <div class="form-group">
                 <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta()">PDF</button>
-                                        &nbsp;
+                &nbsp;
                 <button type="button" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar()">Guardar Cambios</button>
             </div>
         </div>
     </div>
 </form>
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <span class="close">×</span>
+    <img class="modal-content" id="img01">
+
+</div>

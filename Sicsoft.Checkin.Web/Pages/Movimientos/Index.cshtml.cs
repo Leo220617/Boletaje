@@ -91,6 +91,14 @@ namespace Boletaje.Pages.Movimientos
 
                 return Page();
             }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message.ToString());
+
+
+                return Page();
+            }
         }
 
         public async Task<IActionResult> OnGetReenviar(int id, string correos)

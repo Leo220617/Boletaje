@@ -22,5 +22,7 @@ namespace Boletaje.Models
         public string BodegaFinal { get; set; }
         public DetReparacionViewModel[] Detalle { get; set; }
         public AdjuntosViewModel[] Adjuntos { get; set; }
+        public AdjuntosIdentificacionViewModel[] AdjuntosIdentificacion { get; set; }
+
     }
 }

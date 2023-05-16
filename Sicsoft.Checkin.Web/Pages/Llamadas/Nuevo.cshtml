@@ -250,7 +250,11 @@
             text-align: center;
         }
 
-
+        .preload2 {
+            padding-top: 20px;
+            text-align: center;
+            display: none;
+        }
 
         .preload {
             padding-top: 20px;
@@ -262,6 +266,10 @@
             display: block;
         }
 
+        .activate-preload2 {
+            display: block;
+        }
+
         #container-input {
             width: 640px;
             margin: 0 auto;
@@ -269,6 +277,21 @@
             position: relative;
             overflow: hidden;
         }
+
+
+            #container-input .wrap-file .content-icon-camera #file2 {
+                padding: 15px;
+                opacity: 0;
+                position: relative;
+                cursor: pointer;
+                left: -120px;
+                z-index: 1;
+            }
+
+
+
+
+
 
             #container-input .wrap-file .content-icon-camera {
                 width: 55px;
@@ -313,6 +336,34 @@
                 }
 
                 #container-input .wrap-file #preview-images .thumbnail .close-button {
+                    width: 20px;
+                    height: 20px;
+                    background-color: black;
+                    color: white;
+                    text-align: center;
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    border-radius: 100px;
+                    cursor: pointer;
+                }
+
+
+            #container-input .wrap-file #preview-images2 .thumbnail {
+                width: 120px;
+                height: 120px;
+                display: inline-block;
+                vertical-align: middle;
+                border: solid 2px #CCC;
+                background-size: cover;
+                position: relative;
+            }
+
+                #container-input .wrap-file #preview-images2 .thumbnail:not(:last-child) {
+                    margin-right: 5px;
+                }
+
+                #container-input .wrap-file #preview-images2 .thumbnail .close-button {
                     width: 20px;
                     height: 20px;
                     background-color: black;
@@ -523,10 +574,14 @@
             } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {
                 return false;
 
+            } else if (recibido1.Status == -1 || recibido1.Status == -3) {
+                if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
+                    return false;
+                }
             }
-            else {
-                return true;
-            }
+
+            return true;
+
         }
 
         function onGuardar() {
@@ -534,7 +589,7 @@
                 btn.disabled = true;
 
                 var bases64 = [];
-
+                var bases64I = [];
                 for (var i = 0; i < documentosbase64.length; i++) {
 
                     var det = {
@@ -544,6 +599,17 @@
 
                     };
                     bases64.push(det);
+
+                }
+                for (var i = 0; i < documentosbase642.length; i++) {
+
+                    var det = {
+                        id: 0,
+                        idEncabezado: 0,
+                        base64: documentosbase642[i].base64
+
+                    };
+                    bases64I.push(det);
 
                 }
                 var recibido1 =
@@ -574,7 +640,8 @@
                     EmailPersonaContacto: $("#emailPersonaContacto").val(),
                     NumeroPersonaContacto: $("#telefonoPersonaContacto").val(),
 
-                    Adjuntos: bases64
+                    Adjuntos: bases64,
+                    AdjuntosIdentificacion: bases64I
                 }
 
                 if (!ValidaForm(recibido1)) {
@@ -655,6 +722,7 @@
 
                                 },
                                 error: function(error) {
+                                    btn.disabled = false;
 
                                 }
                             });
@@ -682,19 +750,43 @@
         }
     </script>
     <script>
-
+        var bandera = false;
+        var anterior = "";
+        var valorEscogido = 0;
         $(document).ready(function() {
             $('.select2').select2({
                 width: 'resolve',
                 theme: "classic"
             });
-        });
 
+            onChangeStatus();
+        });
+        function onChangeStatus() {
+            try {
+                if ($("#status").val() == -1 || $("#status").val() == -3) {
+                    $("#rowIdentificacion").show();
+                } else {
+                    $("#rowIdentificacion").hide();
+
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar cambiar ' + e
+
+                })
+            }
+
+        }
         function rellenaProductos(lista) {
             try {
                 var sOptions = '';
 
                 $("#productos").html('');
+                    sOptions += ' <option selected value="0">Seleccione</option>';
+
                 for (var i = 0; i < lista.length; i++) {
 
                     sOptions += ' <option value="' + lista[i].itemCode + ' / ' + lista[i].manufSN + '">' + lista[i].itemCode + ' - ' + lista[i].itemName + ' - ' + lista[i].manufSN + '</option>';
@@ -711,17 +803,103 @@
                 })
             }
         }
+        function rellenaClientes(lista) {
+            try {
+                var sOptions = '';
+
+                $("#cardcodes").html('');
+                for (var i = 0; i < lista.length; i++) {
+                    if (lista[i] != null) {
+                        sOptions += ' <option selected value="' + lista[i].cardCode + ' / ' + lista[i].cardName + '">' + lista[i].cardCode + ' - ' + lista[i].cardName + '</option>';
+
+                    }
+
+                }
+                $("#cardcodes").html(sOptions);
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar guardar ' + e + ' - ' + e.stack
+
+                })
+            }
+        }
 
         function cambiarProducto() {
             try {
+
+
+
                 var CardCode = $("#cardcode").val();
                 CardCode = CardCode.split("/")[0];
+                 
+
+
+                if ($("#rBusqueda").val() == 0) {
+                    $.ajax({
+                        type: 'GET',
+
+                        url: '@Url.Page("Nuevo", "Productos")',
+                        dataType: 'json',
+                        data: { idB: CardCode },
+                        headers: {
+                            RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(json) {
+
+                            console.log(json);
+                    $("#productos").val('');
+
+                            rellenaProductos(json);
+
+                        },
+
+                        beforeSend: function(xhr) {
+
+
+                        },
+                        complete: function() {
+
+                        },
+                        error: function(error) {
+
+                        }
+                    });
+                }
+
+
+
+
+
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e + ' - ' + e.stack
+
+                })
+            }
+
+        }
+        function cambiarProducto2(i) {
+            try {
+
+
+
+
+
+
                 $.ajax({
                     type: 'GET',
 
                     url: '@Url.Page("Nuevo", "Productos")',
                     dataType: 'json',
-                    data: { idB: CardCode },
+                    data: { idB: "0" },
                     headers: {
                         RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                     },
@@ -745,6 +923,11 @@
                     }
                 });
 
+
+
+
+
+
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -756,6 +939,134 @@
 
         }
 
+        function cambiarCliente() {
+            try {
+                var itemcode = $("#productos").val();
+              
+
+
+                //itemcode = itemcode.split("/")[1];
+                if ($("#rBusqueda").val() == 1) {
+                    $.ajax({
+                        type: 'GET',
+
+                        url: '@Url.Page("Nuevo", "Clientes")',
+                        dataType: 'json',
+                        data: { idB: itemcode },
+                        headers: {
+                            RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(json) {
+
+                            console.log(json);
+                            $("#cardcode").val("");
+
+                            rellenaClientes(json);
+
+                        },
+
+                        beforeSend: function(xhr) {
+
+
+                        },
+                        complete: function() {
+
+                        },
+                        error: function(error) {
+
+                        }
+                    });
+                }
+
+
+
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e + ' - ' + e.stack
+
+                })
+            }
+
+        }
+
+        function cambiarCliente2(i) {
+            try {
+
+
+                $.ajax({
+                    type: 'GET',
+
+                    url: '@Url.Page("Nuevo", "Clientes")',
+                    dataType: 'json',
+                    data: { idB: "0" },
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(json) {
+
+                        console.log(json);
+
+                        rellenaClientes(json);
+
+                    },
+
+                    beforeSend: function(xhr) {
+
+
+                    },
+                    complete: function() {
+
+                    },
+                    error: function(error) {
+
+                    }
+                });
+
+
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e + ' - ' + e.stack
+
+                })
+            }
+
+        }
+        function cambiarBusqueda() {
+            try {
+                if ($("#rBusqueda").val() == 0) {
+                    $("#cardcodes").html('');
+                    $("#cardcode").val("");
+                    $("#productos").html('');
+                    $("#productos").val('');
+
+                    cambiarCliente2("0");
+                } else {
+                    $("#cardcodes").html('');
+                    $("#cardcode").val("");
+                    $("#productos").html('');
+                    $("#productos").val('');
+
+                    cambiarProducto2("0");
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
     </script>
 
     <script type="text/javascript">
@@ -765,22 +1076,7 @@
         var formData = new FormData();
         var documentosbase64 = [];
 
-        //function getBase64(file, id) {
-        //    var reader = new FileReader();
-        //    reader.readAsDataURL(file);
-        //    reader.onload = function () {
-        //        console.log(reader.result);
-        //        var detalle = {
-        //            id: id,
-        //            idEncabezado: 0,
-        //            base64: reader.result
-        //        }
-        //        documentosbase64.push(detalle);
-        //    };
-        //    reader.onerror = function (error) {
-        //        console.log('Error: ', error);
-        //    };
-        //}
+
 
         function resizedataURL(datas, wantedWidth, wantedHeight) {
 
@@ -925,6 +1221,162 @@
 
 
     </script>
+
+
+    <script type="text/javascript">
+        var file2 = document.getElementById('file2');
+        var preload2 = document.querySelector('.preload2');
+
+        var formData2 = new FormData();
+        var documentosbase642 = [];
+
+
+
+        function resizedataURL2(datas, wantedWidth, wantedHeight) {
+
+            return new Promise((resolve, reject) => {
+                // We create an image to receive the Data URI
+                var img2 = document.createElement('img');
+                var retornar = "";
+                // We put the Data URI in the image's src attribute
+                img2.src = datas;
+                // When the event "onload" is triggered we can resize the image.
+                img2.onload = function() {
+
+                    var height = this.height;
+                    var width = this.width;
+
+
+
+
+
+                    if (height > wantedHeight && width > wantedWidth) {
+                        while (height > wantedHeight) {
+
+                            height = height - 100;
+                        }
+                        while (width > wantedWidth) {
+                            width = width - 100;
+                        }
+                        // We create a canvas and get its context.
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+
+                        // We set the dimensions at the wanted size.
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // We resize the image with the canvas method drawImage();
+                        ctx.drawImage(this, 0, 0, width, height);
+
+                        var dataURI = canvas.toDataURL();
+                        retornar = dataURI;
+                        resolve(retornar);
+                        /////////////////////////////////////////
+                        // Use and treat your Data URI here !! //
+                        /////////////////////////////////////////
+                    } else {
+                        resolve(datas);
+                    }
+
+
+                };
+            })
+
+
+
+
+
+
+        }
+        function getBase6422(event, id) {
+            var input = event.target;
+
+            var reader = new FileReader();
+            reader.onload = function() {
+                var dataURL = reader.result;
+
+
+                var imgResized = "";
+
+                resizedataURL2(dataURL, 600, 600).then((resized) => {
+                    imgResized = resized;
+                    var detalle = {
+                        id: id,
+                        base64: imgResized//dataURL
+                    }
+                    documentosbase642.push(detalle);
+                });
+
+
+
+
+
+            };
+            reader.readAsDataURL(input.files[0]);
+
+
+        }
+
+        function eliminar2(id) {
+            documentosbase642.splice(documentosbase642.indexOf(documentosbase642.find(a => a.id == id)), 1)
+        }
+
+        file2.addEventListener('change', function(e) {
+
+            for (var i = 0; i < file2.files.length; i++) {
+                var thumbnail_id = Math.floor(Math.random() * 30000) + '_' + Date.now();
+                createThumbnail2(file2, i, thumbnail_id);
+                formData2.append(thumbnail_id, file2.files[i]);
+            }
+            getBase6422(e, thumbnail_id);
+            e.target.value = '';
+
+        });
+
+
+
+        var createThumbnail2 = function(file, iterator, thumbnail_id) {
+            var thumbnail = document.createElement('div');
+            thumbnail.classList.add('thumbnail', thumbnail_id);
+            thumbnail.dataset.id = thumbnail_id;
+
+            thumbnail.setAttribute('style', `background-image: url(${URL.createObjectURL(file.files[iterator])})`);
+            document.getElementById('preview-images2').appendChild(thumbnail);
+            createCloseButton(thumbnail_id);
+        }
+
+        var createCloseButton = function(thumbnail_id) {
+            var closeButton = document.createElement('div');
+            closeButton.classList.add('close-button');
+            closeButton.innerText = 'x';
+            document.getElementsByClassName(thumbnail_id)[0].appendChild(closeButton);
+        }
+
+        var clearFormDataAndThumbnails = function() {
+            for (var key of formData2.keys()) {
+                formData2.delete(key);
+            }
+
+            document.querySelectorAll('.thumbnail').forEach(function(thumbnail) {
+                thumbnail.remove();
+            });
+        }
+
+
+        document.body.addEventListener('click', function(e) {
+            if (e.target.classList.contains('close-button')) {
+                e.target.parentNode.remove();
+                formData2.delete(e.target.parentNode.dataset.id);
+                eliminar2(e.target.parentNode.dataset.id);
+
+            }
+        });
+
+
+    </script>
+
+
 }
 
     <img hidden id="imagenPrueba" />
@@ -949,15 +1401,27 @@
                 </div>
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Realiza búsqueda por:</label>
+                            <select id="rBusqueda" class="form-control" required onchange="javascript: cambiarBusqueda();">
+                                <option value="0">Cliente</option>
+                                <option value="1">Producto</option>
 
+
+                            </select>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Cliente:</label>
 
-                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="Input.CardCode" onchange="javascript: cambiarProducto();">
+                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="Input.CardCode" onchange="javascript: cambiarProducto();" autocomplete="off">
 
                                 <datalist id="cardcodes">
+                                    <option value="0/0">Seleccione</option>
+
                                     @foreach (var item in Model.Clientes.Clientes)
                                 {
                                     <option value="@item.CardCode / @item.CardName"> </option>
@@ -971,9 +1435,12 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Producto:</label>
-                            <select id="productos" class="form-control select2" asp-for="Input.ItemCode" required>
+                            <select id="productos" class="form-control select2" asp-for="Input.ItemCode" required onchange="javascript: cambiarCliente();">
                                 <option value="0">Seleccione</option>
-
+                                @*  @foreach (var item in Model.Productos.Productos)
+                                {
+                                <option value="@item.itemCode / @item.manufSN"> @item.itemCode  -  @item.itemName  -  @item.manufSN</option>
+                                }*@
                             </select>
                             <a asp-page="/Boletas/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Tarjeta Equipo</a>
                         </div>
@@ -982,7 +1449,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Estado:</label>
-                            <select id="status" class="form-control" asp-for="Input.Status" required>
+                            <select id="status" class="form-control" asp-for="Input.Status" required onchange="javascript: onChangeStatus()">
                                 <!-- <option value="0">Seleccione</option>-->
                                 @foreach (var item in Model.Status)
                                 {
@@ -1246,6 +1713,46 @@
 
                     </div>
                     <div class="preload">
+                        <img src="~/preloader.gif" alt="preload" />
+                    </div>
+                    <h2 id="success"></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row" id="rowIdentificacion">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Entregado por:</h5>
+
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div id="wrapper">
+
+                    <div id="container-input">
+                        <div class="wrap-file">
+                            <div class="content-icon-camera">
+                                <input type="file" id="file2" name="file[]" accept="image/*" multiple asp-for="AdjuntosIdentificacion" />
+                                <div class="icon-camera"></div>
+                            </div>
+                            <div id="preview-images2">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="preload2">
                         <img src="~/preloader.gif" alt="preload" />
                     </div>
                     <h2 id="success"></h2>

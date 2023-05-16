@@ -58,5 +58,7 @@ namespace Boletaje.Models
         public string EmailPersonaContacto { get; set; }
         public string NumeroPersonaContacto { get; set; }
         public List<AdjuntosViewModel> Adjuntos { get; set; }
+        public List<AdjuntosIdentificacionViewModel> AdjuntosIdentificacion { get; set; }
+
     }
 }

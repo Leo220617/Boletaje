@@ -39,7 +39,7 @@ namespace Boletaje.Pages.Llamadas
         public ProductosViewModel Productos { get; set; }
 
         [BindProperty]
-        
+
         public GarantiasViewModel[] Garantias { get; set; }
 
         [BindProperty]
@@ -61,6 +61,8 @@ namespace Boletaje.Pages.Llamadas
 
         [BindProperty]
         public AdjuntosViewModel[] Adjuntos { get; set; }
+        [BindProperty]
+        public AdjuntosIdentificacionViewModel[] AdjuntosIdentificacion { get; set; }
 
         [BindProperty]
         public AsuntosViewModel[] Asuntos { get; set; }
@@ -97,7 +99,15 @@ namespace Boletaje.Pages.Llamadas
                 Status = await status.ObtenerLista("");
                 Input = new LlamadasViewModel();
                 Input.Horas = 0;
+                Productos = await prods.ObtenerListaEspecial("");
                 return Page();
+            }
+            catch (ApiException ex)
+            {
+
+
+
+                return new JsonResult(ex.Content.ToString());
             }
             catch (Exception ex)
             {
@@ -114,16 +124,21 @@ namespace Boletaje.Pages.Llamadas
 
 
                 //var ids = Convert.ToInt32(id);
-
-
-
                 idB = idB.Replace(" ", "");
 
 
-                var objetos = await prods.ObtenerListaEspecial("");
 
-                var objeto = objetos.Productos.Where(a => a.customer.ToString().Contains(idB.ToUpper()) 
-                ).ToList();
+
+                var objetos = await prods.ObtenerListaEspecial("");
+                var objeto = objetos.Productos.ToList();
+                if (idB != "0")
+                {
+                     objeto = objetos.Productos.Where(a => a.customer.ToString().Contains(idB.ToUpper())
+               ).ToList();
+                }
+
+
+
 
 
 
@@ -131,21 +146,101 @@ namespace Boletaje.Pages.Llamadas
             }
             catch (ApiException ex)
             {
-                 
+
 
 
                 return new JsonResult(ex.Content.ToString());
             }
+            catch (Exception ex)
+            {
+
+
+
+                return new JsonResult(ex.Message.ToString());
+            }
         }
 
 
+        public async Task<IActionResult> OnGetClientes(string idB)
+        {
+            try
+            {
 
+
+                //var ids = Convert.ToInt32(id);
+                if (idB != "0")
+                {
+                    var itemCode = idB.Split("/")[0].Replace(" ", "");
+                    idB = idB.Split("/")[1];
+                    idB = idB.Replace(" ", "");
+
+
+                    var prod = await prods.ObtenerListaEspecial("");
+                    var prod1 = prod.Productos.Where(a => a.manufSN == idB && a.itemCode == itemCode).ToList();
+                    var objetos = await clientes.ObtenerListaEspecial("");
+
+
+                    var objeto = new List<cliente>();
+
+                    foreach (var item in prod1)
+                    {
+                        objeto.Add(objetos.Clientes.Where(a => a.CardCode.ToString().Contains(item.customer)
+                    ).FirstOrDefault());
+                    }
+
+
+
+
+
+                    return new JsonResult(objeto);
+                }
+                else
+                {
+                  
+
+
+                    var prod = await prods.ObtenerListaEspecial("");
+                    var prod1 = prod.Productos.ToList();
+                    var objetos = await clientes.ObtenerListaEspecial("");
+
+
+                    var objeto = new List<cliente>();
+
+                    foreach (var item in prod1)
+                    {
+                        objeto.Add(objetos.Clientes.Where(a => a.CardCode.ToString().Contains(item.customer)
+                    ).FirstOrDefault());
+                    }
+
+
+
+
+
+                    return new JsonResult(objeto);
+                }
+                 
+            }
+            catch (ApiException ex)
+            {
+
+
+
+                return new JsonResult(ex.Content.ToString());
+            }
+            catch (Exception ex)
+            {
+
+
+
+                return new JsonResult(ex.Message.ToString());
+            }
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
             try
             {
-                Input.TratadoPor = Convert.ToInt32( ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+                Input.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
                 Input.CardCode = Input.CardCode.Split("/")[0].Replace(" ", "");
                 var item = Input.ItemCode;
                 Input.ItemCode = item.Split("/")[0].TrimEnd();
@@ -162,6 +257,14 @@ namespace Boletaje.Pages.Llamadas
 
                 return Page();
             }
+
+            catch (Exception ex)
+            {
+
+
+
+                return new JsonResult(ex.Message.ToString());
+            }
         }
 
         //Experimento de mandar los adjuntos por la llamada
@@ -170,7 +273,7 @@ namespace Boletaje.Pages.Llamadas
         {
             try
             {
-                
+
 
                 LlamadasViewModel coleccion = new LlamadasViewModel();
                 coleccion.id = 0;
@@ -196,8 +299,10 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.EmailPersonaContacto = recibido.EmailPersonaContacto;
                 coleccion.NumeroPersonaContacto = recibido.NumeroPersonaContacto;
                 coleccion.Adjuntos = new List<AdjuntosViewModel>();
+                coleccion.AdjuntosIdentificacion = new List<AdjuntosIdentificacionViewModel>();
 
-                if(recibido.Adjuntos != null)
+
+                if (recibido.Adjuntos != null)
                 {
                     var cantidad = 1;
                     foreach (var item1 in recibido.Adjuntos)
@@ -208,7 +313,17 @@ namespace Boletaje.Pages.Llamadas
                         cantidad++;
                     }
                 }
-               
+                if (recibido.AdjuntosIdentificacion != null)
+                {
+                    var cantidad = 1;
+                    foreach (var item1 in recibido.AdjuntosIdentificacion)
+                    {
+                        var adjunto = new AdjuntosIdentificacionViewModel();
+                        adjunto.base64 = item1.base64;
+                        coleccion.AdjuntosIdentificacion.Add(adjunto);
+                        cantidad++;
+                    }
+                }
 
 
 
@@ -222,6 +337,17 @@ namespace Boletaje.Pages.Llamadas
 
                 return new JsonResult(obj);
 
+            }
+            catch (ApiException ex)
+            {
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
             }
             catch (Exception ex)
             {

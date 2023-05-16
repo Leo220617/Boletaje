@@ -438,6 +438,15 @@
             }
             $("#tbody1").html(sOptions);
         }
+        function GuardarCantidad(i)
+        {
+            try{
+                ProdCadenaM[i].Cantidad = $("#cantidad-" + i).val();
+            }catch(e)
+            {
+
+            }
+        }
         function RellenaTablaM() {
             var sOptions = '';
 
@@ -446,7 +455,7 @@
             for (var i = 0; i < ProdCadenaM.length; i++) {
                 sOptions += '<tr>'
                 sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].ItemCode + '</p></td>';
-                sOptions += '<td align="left" style="padding-top:15px;">  <input id="cantidad-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '"  type="number" /> </td>';
+                sOptions += '<td align="left" style="padding-top:15px;">  <input id="cantidad-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '" onchange="javascript: GuardarCantidad('+i+')"  type="number" /> </td>';
                 sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].Stock + '</p></td>';
 
 
