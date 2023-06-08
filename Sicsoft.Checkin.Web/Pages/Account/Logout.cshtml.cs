@@ -30,10 +30,7 @@ namespace Sicsoft.Checkin.Web
             }
             else
             {
-                // This needs to be a redirect so that the browser performs a new
-                // request and the identity for the user gets updated.
-               // return RedirectToPage();
-                string url = "/Account/Login";
+                 
 
                 return Redirect("./Index");
             }

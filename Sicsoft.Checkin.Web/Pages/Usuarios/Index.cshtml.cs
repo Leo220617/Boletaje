@@ -66,7 +66,7 @@ namespace InversionGloblalWeb.Pages.Usuarios
 
                 return new JsonResult(true);
             }
-            catch (ApiException ex)
+            catch (ApiException)
             {
                 return new JsonResult(false);
             }

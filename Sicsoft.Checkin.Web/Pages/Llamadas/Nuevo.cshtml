@@ -29,7 +29,7 @@
     </li>
 
 }
-    @section styles{
+@section styles{
     <style type="text/css">
         body {
             padding-top: 20px;
@@ -408,7 +408,7 @@
     </style>
 }
 
-    @section scripts{
+@section scripts{
 
 
     <script type="text/javascript">
@@ -421,16 +421,16 @@
             http://bencentra.com/canvas/signature/signature.html - https://bencentra.com/code/2014/12/05/html5-canvas-touch-events.html
         */
 
-        (function() { // Comenzamos una funcion auto-ejecutable
+        (function () { // Comenzamos una funcion auto-ejecutable
 
             // Obtenenemos un intervalo regular(Tiempo) en la pamtalla
-            window.requestAnimFrame = (function(callback) {
+            window.requestAnimFrame = (function (callback) {
                 return window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     window.oRequestAnimationFrame ||
                     window.msRequestAnimaitonFrame ||
-                    function(callback) {
+                    function (callback) {
                         window.setTimeout(callback, 1000 / 60);
                         // Retrasa la ejecucion de la funcion para mejorar la experiencia
                     };
@@ -446,7 +446,7 @@
             //var drawImage = document.getElementById("draw-image");
             var clearBtn = document.getElementById("draw-clearBtn");
             /*  *//*  var submitBtn = document.getElementById("draw-submitBtn");*/
-            clearBtn.addEventListener("click", function(e) {
+            clearBtn.addEventListener("click", function (e) {
                 // Definimos que pasa cuando el boton draw-clearBtn es pulsado
                 clearCanvas();
                 // drawImage.setAttribute("src", "");
@@ -462,7 +462,7 @@
             var drawing = false;
             var mousePos = { x: 0, y: 0 };
             var lastPos = mousePos;
-            canvas.addEventListener("mousedown", function(e) {
+            canvas.addEventListener("mousedown", function (e) {
                 /*
                   Mas alla de solo llamar a una funcion, usamos function (e){...}
                   para mas versatilidad cuando ocurre un evento
@@ -473,17 +473,17 @@
                 drawing = true;
                 lastPos = getMousePos(canvas, e);
             }, false);
-            canvas.addEventListener("mouseup", function(e) {
+            canvas.addEventListener("mouseup", function (e) {
                 drawing = false;
                 $("#Firma").val(canvas.toDataURL());
 
             }, false);
-            canvas.addEventListener("mousemove", function(e) {
+            canvas.addEventListener("mousemove", function (e) {
                 mousePos = getMousePos(canvas, e);
             }, false);
 
             // Activamos touchEvent para nuestra pagina
-            canvas.addEventListener("touchstart", function(e) {
+            canvas.addEventListener("touchstart", function (e) {
                 mousePos = getTouchPos(canvas, e);
                 console.log(mousePos);
                 e.preventDefault(); // Prevent scrolling when touching the canvas
@@ -494,14 +494,14 @@
                 });
                 canvas.dispatchEvent(mouseEvent);
             }, false);
-            canvas.addEventListener("touchend", function(e) {
+            canvas.addEventListener("touchend", function (e) {
                 e.preventDefault(); // Prevent scrolling when touching the canvas
                 var mouseEvent = new MouseEvent("mouseup", {});
                 canvas.dispatchEvent(mouseEvent);
                 $("#Firma").val(canvas.toDataURL());
 
             }, false);
-            canvas.addEventListener("touchleave", function(e) {
+            canvas.addEventListener("touchleave", function (e) {
                 // Realiza el mismo proceso que touchend en caso de que el dedo se deslice fuera del canvas
                 e.preventDefault(); // Prevent scrolling when touching the canvas
                 var mouseEvent = new MouseEvent("mouseup", {});
@@ -509,7 +509,7 @@
                 $("#Firma").val(canvas.toDataURL());
 
             }, false);
-            canvas.addEventListener("touchmove", function(e) {
+            canvas.addEventListener("touchmove", function (e) {
                 e.preventDefault(); // Prevent scrolling when touching the canvas
                 var touch = e.touches[0];
                 var mouseEvent = new MouseEvent("mousemove", {
@@ -694,7 +694,7 @@
                                 headers: {
                                     RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                                 },
-                                success: function(json) {
+                                success: function (json) {
 
                                     $("#divProcesando").hide();
 
@@ -733,19 +733,24 @@
                                     }
                                 },
 
-                                beforeSend: function(xhr) {
+                                beforeSend: function (xhr) {
 
                                     $("#divProcesando").modal("show");
                                 },
-                                complete: function() {
+                                complete: function () {
+                                    $("#divProcesando").modal("hide");
 
                                 },
-                                error: function(error) {
+                                error: function (error) {
+                                    $("#divProcesando").modal("hide");
+
                                     btn.disabled = false;
 
                                 }
                             });
                         } else {
+                            $("#divProcesando").modal("hide");
+
                             btn.disabled = false;
                         }
                     }
@@ -756,6 +761,8 @@
                 btn.disabled = false;
                 //$("#formTipos").submit();
             } catch (e) {
+                $("#divProcesando").modal("hide");
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -772,7 +779,7 @@
         var bandera = false;
         var anterior = "";
         var valorEscogido = 0;
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('.select2').select2({
                 width: 'resolve',
                 theme: "classic"
@@ -785,7 +792,7 @@
                 var RolIdentificacion = "@(!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))";
 
                 if (RolIdentificacion == "False") {
-                        $("#rowIdentificacion").hide();
+                    $("#rowIdentificacion").hide();
 
                 } else {
 
@@ -875,7 +882,7 @@
                         headers: {
                             RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                         },
-                        success: function(json) {
+                        success: function (json) {
 
                             console.log(json);
                             $("#productos").val('');
@@ -886,14 +893,14 @@
 
                         },
 
-                        beforeSend: function(xhr) {
+                        beforeSend: function (xhr) {
 
 
                         },
-                        complete: function() {
+                        complete: function () {
 
                         },
-                        error: function(error) {
+                        error: function (error) {
 
                         }
                     });
@@ -919,11 +926,6 @@
         function cambiarProducto2(i) {
             try {
 
-
-
-
-
-
                 $.ajax({
                     type: 'GET',
 
@@ -933,7 +935,7 @@
                     headers: {
                         RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                     },
-                    success: function(json) {
+                    success: function (json) {
 
                         console.log(json);
                         $("#divProcesando").modal("hide");
@@ -944,24 +946,22 @@
 
                     },
 
-                    beforeSend: function(xhr) {
+                    beforeSend: function (xhr) {
 
                         $("#divProcesando").modal("show");
                     },
-                    complete: function() {
+                    complete: function () {
                         $("#divProcesando").modal("hide");
                     },
-                    error: function(error) {
+                    error: function (error) {
                         $("#divProcesando").modal("hide");
                     }
                 });
 
 
-
-
-
-
             } catch (e) {
+                $("#divProcesando").modal("hide");
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -989,7 +989,7 @@
                         headers: {
                             RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                         },
-                        success: function(json) {
+                        success: function (json) {
 
                             console.log(json);
                             $("#cardcode").val("");
@@ -999,14 +999,14 @@
 
                         },
 
-                        beforeSend: function(xhr) {
+                        beforeSend: function (xhr) {
 
 
                         },
-                        complete: function() {
+                        complete: function () {
 
                         },
-                        error: function(error) {
+                        error: function (error) {
 
                         }
                     });
@@ -1041,7 +1041,7 @@
                     headers: {
                         RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                     },
-                    success: function(json) {
+                    success: function (json) {
 
                         console.log(json);
                         $("#divProcesando").modal("hide");
@@ -1053,14 +1053,14 @@
 
                     },
 
-                    beforeSend: function(xhr) {
+                    beforeSend: function (xhr) {
 
                         $("#divProcesando").modal("show");
                     },
-                    complete: function() {
+                    complete: function () {
                         $("#divProcesando").modal("hide");
                     },
-                    error: function(error) {
+                    error: function (error) {
                         $("#divProcesando").modal("hide");
                     }
                 });
@@ -1070,6 +1070,8 @@
 
 
             } catch (e) {
+                $("#divProcesando").modal("hide");
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -1105,6 +1107,36 @@
                 })
             }
         }
+
+        function EditarTarjeta()
+        {
+            try
+            {
+                var id = $("#producto").val();
+                if(id == null || id == undefined || id == "0")
+                {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Seleccione primero un producto'
+
+                    })
+                }else{
+
+                    var id2 = id.split("/")[0].trimEnd().trim() + " | " + id.split("/")[1].trimEnd().trim();
+
+                    window.location.href = window.location.href.toString().replace("Llamadas/Nuevo", "Boletas/Editar/" + id2);
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
     </script>
 
     <script type="text/javascript">
@@ -1125,7 +1157,7 @@
                 // We put the Data URI in the image's src attribute
                 img.src = datas;
                 // When the event "onload" is triggered we can resize the image.
-                img.onload = function() {
+                img.onload = function () {
 
                     var height = this.height;
                     var width = this.width;
@@ -1177,7 +1209,7 @@
             var input = event.target;
 
             var reader = new FileReader();
-            reader.onload = function() {
+            reader.onload = function () {
                 var dataURL = reader.result;
 
 
@@ -1206,7 +1238,7 @@
             documentosbase64.splice(documentosbase64.indexOf(documentosbase64.find(a => a.id == id)), 1)
         }
 
-        file.addEventListener('change', function(e) {
+        file.addEventListener('change', function (e) {
 
             for (var i = 0; i < file.files.length; i++) {
                 var thumbnail_id = Math.floor(Math.random() * 30000) + '_' + Date.now();
@@ -1220,7 +1252,7 @@
 
 
 
-        var createThumbnail = function(file, iterator, thumbnail_id) {
+        var createThumbnail = function (file, iterator, thumbnail_id) {
             var thumbnail = document.createElement('div');
             thumbnail.classList.add('thumbnail', thumbnail_id);
             thumbnail.dataset.id = thumbnail_id;
@@ -1230,25 +1262,25 @@
             createCloseButton(thumbnail_id);
         }
 
-        var createCloseButton = function(thumbnail_id) {
+        var createCloseButton = function (thumbnail_id) {
             var closeButton = document.createElement('div');
             closeButton.classList.add('close-button');
             closeButton.innerText = 'x';
             document.getElementsByClassName(thumbnail_id)[0].appendChild(closeButton);
         }
 
-        var clearFormDataAndThumbnails = function() {
+        var clearFormDataAndThumbnails = function () {
             for (var key of formData.keys()) {
                 formData.delete(key);
             }
 
-            document.querySelectorAll('.thumbnail').forEach(function(thumbnail) {
+            document.querySelectorAll('.thumbnail').forEach(function (thumbnail) {
                 thumbnail.remove();
             });
         }
 
 
-        document.body.addEventListener('click', function(e) {
+        document.body.addEventListener('click', function (e) {
             if (e.target.classList.contains('close-button')) {
                 e.target.parentNode.remove();
                 formData.delete(e.target.parentNode.dataset.id);
@@ -1279,7 +1311,7 @@
                 // We put the Data URI in the image's src attribute
                 img2.src = datas;
                 // When the event "onload" is triggered we can resize the image.
-                img2.onload = function() {
+                img2.onload = function () {
 
                     var height = this.height;
                     var width = this.width;
@@ -1331,7 +1363,7 @@
             var input = event.target;
 
             var reader = new FileReader();
-            reader.onload = function() {
+            reader.onload = function () {
                 var dataURL = reader.result;
 
 
@@ -1360,7 +1392,7 @@
             documentosbase642.splice(documentosbase642.indexOf(documentosbase642.find(a => a.id == id)), 1)
         }
 
-        file2.addEventListener('change', function(e) {
+        file2.addEventListener('change', function (e) {
 
             for (var i = 0; i < file2.files.length; i++) {
                 var thumbnail_id = Math.floor(Math.random() * 30000) + '_' + Date.now();
@@ -1374,7 +1406,7 @@
 
 
 
-        var createThumbnail2 = function(file, iterator, thumbnail_id) {
+        var createThumbnail2 = function (file, iterator, thumbnail_id) {
             var thumbnail = document.createElement('div');
             thumbnail.classList.add('thumbnail', thumbnail_id);
             thumbnail.dataset.id = thumbnail_id;
@@ -1384,25 +1416,25 @@
             createCloseButton(thumbnail_id);
         }
 
-        var createCloseButton = function(thumbnail_id) {
+        var createCloseButton = function (thumbnail_id) {
             var closeButton = document.createElement('div');
             closeButton.classList.add('close-button');
             closeButton.innerText = 'x';
             document.getElementsByClassName(thumbnail_id)[0].appendChild(closeButton);
         }
 
-        var clearFormDataAndThumbnails = function() {
+        var clearFormDataAndThumbnails = function () {
             for (var key of formData2.keys()) {
                 formData2.delete(key);
             }
 
-            document.querySelectorAll('.thumbnail').forEach(function(thumbnail) {
+            document.querySelectorAll('.thumbnail').forEach(function (thumbnail) {
                 thumbnail.remove();
             });
         }
 
 
-        document.body.addEventListener('click', function(e) {
+        document.body.addEventListener('click', function (e) {
             if (e.target.classList.contains('close-button')) {
                 e.target.parentNode.remove();
                 formData2.delete(e.target.parentNode.dataset.id);
@@ -1417,59 +1449,59 @@
 
 }
 
-    <img hidden id="imagenPrueba" />
-    @*<form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">*@
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h5 class="title">Registro de Llamada</h5>
-                        </div>
-
-                        <div class="col-sm-6" style="text-align: right">
-
-                            <a asp-page="/Llamadas/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
-
-                        </div>
+<img hidden id="imagenPrueba" />
+@*<form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">*@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Registro de Llamada</h5>
                     </div>
 
+                    <div class="col-sm-6" style="text-align: right">
 
+                        <a asp-page="/Llamadas/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label>Realiza búsqueda por:</label>
-                            <select id="rBusqueda" class="form-control" required onchange="javascript: cambiarBusqueda();">
-                                <option value="0">Cliente</option>
-                                <option value="1">Producto</option>
 
 
-                            </select>
-                        </div>
+            </div>
+            <div class="card-body">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Realiza búsqueda por:</label>
+                        <select id="rBusqueda" class="form-control" required onchange="javascript: cambiarBusqueda();">
+                            <option value="0">Cliente</option>
+                            <option value="1" selected>Producto</option>
+
+
+                        </select>
                     </div>
-                    <br />
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Cliente:</label>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Cliente:</label>
 
-                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="Input.CardCode" onchange="javascript: cambiarProducto();" autocomplete="off">
+                            <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="Input.CardCode" onchange="javascript: cambiarProducto();" autocomplete="off">
 
-                                <datalist id="cardcodes">
-                                    <option value="0/0">Seleccione</option>
+                            <datalist id="cardcodes">
+                                <option value="0/0">Seleccione</option>
 
-                                    @foreach (var item in Model.Clientes.Clientes)
+                                @*   @foreach (var item in Model.Clientes.Clientes)
                                 {
-                                    <option value="@item.CardCode / @item.CardName"> </option>
-                                }
+                                <option value="@item.CardCode / @item.CardName"> </option>
+                                }*@
                             </datalist>
-                            <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
 
 
                         </div>
+                            <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
@@ -1478,18 +1510,26 @@
 
                             <datalist id="productos">
                                 <option value="0">Seleccione</option>
-
+                                @foreach (var item in Model.Productos.Productos)
+                                {
+                                    <option value="@item.itemCode / @item.manufSN / @item.itemName"> @item.itemCode  -  @item.itemName  -  @item.manufSN</option>
+                                }
 
                             </datalist>
-                            @* <select id="productos" class="form-control select2" asp-for="Input.ItemCode" required onchange="javascript: cambiarCliente();">
-                            <option value="0">Seleccione</option>
-                            @*  @foreach (var item in Model.Productos.Productos)
-                            {
-                            <option value="@item.itemCode / @item.manufSN"> @item.itemCode  -  @item.itemName  -  @item.manufSN</option>
-                            }
-                            </select>*@
-                            <a asp-page="/Boletas/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Tarjeta Equipo</a>
+
+                            
                         </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a asp-page="/Boletas/Nuevo" style="text-decoration: underline;" class="nav-link">Crear Tarjeta Equipo</a>
+
+                            </div>
+                            <div class="col-md-6">
+                                <a onclick="javascript: EditarTarjeta();" style="text-decoration: underline;" class="nav-link">Editar Tarjeta Equipo</a>
+
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="col-md-4">
@@ -1567,11 +1607,11 @@
                             <select id="sr" class="form-control" asp-for="Input.SucRecibo" required>
                                 <option value="0">Seleccione</option>
                                 @{
-                                    var i = 0;
+                                    var ii = 0;
                                 }
                                 @foreach (var item in Model.Sucursales)
                                 {
-                                    @if (i == 0)
+                                    @if (ii == 0)
                                     {
                                         <option value="@item.idSAP" selected>@item.Nombre</option>
                                     }
@@ -1579,7 +1619,7 @@
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
                                     }
-                                    i++;
+                                    ii++;
                                 }
                             </select>
                         </div>
@@ -1707,12 +1747,12 @@
                     <div class="row">
                         <div class="col-md-12">
 
-                            <input type="button" class="btn btn-rounded btn-outline-primary" id="draw-clearBtn" value="Borrar Firma"></input>
+                            <input type="button" class="btn btn-rounded btn-outline-primary" id="draw-clearBtn" value="Borrar Firma"/>
 
                             <label hidden>Color</label>
                             <input type="color" id="color" hidden>
                             <label>Tamaño Puntero</label>
-                            <input type="range" id="puntero" min="1" default="1" max="5" width="10%">
+                            <input type="range" id="puntero" min="1" default="1" max="5" width="10">
 
 
                         </div>

@@ -13,7 +13,23 @@
     </li>
 
 }
-    @section styles{
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
+@section styles{
 
     <style>
 
@@ -213,7 +229,7 @@
     </style>
 }
 
-    @section scripts{
+@section scripts{
     <script>
         // Get the modal
         var modal = document.getElementById('myModal');
@@ -238,7 +254,7 @@
         var span = document.getElementsByClassName("close")[0];
 
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
+        span.onclick = function () {
             modal.style.display = "none";
         }
     </script>
@@ -302,18 +318,25 @@
     </script>
     <script>
         var btn = document.getElementById('Guardar');
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             onChangeStatus();
         });
         function onChangeStatus() {
             try {
-                if ($("#status").val() == -1) {
-                    $("#rowIdentificacion").show();
-                } else {
+                var RolIdentificacion = "@(!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))";
+                if (RolIdentificacion == "False") {
                     $("#rowIdentificacion").hide();
 
+                } else {
+                    if ($("#status").val() == -1) {
+                        $("#rowIdentificacion").show();
+                    } else {
+                        $("#rowIdentificacion").hide();
+
+                    }
                 }
+
 
             } catch (e) {
                 Swal.fire({
@@ -334,11 +357,19 @@
             } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {
                 return false;
 
-            } else if (recibido1.Status == -1) {
+            } else if (recibido1.Status == -1 ) {
                 if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
-                    return false;
+                    var RolIdentificacion = "@(!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))";
+                    if (RolIdentificacion != "False") {
+                        return false;
+                    }
                 }
             }
+            //else if (recibido1.Status == -1) {
+            //    if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
+            //        return false;
+            //    }
+            //}
 
             return true;
 
@@ -427,7 +458,7 @@
                                 headers: {
                                     RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                                 },
-                                success: function(json) {
+                                success: function (json) {
 
                                     $("#divProcesando").hide();
 
@@ -466,14 +497,14 @@
                                     }
                                 },
 
-                                beforeSend: function(xhr) {
+                                beforeSend: function (xhr) {
 
                                     $("#divProcesando").modal("show");
                                 },
-                                complete: function() {
+                                complete: function () {
 
                                 },
-                                error: function(error) {
+                                error: function (error) {
                                     btn.disabled = false;
 
                                 }
@@ -519,7 +550,7 @@
                 // We put the Data URI in the image's src attribute
                 img2.src = datas;
                 // When the event "onload" is triggered we can resize the image.
-                img2.onload = function() {
+                img2.onload = function () {
 
                     var height = this.height;
                     var width = this.width;
@@ -571,7 +602,7 @@
             var input = event.target;
 
             var reader = new FileReader();
-            reader.onload = function() {
+            reader.onload = function () {
                 var dataURL = reader.result;
 
 
@@ -600,7 +631,7 @@
             documentosbase642.splice(documentosbase642.indexOf(documentosbase642.find(a => a.id == id)), 1)
         }
 
-        file2.addEventListener('change', function(e) {
+        file2.addEventListener('change', function (e) {
 
             for (var i = 0; i < file2.files.length; i++) {
                 var thumbnail_id = Math.floor(Math.random() * 30000) + '_' + Date.now();
@@ -614,7 +645,7 @@
 
 
 
-        var createThumbnail2 = function(file, iterator, thumbnail_id) {
+        var createThumbnail2 = function (file, iterator, thumbnail_id) {
             var thumbnail = document.createElement('div');
             thumbnail.classList.add('thumbnail', thumbnail_id);
             thumbnail.dataset.id = thumbnail_id;
@@ -624,25 +655,25 @@
             createCloseButton(thumbnail_id);
         }
 
-        var createCloseButton = function(thumbnail_id) {
+        var createCloseButton = function (thumbnail_id) {
             var closeButton = document.createElement('div');
             closeButton.classList.add('close-button');
             closeButton.innerText = 'x';
             document.getElementsByClassName(thumbnail_id)[0].appendChild(closeButton);
         }
 
-        var clearFormDataAndThumbnails = function() {
+        var clearFormDataAndThumbnails = function () {
             for (var key of formData2.keys()) {
                 formData2.delete(key);
             }
 
-            document.querySelectorAll('.thumbnail').forEach(function(thumbnail) {
+            document.querySelectorAll('.thumbnail').forEach(function (thumbnail) {
                 thumbnail.remove();
             });
         }
 
 
-        document.body.addEventListener('click', function(e) {
+        document.body.addEventListener('click', function (e) {
             if (e.target.classList.contains('close-button')) {
                 e.target.parentNode.remove();
                 formData2.delete(e.target.parentNode.dataset.id);
@@ -654,22 +685,7 @@
 
     </script>
 }
-    @using Microsoft.AspNetCore.Http
-    @using System;
-    @using System.Collections.Generic;
-    @using System.IO;
-    @using System.Linq;
-    @using System.Security.Claims;
-    @using System.Threading.Tasks;
-    @using Microsoft.AspNetCore.Mvc;
-    @using Microsoft.AspNetCore.Mvc.RazorPages;
-    @using Microsoft.Extensions.Configuration;
-    @using Refit;
-    @using Sicsoft.Checkin.Web.Models;
-    @inject IHttpContextAccessor httpContextAccessor
-@{
-    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
-}
+
 
 <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
     <div class="row">
@@ -976,37 +992,41 @@
         </div>
 
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h5 class="title">Documentos de Identidad</h5>
+    @if (!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))
+    {
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h5 class="title">Documentos de Identidad</h5>
 
-                        </div>
+                            </div>
 
-                        <div class="col-sm-6" style="text-align: right">
+                            <div class="col-sm-6" style="text-align: right">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-body">
+                    <div class="card-body">
 
-                    <div id="menu">
-                        @foreach (var item in Model.Input.AdjuntosIdentificacion)
-                        {
-                            <img src='data:image/png;base64,@item.base64' id="@item.id" name='fotos1' onclick="javascript: onclickImage(@item.id)" />
+                        <div id="menu">
+                            @foreach (var item in Model.Input.AdjuntosIdentificacion)
+                            {
+                                <img src='data:image/png;base64,@item.base64' id="@item.id" name='fotos1' onclick="javascript: onclickImage(@item.id)" />
 
-                        }
-
+                            }
 
 
+
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-    </div>
+        </div>
+    }
+    
 
     <div class="row">
         <div class="col-md-12">

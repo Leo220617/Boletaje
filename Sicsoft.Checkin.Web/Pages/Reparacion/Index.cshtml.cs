@@ -133,7 +133,7 @@ namespace Boletaje.Pages.Reparacion
                 await serviceColeccion.Editar(EncReparacion);
                 return new JsonResult(true);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new JsonResult(false);
             }

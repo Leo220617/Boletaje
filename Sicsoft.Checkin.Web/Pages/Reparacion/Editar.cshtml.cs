@@ -33,6 +33,7 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<ControlProductosViewModel, int> control;
         private readonly ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
+        private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
 
 
         [BindProperty]
@@ -64,7 +65,8 @@ namespace Boletaje.Pages.Reparacion
 
         [BindProperty]
         public DetReparacionViewModel[] Input { get; set; }
-
+        [BindProperty]
+        public ProductosHijosViewModel[] ProductosGenerales { get; set; }
         [BindProperty]
         public ClientesViewModel Clientes { get; set; }
 
@@ -80,9 +82,15 @@ namespace Boletaje.Pages.Reparacion
 
         public TiposCasosViewModel[] TP { get; set; }
 
+        [BindProperty]
+        public ProductosPadresViewModel ProductoPadre { get; set; }
+        [BindProperty]
+
+        public Producto ProductoPadreLlamada { get; set; }
+
         public EditarModel(ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
-            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp)
+            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre)
         {
             this.service = service;
             this.serviceL = serviceL;
@@ -99,6 +107,7 @@ namespace Boletaje.Pages.Reparacion
             this.control = control;
             this.cotizaciones = cotizaciones;
             this.tp = tp;
+            this.prodsPadre = prodsPadre;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -110,6 +119,7 @@ namespace Boletaje.Pages.Reparacion
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                ProductosGenerales = await service2.ObtenerLista("");
                 ParametrosFiltros filt = new ParametrosFiltros();
                 filt.Codigo1 = id;
                 TP = await tp.ObtenerLista("");
@@ -142,7 +152,19 @@ namespace Boletaje.Pages.Reparacion
                 CotizacionesAprobadas = await cotizaciones.ObtenerLista(filtroCoti);
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == InputLlamada.CardCode).FirstOrDefault() == null ? "" : Clientes.Clientes.Where(a => a.CardCode == InputLlamada.CardCode).FirstOrDefault().CardCode + " - " + Clientes.Clientes.Where(a => a.CardCode == InputLlamada.CardCode).FirstOrDefault().CardName;
-
+                var ProductosPadres = await prodsPadre.ObtenerLista("");
+                ProductoPadre = ProductosPadres.Where(a => a.codSAP == InputLlamada.ItemCode).FirstOrDefault();
+                if (ProductoPadre == null)
+                {
+                    ProductoPadre = new ProductosPadresViewModel();
+                    ProductoPadre.codSAP = InputLlamada.ItemCode;
+                    ProductoPadre.Nombre = InputLlamada.ItemCode;
+                    ProductoPadre.Precio = 0;
+                }
+                else
+                {
+                    ProductoPadre.Precio = Math.Round(ProductoPadre.Precio, 2);
+                }
                 return Page();
             }
             catch (ApiException ex)
@@ -189,6 +211,8 @@ namespace Boletaje.Pages.Reparacion
                     coleccion.DetReparacion[cantidad - 1].ItemCode = item.ItemCode;
                     coleccion.DetReparacion[cantidad - 1].Cantidad = item.Cantidad;
                     coleccion.DetReparacion[cantidad - 1].idError = item.idError;
+                    coleccion.DetReparacion[cantidad - 1].Opcional = item.Opcional;
+
 
                     cantidad++;
                 }

@@ -90,7 +90,7 @@ namespace Boletaje.Pages.Llamadas
                     return RedirectToPage("/NoPermiso");
                 }
                 Asuntos = await asuntos.ObtenerLista("");
-                Clientes = await clientes.ObtenerListaEspecial("");
+                //Clientes = await clientes.ObtenerListaEspecial("");
                 // Productos = await prods.ObtenerListaEspecial("");
                 TP = await tp.ObtenerLista("");
                 Garantias = await garantias.ObtenerLista("");
@@ -235,6 +235,9 @@ namespace Boletaje.Pages.Llamadas
                 return new JsonResult(ex.Message.ToString());
             }
         }
+
+
+       
 
         public async Task<IActionResult> OnPostAsync()
         {

@@ -196,7 +196,7 @@ namespace Boletaje.Pages.OrdenVenta
                         detalle.PrecioUnitario = Convert.ToDecimal(item.PrecioUnitario1.ToString());
 
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         detalle.PrecioUnitario = Convert.ToDecimal(item.PrecioUnitario1.ToString().Replace(".", ","));
 

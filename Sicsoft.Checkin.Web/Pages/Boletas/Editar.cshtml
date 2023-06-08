@@ -1,0 +1,127 @@
+﻿@page "{id}"
+@model Boletaje.Pages.Boletas.EditarModel
+@{
+    ViewData["Title"] = "Tarjeta de Equipo";
+}
+@section breadcrumb{
+
+    <li class="breadcrumb-item">
+        <a>Tarjeta de Equipo</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Editar</a>
+    </li>
+
+}
+@section styles{
+
+
+}
+
+@section scripts{
+    <script>
+        var btn = document.getElementById('Guardar');
+        function onGuardar() {
+            btn.disabled = true;
+            $("#formTipos").submit();
+            btn.disabled = false;
+
+        }
+    </script>
+
+
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Editar Tarjeta de Equipo</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-body">
+                <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>No Serie:</label>
+
+                                <input type="text" class="form-control form-control-lg" id="serie" placeholder="Numero de serie" asp-for="Producto.internalSN" readonly>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>No Serie Fabricante:</label>
+
+                                <input type="text" class="form-control form-control-lg" id="serieFabricante" placeholder="Numero de serie fabricante" asp-for="Producto.manufSN" readonly>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Cliente:</label>
+
+                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="Producto.customer" />
+
+                                <datalist id="cardcodes">
+                                    @foreach (var item in Model.Clientes.Clientes)
+                                    {
+                                        @if(Model.Producto.customer == item.CardCode)
+                                        {
+                                            <option value="@item.CardCode / @item.CardName" selected>  </option>
+
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.CardCode / @item.CardName">  </option>
+                                            
+                                        }
+                                    }
+                                </datalist>
+
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Producto:</label>
+                                <input type="text"  class="form-control form-control-lg" id="itemcode" placeholder="Producto" value="@Model.Producto.itemCode - @Model.Producto.itemName " readonly disabled />
+
+                                <input type="text"  asp-for="Producto.itemCode" readonly disabled hidden/>
+
+                                
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar();">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

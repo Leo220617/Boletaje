@@ -14,8 +14,24 @@
 
 }
 
-    @using System.Globalization;
-    @{
+@using System.Globalization;
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@inject IHttpContextAccessor httpContextAccessor
+@using Newtonsoft.Json;
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
+@{
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
@@ -172,14 +188,14 @@
 
 }
 
-    @section scripts{
+@section scripts{
     @*@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}*@
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            jQuery(document).ready(function($) {
-                $(document).ready(function() {
+            jQuery(document).ready(function ($) {
+                $(document).ready(function () {
                 });
             });
             onChangeTipoMovimiento();
@@ -192,6 +208,10 @@
         var ErroresP = [];
         var Errores = [];
         var Control = [];
+        var ProductosGenerales = [];
+        var RepuestosAprobados = [];
+        var ProductoPadre = [];
+
         function Recuperar() {
             try {
                 ProdCadena = [];
@@ -202,25 +222,33 @@
                 var disponibles = JSON.parse($("#HijosDisponibles").val());
                 var seleccionados = JSON.parse($("#HijosSeleccionados").val());  //Viene de input
                 Errores = JSON.parse($("#Errores").val());
+                ProductosGenerales = JSON.parse($("#ProductosGenerales").val());
+                RepuestosAprobados = JSON.parse($("#RepuestosAprobados").val());
+                ProductoPadre = JSON.parse($("#ProductoPadre").val());
+
+
                 Control = JSON.parse($("#Control").val());
                 var idError = '@Model.Encabezado.idDiagnostico';
 
                 console.log(disponibles);
+                if (disponibles != null) {
+                    for (var i = 0; i < disponibles.length; i++) {
+                        var detalle = {
+                            id: 0,
+                            idEncabezado: "",
+                            idProducto: disponibles[i].id,
+                            ItemCode: disponibles[i].codSAP + " | " + disponibles[i].Nombre,
+                            Cantidad: disponibles[i].Cantidad,
+                            idError: disponibles[i].idError,
+                            Stock: disponibles[i].Stock,
+                            Opcional: false
 
-                for (var i = 0; i < disponibles.length; i++) {
-                    var detalle = {
-                        id: 0,
-                        idEncabezado: "",
-                        idProducto: disponibles[i].id,
-                        ItemCode: disponibles[i].codSAP + " | " + disponibles[i].Nombre,
-                        Cantidad: disponibles[i].Cantidad,
-                        idError: disponibles[i].idError,
-                        Stock: disponibles[i].Stock
+                        };
+                        ProdCadena.push(detalle);
 
-                    };
-                    ProdCadena.push(detalle);
-
+                    }
                 }
+
                 for (var i = 0; i < seleccionados.length; i++) {
                     var detalle = {
                         id: 0,
@@ -229,13 +257,41 @@
                         ItemCode: seleccionados[i].ItemCode,
                         Cantidad: seleccionados[i].Cantidad,
                         idError: seleccionados[i].idError,
-                        Stock: seleccionados[i].Stock
+                        Stock: seleccionados[i].Stock,
+                        idError: 0,
+                        Opcional: seleccionados[i].Opcional
 
 
 
                     };
                     ProdCadenaM.push(detalle);
 
+                }
+                if (RepuestosAprobados != null) {
+                    for (var i = 0; i < RepuestosAprobados.length; i++) {
+                        var valor = RepuestosAprobados[i].ItemCode.split("|")[0].trimEnd();
+                        var Prod = ProductosGenerales.find(a => a.codSAP == valor);
+                        var detalle = {
+                            id: 0,
+                            idEncabezado: "",
+                            idProducto: Prod.id,
+                            ItemCode: RepuestosAprobados[i].ItemCode,
+                            Cantidad: RepuestosAprobados[i].Cantidad,
+                            idError: 0,
+                            Stock: Prod.Stock,
+                            idError: 0,
+                            Opcional: RepuestosAprobados[i].Opcional
+
+
+
+
+                        };
+                        ProdCadenaM.push(detalle);
+                        
+
+                    }
+                    RellenaTablaMia2();
+                    RellenaTablaM();
                 }
 
                 if (parseInt(idError) > 0) {
@@ -258,11 +314,24 @@
                 RellenaTablaG();
                 RellenaTablaM();
 
+                if (ProductoPadre.Precio == 0) {
+                    //$('#PrecioProductoPadre').prop('readonly', false);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Precio Producto',
+                        text: 'El Precio del Producto a Reparar es 0, por lo tanto, se debe investigar para poder calcular el precio contra el total del documento '
+
+                    })
+                } else {
+                    $('#PrecioProductoPadre').prop('readonly', true);
+                }
+                $("#PrecioProductoPadre").val(parseFloat(ProductoPadre.Precio));
+
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Ha ocurrido un error ' + e + ' - ' + e.stack
+                    text: 'Ha ocurrido un error ' + e
 
                 })
             }
@@ -289,9 +358,10 @@
                     }
 
                 }
-
+                
                 RellenaTablaG();
                 RellenaTablaM();
+                RellenaTablaMia2();
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -312,8 +382,9 @@
                     idProducto: ProdCadena[i].idProducto,
                     ItemCode: ProdCadena[i].ItemCode,
                     Cantidad: ProdCadena[i].Cantidad,
-                    Stock: ProdCadena[i].Stock
-
+                    Stock: ProdCadena[i].Stock,
+                    idError: 0,
+                    Opcional: false
 
 
                 }
@@ -335,68 +406,7 @@
         }
 
         function InsertarProductoTablaG(i) {
-
-            var detalle =
-            {
-                id: 0,
-                idEncabezado: "",
-                idProducto: ProdCadenaM[i].idProducto,
-                ItemCode: ProdCadenaM[i].ItemCode,
-                Cantidad: ProdCadenaM[i].Cantidad,
-                Stock: ProdCadenaM[i].Stock
-
-
-            }
-            ProdCadena.push(detalle);
-
-            ProdCadenaM.splice(i, 1);
-            RellenaTablaM();
-            RellenaTablaG();
-
-        }
-
-
-        function EliminarProductoDevolver(i) {
-            ProdCadenaM.splice(i, 1);
-            RellenaTablaRD(false);
-        }
-
-        function PasarTodasDerecha() {
-
-
-            var tam = ProdCadenaM.length;
-            var tam2 = ProdCadena.length;
-
-
-            for (var i = 0; i < ProdCadena.length; i++) {
-
-                var detalle =
-                {
-                    id: 0,
-                    idEncabezado: "",
-                    idProducto: ProdCadena[i].idProducto,
-                    ItemCode: ProdCadena[i].ItemCode,
-                    Cantidad: ProdCadena[i].Cantidad,
-                    Stock: ProdCadena[i].Stock
-
-                }
-                ProdCadenaM.push(detalle);
-            }
-
-            ProdCadena = [];
-
-
-            RellenaTablaM();
-            RellenaTablaG();
-        }
-
-        function PasarTodasIzquierda() {
-            var tam = ProdCadena.length;
-            var tam2 = ProdCadenaM.length;
-
-            console.log(tam2);
-            for (var i = 0; i < tam2; i++) {
-
+            try {
                 var detalle =
                 {
                     id: 0,
@@ -404,47 +414,159 @@
                     idProducto: ProdCadenaM[i].idProducto,
                     ItemCode: ProdCadenaM[i].ItemCode,
                     Cantidad: ProdCadenaM[i].Cantidad,
-                    Stock: ProdCadenaM[i].Stock
+                    Stock: ProdCadenaM[i].Stock,
+                    Opcional: false
 
                 }
                 ProdCadena.push(detalle);
+
+                ProdCadenaM.splice(i, 1);
+                RellenaTablaM();
+                RellenaTablaG();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
             }
 
 
-            ProdCadenaM = [];
+        }
 
 
-            RellenaTablaM();
-            RellenaTablaG();
+        function EliminarProductoDevolver(i) {
+            try {
+
+                ProdCadenaM.splice(i, 1);
+                RellenaTablaRD(false);
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+
+        function PasarTodasDerecha() {
+            try {
+                var tam = ProdCadenaM.length;
+                var tam2 = ProdCadena.length;
+
+
+                for (var i = 0; i < ProdCadena.length; i++) {
+
+                    var detalle =
+                    {
+                        id: 0,
+                        idEncabezado: "",
+                        idProducto: ProdCadena[i].idProducto,
+                        ItemCode: ProdCadena[i].ItemCode,
+                        Cantidad: ProdCadena[i].Cantidad,
+                        Stock: ProdCadena[i].Stock,
+                        idError: 0,
+                        Opcional: false
+
+                    }
+                    ProdCadenaM.push(detalle);
+                }
+
+                ProdCadena = [];
+
+
+                RellenaTablaM();
+                RellenaTablaG();
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+
+        }
+
+        function PasarTodasIzquierda() {
+            try {
+                var tam = ProdCadena.length;
+                var tam2 = ProdCadenaM.length;
+
+                console.log(tam2);
+                for (var i = 0; i < tam2; i++) {
+
+                    var detalle =
+                    {
+                        id: 0,
+                        idEncabezado: "",
+                        idProducto: ProdCadenaM[i].idProducto,
+                        ItemCode: ProdCadenaM[i].ItemCode,
+                        Cantidad: ProdCadenaM[i].Cantidad,
+                        Stock: ProdCadenaM[i].Stock,
+                        Opcional: false
+
+                    }
+                    ProdCadena.push(detalle);
+                }
+
+
+                ProdCadenaM = [];
+
+
+                RellenaTablaM();
+                RellenaTablaG();
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
         }
 
         function RellenaTablaG() {
-            var sOptions = '';
+            try {
+                var sOptions = '';
 
-            $("#tbody1").html('');
+                $("#tbody1").html('');
 
-            for (var i = 0; i < ProdCadena.length; i++) {
-                sOptions += '<tr>'
-                sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadena[i].ItemCode + '</p></td>';
-                sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + formatoDecimal(ProdCadena[i].Cantidad) + '</p></td>';
-                sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadena[i].Stock + '</p></td>';
-
-
-                sOptions += '<td align="center" style="padding-top:15px;"><a  onclick="javascript: InsertarProductoTablaMia(' + i + ')" style="cursor: pointer; font-size: 25px; line-height: 0px;"  title="Pasar Modulo" > > </a></td> ';
+                for (var i = 0; i < ProdCadena.length; i++) {
+                    sOptions += '<tr>'
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadena[i].ItemCode + '</p></td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + formatoDecimal(ProdCadena[i].Cantidad) + '</p></td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadena[i].Stock + '</p></td>';
 
 
+                    sOptions += '<td align="center" style="padding-top:15px;"><a  onclick="javascript: InsertarProductoTablaMia(' + i + ')" style="cursor: pointer; font-size: 25px; line-height: 0px;"  title="Pasar Modulo" > > </a></td> ';
 
-                sOptions += '</tr>'
+
+
+                    sOptions += '</tr>'
+                }
+                $("#tbody1").html(sOptions);
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
             }
-            $("#tbody1").html(sOptions);
         }
-        function GuardarCantidad(i)
-        {
-            try{
+        function GuardarCantidad(i) {
+            try {
                 ProdCadenaM[i].Cantidad = $("#cantidad-" + i).val();
-            }catch(e)
-            {
-                 Swal.fire({
+                CalculaSemaforo();
+
+            } catch (e) {
+                Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
                     text: 'Ha ocurrido un error ' + e + ' - ' + e.stack
@@ -452,233 +574,296 @@
                 })
             }
         }
+        function GuardarCantidad2(i) {
+            try {
+                ProdCadenaM[i].Cantidad = $("#cantidad2-" + i).val();
+                CalculaSemaforo();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+
+        function ModificaOpcional(i) {
+            try {
+                var checkbox1 = document.getElementById(i + "check");
+                ProdCadenaM[i].Opcional = checkbox1.checked;
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+
         function RellenaTablaM() {
-            var sOptions = '';
+            try {
+                CalculaSemaforo();
 
-            $("#tbody2").html('');
+                var sOptions = '';
 
-            for (var i = 0; i < ProdCadenaM.length; i++) {
-                sOptions += '<tr>'
-                sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].ItemCode + '</p></td>';
-                sOptions += '<td align="left" style="padding-top:15px;">  <input id="cantidad-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '" onchange="javascript: GuardarCantidad('+i+')"  type="number" /> </td>';
-                sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].Stock + '</p></td>';
+                $("#tbody2").html('');
+
+                for (var i = 0; i < ProdCadenaM.length; i++) {
+                    sOptions += '<tr>'
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].ItemCode + '</p></td>';
+                    sOptions += '<td align="left" style="padding-top:15px;">  <input id="cantidad-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '" onchange="javascript: GuardarCantidad(' + i + ')"  type="number" /> </td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].Stock + '</p></td>';
 
 
-                sOptions += '<td align="left" style="padding-top:15px;">  <select id="error-' + i + '" class="form-control" >  <option value="0">Sin Diagnostico</option> ';
-                for (var a = 0; a < ErroresP.length; a++) {
-                    if (ProdCadenaM[i].idError == ErroresP[a].id) {
-                        sOptions += '<option value="' + ErroresP[a].id + '" selected>' + ErroresP[a].Descripcion + '</option>';
+                    sOptions += '<td align="left" style="padding-top:15px;">  <select id="error-' + i + '" onchange="javascript: onChangeError(' + i + ')" class="form-control" >  <option value="0">Sin Diagnostico</option> ';
+                    for (var a = 0; a < ErroresP.length; a++) {
+                        if (ProdCadenaM[i].idError == ErroresP[a].id) {
+                            sOptions += '<option value="' + ErroresP[a].id + '" selected>' + ErroresP[a].Descripcion + '</option>';
 
-                    } else {
-                        sOptions += '<option value="' + ErroresP[a].id + '">' + ErroresP[a].Descripcion + '</option>';
+                        } else {
+                            sOptions += '<option value="' + ErroresP[a].id + '">' + ErroresP[a].Descripcion + '</option>';
+
+                        }
 
                     }
 
+                    sOptions += '</select> </td>';
+
+                    sOptions += '<td align="center" style="padding-top:15px;"><a  onclick="javascript: InsertarProductoTablaG(' + i + ')" style="cursor: pointer; font-size: 25px; line-height: 0px;" title="Pasar Modulo" > < </a> </td>';
+
+
+
+                    sOptions += '</tr>'
                 }
+                $("#tbody2").html(sOptions);
 
-                sOptions += '</select> </td>';
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
 
-                sOptions += '<td align="center" style="padding-top:15px;"><a  onclick="javascript: InsertarProductoTablaG(' + i + ')" style="cursor: pointer; font-size: 25px; line-height: 0px;" title="Pasar Modulo" > < </a> </td>';
-
-
-
-                sOptions += '</tr>'
+                })
             }
-            $("#tbody2").html(sOptions);
         }
 
         function RellenaTablaRD(bit) {
-            if (bit) {
-                ProdCadenaM = [];
-                for (var i = 0; i < Control.length; i++) {
+            try {
+                if (bit) {
+                    ProdCadenaM = [];
+                    for (var i = 0; i < Control.length; i++) {
 
-                    var detalle =
-                    {
-                        id: 0,
-                        idEncabezado: "",
-                        idProducto: Control[i].idProducto,
-                        ItemCode: Control[i].Item + " | " + Control[i].ItemName,
-                        Cantidad: 1,
-                        Stock: Control[i].CantidadUsado
+                        var detalle =
+                        {
+                            id: 0,
+                            idEncabezado: "",
+                            idProducto: Control[i].idProducto,
+                            ItemCode: Control[i].Item + " | " + Control[i].ItemName,
+                            Cantidad: 1,
+                            idError: 0,
+                            Stock: Control[i].CantidadUsado
+
+                        }
+                        ProdCadenaM.push(detalle);
+                    }
+                }
+
+
+
+                var sOptions = '';
+
+                $("#tbody3").html('');
+
+                for (var i = 0; i < ProdCadenaM.length; i++) {
+                    sOptions += '<tr>'
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].ItemCode + '</p></td>';
+                    if (parseInt($("#idTraslado").val()) == 3) {
+
+                        sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">N/A</p></td>';
+
+                    } else {
+                        sOptions += '<td align="center" style="padding-top:15px;">  <input id="cantidad-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '"  type="number" /> </td>';
 
                     }
-                    ProdCadenaM.push(detalle);
+
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].Stock + '</p></td>';
+
+
+
+                    if (parseInt($("#idTraslado").val()) == 3) {
+                        sOptions += '<td align="center" style="padding-top:15px;"> </td> ';
+
+                    } else {
+                        sOptions += '<td align="center" style="padding-top:15px;"><a  onclick="javascript: EliminarProductoDevolver(' + i + ')" style="cursor: pointer; font-size: 25px; line-height: 0px;" title="Eliminar Producto" > X </a> </td>';
+
+                    }
+
+
+
+                    sOptions += '</tr>'
                 }
+                $("#tbody3").html(sOptions);
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
             }
-
-
-
-            var sOptions = '';
-
-            $("#tbody3").html('');
-
-            for (var i = 0; i < ProdCadenaM.length; i++) {
-                sOptions += '<tr>'
-                sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].ItemCode + '</p></td>';
-                if (parseInt($("#idTraslado").val()) == 3) {
-
-                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">N/A</p></td>';
-
-                } else {
-                    sOptions += '<td align="center" style="padding-top:15px;">  <input id="cantidad-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '"  type="number" /> </td>';
-
-                }
-
-                sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].Stock + '</p></td>';
-
-
-
-                if (parseInt($("#idTraslado").val()) == 3) {
-                    sOptions += '<td align="center" style="padding-top:15px;"> </td> ';
-
-                } else {
-                    sOptions += '<td align="center" style="padding-top:15px;"><a  onclick="javascript: EliminarProductoDevolver(' + i + ')" style="cursor: pointer; font-size: 25px; line-height: 0px;" title="Eliminar Producto" > X </a> </td>';
-
-                }
-
-
-
-                sOptions += '</tr>'
-            }
-            $("#tbody3").html(sOptions);
         }
 
         function Generar() {
-            var idGeneral = $("#idGeneral").val();
-            var tipo = $("#idTraslado").val();
-            var status = $("#status").val();
-            var comentarios = $("#comentarios").val();
-            var BodegaOrigen = $("#bodegaOrigen").val();
-            var BodegaFinal = $("#bodegaFinal").val();
-            var idDiag = $("#idDiag").val();
+            try {
+                var idGeneral = $("#idGeneral").val();
+                var tipo = $("#idTraslado").val();
+                var status = $("#status").val();
+                var comentarios = $("#comentarios").val();
+                var BodegaOrigen = $("#bodegaOrigen").val();
+                var BodegaFinal = $("#bodegaFinal").val();
+                var idDiag = $("#idDiag").val();
 
-            var Cadena = [];
-
-
-            for (var i = 0; i < ProdCadenaM.length; i++) {
-                var det = {
-                    id: 0,
-                    idEncabezado: 0,
-                    idProducto: ProdCadenaM[i].idProducto,
-                    ItemCode: ProdCadenaM[i].ItemCode,
-                    Cantidad: $("#cantidad-" + i).val(),
-                    idError: $("#error-" + i).val()
-
-                };
-                Cadena.push(det);
-            }
-
-            var bases64 = [];
-
-            for (var i = 0; i < documentosbase64.length; i++) {
-                var det = {
-                    id: 0,
-                    idEncabezado: 0,
-                    base64: documentosbase64[i].base64
-
-                };
-                bases64.push(det);
-            }
+                var Cadena = [];
 
 
-            var recibido =
-            {
-                id: idGeneral,
-                Tipo: tipo,
-                Status: status,
-                StatusLlamada: $("#statusLlamada").val(),
-                idLlamada: $("#idLlamada").val(),
-                comentarios: comentarios,
-                BodegaInicial: BodegaOrigen,
-                BodegaFinal: BodegaFinal,
-                idDiagnostico: idDiag,
-                DetReparacion: Cadena,
-                Adjuntos: bases64
-            }
+                for (var i = 0; i < ProdCadenaM.length; i++) {
+                    var det = {
+                        id: 0,
+                        idEncabezado: 0,
+                        idProducto: ProdCadenaM[i].idProducto,
+                        ItemCode: ProdCadenaM[i].ItemCode,
+                        Cantidad: ProdCadenaM[i].Cantidad,//$("#cantidad-" + i).val(),
+                        idError: $("#error-" + i).val(),
+                        Opcional: ProdCadenaM[i].Opcional
 
-            console.log(JSON.stringify(recibido));
-
-            Swal.fire({
-                title: '¿Desea guardar los cambios?',
-                showDenyButton: true,
-                showCancelButton: false,
-                confirmButtonText: `Aceptar`,
-                denyButtonText: `Cancelar`,
-                customClass: {
-                    confirmButton: 'swalBtnColor',
-                    denyButton: 'swalDeny'
-                },
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    var recibidos = JSON.stringify(recibido);
-
-                    $.ajax({
-                        type: 'POST',
-
-                        url: '@Url.Page("Editar", "Generar")',
-                        dataType: 'json',
-                        data: { recibidos: recibidos.toString() },
-                        headers: {
-                            RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
-                        },
-                        success: function(json) {
-
-                            $("#divProcesando").hide();
-
-                            if ($('.modal-backdrop').is(':visible')) {
-
-                                $('body').removeClass('modal-open');
-                                $('.modal-backdrop').hide();
-                            }
-                            console.log("resultado " + json.mensaje);
-                            if (json.success == true) {
-                                Swal.fire({
-                                    title: "Ha sido generado con éxito",
-
-                                    icon: 'success',
-                                    showCancelButton: false,
-
-                                    confirmButtonText: 'OK',
-                                    customClass: {
-                                        confirmButton: 'swalBtnColor',
-
-                                    },
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        if ($("#status").val() == "0") {
-                                            location.reload();
-                                        } else {
-                                            window.location.href = window.location.href.split("/Editar")[0];
-                                        }
-
-
-                                    }
-                                })
-
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
-
-                                })
-                            }
-                        },
-
-                        beforeSend: function(xhr) {
-
-                            $("#divProcesando").modal("show");
-                        },
-                        complete: function() {
-
-                        },
-                        error: function(error) {
-
-                        }
-                    });
+                    };
+                    Cadena.push(det);
                 }
+
+                var bases64 = [];
+
+                for (var i = 0; i < documentosbase64.length; i++) {
+                    var det = {
+                        id: 0,
+                        idEncabezado: 0,
+                        base64: documentosbase64[i].base64
+
+                    };
+                    bases64.push(det);
+                }
+
+
+                var recibido =
+                {
+                    id: idGeneral,
+                    Tipo: tipo,
+                    Status: status,
+                    StatusLlamada: $("#statusLlamada").val(),
+                    idLlamada: $("#idLlamada").val(),
+                    comentarios: comentarios,
+                    BodegaInicial: BodegaOrigen,
+                    BodegaFinal: BodegaFinal,
+                    idDiagnostico: idDiag,
+                    DetReparacion: Cadena,
+                    Adjuntos: bases64
+                }
+
+                console.log(JSON.stringify(recibido));
+
+                Swal.fire({
+                    title: '¿Desea guardar los cambios?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: `Aceptar`,
+                    denyButtonText: `Cancelar`,
+                    customClass: {
+                        confirmButton: 'swalBtnColor',
+                        denyButton: 'swalDeny'
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var recibidos = JSON.stringify(recibido);
+
+                        $.ajax({
+                            type: 'POST',
+
+                            url: '@Url.Page("Editar", "Generar")',
+                            dataType: 'json',
+                            data: { recibidos: recibidos.toString() },
+                            headers: {
+                                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                            },
+                            success: function (json) {
+
+                                $("#divProcesando").hide();
+
+                                if ($('.modal-backdrop').is(':visible')) {
+
+                                    $('body').removeClass('modal-open');
+                                    $('.modal-backdrop').hide();
+                                }
+                                console.log("resultado " + json.mensaje);
+                                if (json.success == true) {
+                                    Swal.fire({
+                                        title: "Ha sido generado con éxito",
+
+                                        icon: 'success',
+                                        showCancelButton: false,
+
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            confirmButton: 'swalBtnColor',
+
+                                        },
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            if ($("#status").val() == "0") {
+                                                location.reload();
+                                            } else {
+                                                window.location.href = window.location.href.split("/Editar")[0];
+                                            }
+
+
+                                        }
+                                    })
+
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+
+                                    })
+                                }
+                            },
+
+                            beforeSend: function (xhr) {
+
+                                $("#divProcesando").modal("show");
+                            },
+                            complete: function () {
+
+                            },
+                            error: function (error) {
+
+                            }
+                        });
+                    }
+                }
+                )
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
             }
-            )
+
 
 
 
@@ -686,43 +871,285 @@
 
 
         function onChangeTipoMovimiento() {
-            if (parseInt($("#idTraslado").val()) == 0) {
-                $("#rowRepUti").hide();
-                $("#rowRepUtilizados").hide();
-                $("#rowRepDevolver").hide();
-                $("#rowRepAprobados").hide();
+            try {
+                if (parseInt($("#idTraslado").val()) == 0) {
+                    $("#rowRepUti").hide();
+                    $("#rowRepUtilizados").hide();
+                    $("#rowRepDevolver").hide();
+                    $("#rowRepAprobados").hide();
+                    $("#rowSolicitud2").hide();
 
-            } else if (parseInt($("#idTraslado").val()) == 2 || parseInt($("#idTraslado").val()) == 3) {
-                $("#rowRepAprobados").hide();
+                } else if (parseInt($("#idTraslado").val()) == 2 || parseInt($("#idTraslado").val()) == 3) {
+                    $("#rowRepAprobados").hide();
+                    $("#rowSolicitud2").hide();
 
-                $("#rowRepUti").hide();
-                $("#rowRepUtilizados").hide();
-                $("#rowRepDevolver").show();
-                RellenaTablaRD(true);
-                $("#titleRepDevolver").text("Repuestos a devolver");
-                if (parseInt($("#idTraslado").val()) == 3) {
-                    $("#titleRepDevolver").text("Repuestos a cotizar");
+                    $("#rowRepUti").hide();
+                    $("#rowRepUtilizados").hide();
+                    $("#rowRepDevolver").show();
+                    RellenaTablaRD(true);
+                    $("#titleRepDevolver").text("Repuestos a devolver");
+                    if (parseInt($("#idTraslado").val()) == 3) {
+                        $("#titleRepDevolver").text("Repuestos a cotizar");
+                    }
+
+
+                } else {
+                    Recuperar();
+                    $("#rowRepAprobados").hide();
+                    if ("@string.IsNullOrEmpty(Roles.Where(a => a == "49").FirstOrDefault())" == "True")//$("#RolSolicitudNuevo").val() != "value")
+                    {
+                        $("#rowSolicitud2").hide();
+
+                        $("#rowRepUti").show();
+                        $("#rowRepUtilizados").show();
+                        $("#rowRepDevolver").hide();
+                    } else {
+                        $("#rowRepUti").hide();
+                        $("#rowRepUtilizados").hide();
+                        $("#rowRepDevolver").hide();
+
+                        $("#rowSolicitud2").show();
+
+                    }
+
+                    $("#titleRepUti").text("Repuestos Utilizados");
+
+                    if (parseInt($("#idTraslado").val()) == 1) {
+                        $("#rowRepAprobados").show();
+                    }
                 }
+                onChangeDiagnostico();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
 
-
-            } else {
-                Recuperar();
-                $("#rowRepAprobados").hide();
-
-                $("#rowRepUti").show();
-                $("#rowRepUtilizados").show();
-                $("#rowRepDevolver").hide();
-
-                $("#titleRepUti").text("Repuestos Utilizados");
-
-                if (parseInt($("#idTraslado").val()) == 1) {
-                    $("#rowRepAprobados").show();
-                }
+                })
             }
+
         }
 
 
+        function onChangeProducto() {
+            try {
+                var valorDigitado = $("#Busqueda").val();
+                valorDigitado = valorDigitado.split("_")[0].trim();
+                var Prod = ProductosGenerales.find(a => a.codSAP == valorDigitado);
+                if (Prod != undefined) {
 
+                    $("#codigoSAPProducto").val(Prod.codSAP);
+                    $("#Nombre").text(Prod.Nombre);
+                    $("#StockProd").text(Prod.Stock); 
+                    $("#cantidad").val(1);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Producto no existe'
+
+                    });
+                    $("#codigoSAPProducto").val(0);
+                    $("#StockProd").text("");   
+                    $("#Nombre").text("");
+                    $("#cantidad").val(0);
+                }
+
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+
+        function InsertarProductoTabla() {
+            try {
+                var valorDigitado = $("#codigoSAPProducto").val();
+                var Prod = ProductosGenerales.find(a => a.codSAP == valorDigitado);
+                var detalle =
+                {
+                    id: 0,
+                    idEncabezado: "",
+                    idProducto: Prod.id,
+                    ItemCode: Prod.codSAP + " | " + Prod.Nombre,
+                    Cantidad: $("#cantidad").val(),
+                    Stock: Prod.Stock,
+                    idError: 0,
+                    Opcional: false
+
+
+
+                }
+                ProdCadenaM.push(detalle);
+                RellenaTablaMia2();
+                LimpiarDatosPH();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+        function RellenaTablaMia2() {
+            try {
+                CalculaSemaforo();
+                var sOptions = '';
+
+                $("#tbodySolicitud2").html('');
+
+                for (var i = 0; i < ProdCadenaM.length; i++) {
+                    sOptions += '<tr>'
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].ItemCode + '</p></td>';
+                    sOptions += '<td align="left" style="padding-top:15px;">  <input id="cantidad2-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '" onchange="javascript: GuardarCantidad2(' + i + ')"  type="number" /> </td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">' + ProdCadenaM[i].Stock + '</p></td>';
+
+
+                    sOptions += '<td align="left" style="padding-top:15px;">  <select id="error-' + i + '" class="form-control" onchange="javascript: onChangeError(' + i + ')" >  <option value="0">Sin Diagnostico</option> ';
+                    for (var a = 0; a < ErroresP.length; a++) {
+                        if (ProdCadenaM[i].idError == ErroresP[a].id) {
+                            sOptions += '<option value="' + ErroresP[a].id + '" selected>' + ErroresP[a].Descripcion + '</option>';
+
+                        } else {
+                            sOptions += '<option value="' + ErroresP[a].id + '">' + ErroresP[a].Descripcion + '</option>';
+
+                        }
+
+                    }
+
+                    sOptions += '</select> </td>';
+                    sOptions += '<td align="center">  <input class="form-check-input" type="checkbox" onclick="javascript: ModificaOpcional(' + i + ')" style="position: unset;" id="' + i + 'check"><span class="form-check-sign"></span> </td>';
+
+                    sOptions += '<td align="center" style="padding-top:15px;"><a  onclick="javascript: EliminaProductoHijo(' + i + ')" style="margin-left: -1%; position: inherit !important;" title="Eliminar Producto" class="btn btn-danger" > X </a> </td>';
+
+
+
+                    sOptions += '</tr>'
+                }
+                $("#tbodySolicitud2").html(sOptions);
+                for (var i = 0; i < ProdCadenaM.length; i++) {
+                    var checkbox1 = document.getElementById(i + "check");
+                    if (ProdCadenaM[i].Opcional) {
+                        checkbox1.checked = true;
+                    }
+                 }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+
+        function EliminaProductoHijo(i) {
+            try {
+                ProdCadenaM.splice(i, 1);
+                RellenaTablaMia2();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+        function LimpiarDatosPH() {
+            try {
+                $("#Busqueda").val("");
+                $("#codigoSAPProducto").val(0);
+                $("#StockProd").text(""); 
+                $("#Nombre").text("");
+                $("#cantidad").val(0);
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+
+        function onChangeError(i)
+        {
+            try{
+                ProdCadenaM[i].idError = $("#error-" + i).val();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
+        function DevuelveTotal() {
+            try {
+                var total = 0;
+                for (var i = 0; i < ProdCadenaM.length; i++) {
+                    var valorDigitado = ProdCadenaM[i].idProducto;
+                    var Prod = ProductosGenerales.find(a => a.id == valorDigitado);
+                    total += parseFloat(Prod.Precio) * ProdCadenaM[i].Cantidad;
+                }
+              
+                return total;
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+
+            }
+        }
+        function CalculaSemaforo() {
+            try {
+                var PrecioMaquina = parseFloat($("#PrecioProductoPadre").val());
+                //if ($("#Moneda").val() != "COL") {
+                //    PrecioMaquina = PrecioMaquina / Rate;
+                //}
+                var PrecioTotalDoc = parseFloat(DevuelveTotal());
+
+                var Semaforo = PrecioMaquina != 0 ? (PrecioTotalDoc / PrecioMaquina) * 100 : 0;
+                $('#divSemaforo').css('width', Semaforo + '%');
+                $('#spanSemaforo').text(Semaforo.toFixed(0) + '%');
+
+                if (Semaforo > 0 && Semaforo < 40) {
+                    $('#divSemaforo').attr('class', 'progress-bar bg-success');
+                    $('#spanSemaforo').attr('class', 'badge bg-success');
+
+
+                } else if (Semaforo > 40 && Semaforo < 80) {
+                    $('#divSemaforo').attr('class', 'progress-bar bg-warning');
+                    $('#spanSemaforo').attr('class', 'badge bg-warning');
+
+                } else {
+                    $('#divSemaforo').attr('class', 'progress-bar bg-danger');
+                    $('#spanSemaforo').attr('class', 'badge bg-danger');
+
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+
+            }
+        }
     </script>
     <script type="text/javascript">
         var file = document.getElementById('file');
@@ -740,7 +1167,7 @@
                 // We put the Data URI in the image's src attribute
                 img.src = datas;
                 // When the event "onload" is triggered we can resize the image.
-                img.onload = function() {
+                img.onload = function () {
 
                     var height = this.height;
                     var width = this.width;
@@ -786,7 +1213,7 @@
             var input = event.target;
 
             var reader = new FileReader();
-            reader.onload = function() {
+            reader.onload = function () {
                 var dataURL = reader.result;
 
                 var imgResized = "";
@@ -809,7 +1236,7 @@
             documentosbase64.splice(documentosbase64.indexOf(documentosbase64.find(a => a.id == id)), 1)
         }
 
-        file.addEventListener('change', function(e) {
+        file.addEventListener('change', function (e) {
 
             for (var i = 0; i < file.files.length; i++) {
                 var thumbnail_id = Math.floor(Math.random() * 30000) + '_' + Date.now();
@@ -823,7 +1250,7 @@
 
 
 
-        var createThumbnail = function(file, iterator, thumbnail_id) {
+        var createThumbnail = function (file, iterator, thumbnail_id) {
             var thumbnail = document.createElement('div');
             thumbnail.classList.add('thumbnail', thumbnail_id);
             thumbnail.dataset.id = thumbnail_id;
@@ -833,25 +1260,25 @@
             createCloseButton(thumbnail_id);
         }
 
-        var createCloseButton = function(thumbnail_id) {
+        var createCloseButton = function (thumbnail_id) {
             var closeButton = document.createElement('div');
             closeButton.classList.add('close-button');
             closeButton.innerText = 'x';
             document.getElementsByClassName(thumbnail_id)[0].appendChild(closeButton);
         }
 
-        var clearFormDataAndThumbnails = function() {
+        var clearFormDataAndThumbnails = function () {
             for (var key of formData.keys()) {
                 formData.delete(key);
             }
 
-            document.querySelectorAll('.thumbnail').forEach(function(thumbnail) {
+            document.querySelectorAll('.thumbnail').forEach(function (thumbnail) {
                 thumbnail.remove();
             });
         }
 
 
-        document.body.addEventListener('click', function(e) {
+        document.body.addEventListener('click', function (e) {
             if (e.target.classList.contains('close-button')) {
                 e.target.parentNode.remove();
                 formData.delete(e.target.parentNode.dataset.id);
@@ -881,83 +1308,90 @@
         var span = document.getElementsByClassName("close")[0];
 
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
+        span.onclick = function () {
             modal.style.display = "none";
         }
     </script>
 
 
 }
-    @using Newtonsoft.Json;
 
-    <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <h5 class="title">Editar Repuestos</h5>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Editar Repuestos</h5>
 
-                            </div>
+                        </div>
 
-                            <div class="col-sm-6" style="text-align: right">
+                        <div class="col-sm-6" style="text-align: right">
 
-                                <a asp-page="./Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                            <a asp-page="./Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
 
-                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <input hidden id="HijosDisponibles" value="@JsonConvert.SerializeObject(Model.InputHijos)" />
-                        <input hidden id="HijosSeleccionados" value="@JsonConvert.SerializeObject(Model.Input)" />
-                        <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
-                        <input hidden id="Control" value="@JsonConvert.SerializeObject(Model.Control)" />
+                </div>
+                <div class="card-body">
+                    <input hidden id="HijosDisponibles" value="@JsonConvert.SerializeObject(Model.InputHijos)" />
+                    <input hidden id="RepuestosAprobados" value="@JsonConvert.SerializeObject(Model.CotizacionesAprobadas)" />
+
+                    <input hidden id="HijosSeleccionados" value="@JsonConvert.SerializeObject(Model.Input)" />
+                    <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
+                    <input hidden id="Control" value="@JsonConvert.SerializeObject(Model.Control)" />
+                    <input hidden id="ProductosGenerales" value="@JsonConvert.SerializeObject(Model.ProductosGenerales)" />
+                    <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
+                    <input id="PrecioProductoPadre" hidden type="number"  class="form-control" onchange="javascript: CalculaSemaforo()" />
+
+                    <input hidden id="RolSolicitudNuevo" value="@string.IsNullOrEmpty(Roles.Where(a => a == "49").FirstOrDefault())" />
 
 
-                        <div class="row">
-                            <div class="col-md-4 pr-1">
 
-                                <div class="form-group">
-                                    <label>Producto</label>
-                                    <input type="text" class="form-control form-control-lg" id="desc" asp-for="Producto" readonly>
-                                    <input id="idGeneral" asp-for="Encabezado.id" hidden />
-                                </div>
+                    <div class="row">
+                        <div class="col-md-4 pr-1">
 
+                            <div class="form-group">
+                                <label>Producto</label>
+                                <input type="text" class="form-control form-control-lg" id="desc" asp-for="Producto" readonly>
+                                <input id="idGeneral" asp-for="Encabezado.id" hidden />
+                            </div>
+
+
+                        </div>
+
+
+
+
+                        <div class="col-md-4 pr-1">
+
+                            <div class="form-group">
+                                <label>Estado de la Reparación</label>
+                                <select id="status" class="form-control" asp-for="Encabezado.Status">
+                                    <option value="0" selected>Abierto</option>
+
+
+                                    <option value="1">Cerrado </option>
+                                    <option value="2">Cerrado y Reparado </option>
+
+
+
+                                </select>
 
                             </div>
 
 
-
-
-                            <div class="col-md-4 pr-1">
-
-                                <div class="form-group">
-                                    <label>Estado de la Reparación</label>
-                                    <select id="status" class="form-control" asp-for="Encabezado.Status">
-                                        <option value="0" selected>Abierto</option>
-
-
-                                        <option value="1">Cerrado </option>
-                                        <option value="2">Cerrado y Reparado </option>
-
-
-
-                                    </select>
-
-                                </div>
-
-
-                            </div>
-                            <div class="col-md-4 pl-1">
-                                <div class="form-group">
-                                    <label>Estado de la Llamada:</label>
-                                    <input asp-for="InputLlamada.id" id="idLlamada" hidden />
-                                    <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
-                                        <option value="0">Seleccione</option>
-                                        @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48"))
+                        </div>
+                        <div class="col-md-4 pl-1">
+                            <div class="form-group">
+                                <label>Estado de la Llamada:</label>
+                                <input asp-for="InputLlamada.id" id="idLlamada" hidden />
+                                <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48"))
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
                                     }
@@ -1023,13 +1457,13 @@
 
                             <div class="form-group">
                                 <label>Tipo de Caso</label>
-                               <select id="tp" class="form-control" asp-for="InputLlamada.TipoCaso" disabled="disabled">
-                                
-                                @foreach (var item in Model.TP)
-                                {
-                                    <option value="@item.idSAP">@item.Nombre</option>
-                                }
-                            </select>
+                                <select id="tp" class="form-control" asp-for="InputLlamada.TipoCaso" disabled="disabled">
+
+                                    @foreach (var item in Model.TP)
+                                    {
+                                        <option value="@item.idSAP">@item.Nombre</option>
+                                    }
+                                </select>
 
                             </div>
 
@@ -1144,6 +1578,7 @@
         </div>
     </div>
 
+    <!--Empieza el sector de Generar movimiento, solicitud y devolucion-->
 
     <div class="row">
 
@@ -1157,6 +1592,7 @@
                         </div>
 
                         <div class="col-sm-4" style="text-align: right;">
+                           
                         </div>
                     </div>
                 </div>
@@ -1194,6 +1630,133 @@
             </div>
         </div>
 
+        <div id="rowSolicitud2" class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-8">
+
+                            <h5 class="title" id=""> Repuestos a Solicitar</h5>
+                        </div>
+
+                        <div class="col-sm-4" style="text-align: right;">
+                            <span id="spanSemaforo" style="font-weight: bold; color: white;" class="badge bg-success">0%</span>
+
+                            <div class="progress progress-xs progress-striped active">
+                                <div id="divSemaforo" class="progress-bar bg-success" style="width: 1%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <label class="col-form-label">Seleccionar Repuesto:</label>
+                    <div class="form-group row">
+
+
+                        <label id="id" hidden style="line-height: 32px;">
+                        </label>
+                        <div class="col-sm-6">
+                            <input id="Busqueda" list="prodHijos" class="form-control" type="text" />
+                            <datalist id="prodHijos">
+                                @foreach (var item in Model.ProductosGenerales.ToList())
+                                {
+                                    <option value="@item.codSAP _ @item.Nombre "> @item.codSAP - @item.Nombre </option>
+                                }
+                            </datalist>
+
+                        </div>
+                        <div class="col-sm-3">
+
+                            <button title="Buscar" type="button" class="btn btn btn-primary" onclick="javascript: onChangeProducto();"> <i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-sm-3">
+
+                            <div class="form-group row">
+                                <input hidden id="codigoSAPProducto" />
+                                <div class="col-sm-12">
+                                    <label class="col-form-label">Nombre:</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label id="Nombre" style="line-height: 32px;">
+                                    </label>
+
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+                        <div class="col-sm-3">
+
+                            <div class="form-group row"> 
+                                <div class="col-sm-12">
+                                    <label class="col-form-label">Stock:</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label id="StockProd" style="line-height: 32px;">
+                                    </label>
+
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <label class="col-form-label">Cantidad:</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <input id="cantidad" class="form-control" type="number" step="1" />
+
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-3" style="text-align: center;">
+
+                            <a title="Agregar" id="Agregar" onclick="javascript: InsertarProductoTabla();" style=" color: #fff; width: 25%;" class="btn btn-rounded btn-primary">+</a>
+                        </div>
+
+
+                    </div>
+                    <div class="table-responsive tableFixHead" style="padding:inherit; overflow:scroll;    z-index: 5; height: 290px;">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+
+                                    <th align="center" style=" text-align: center;">Item</th>
+                                    <th align="center" style=" text-align: center;">Cantidad </th>
+                                    <th align="center" style=" text-align: center;">Stock </th>
+                                    <th align="center" style=" text-align: center;">Diagnostico </th>
+                                    <th align="center" style=" text-align: center;">Opcional </th>
+
+
+
+
+
+                                    <th align="center" style=" text-align: center;">Acción</th>
+                                </tr>
+
+                            </thead>
+                            <tbody id="tbodySolicitud2">
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
         <div class="col-md-12" id="rowRepUti">
             <div class="card">
                 <div class="card-header">
@@ -1239,7 +1802,6 @@
                 </div>
             </div>
         </div>
-
 
         <div id="rowRepUtilizados" class="col-md-12">
             <div class="card">
@@ -1331,6 +1893,9 @@
         </div>
 
 
+
+
+
         <div class="col-sm-6">
             <div class="form-group">
                 <label>Comentarios</label>
@@ -1340,7 +1905,7 @@
             </div>
         </div>
 
-         <div class="col-sm-6">
+        <div class="col-sm-6">
             <div class="form-group">
                 <label>Comentarios Llamada</label>
 
@@ -1349,6 +1914,10 @@
             </div>
         </div>
     </div>
+
+    <!--Termina el sector de Generar movimiento, solicitud y devolucion-->
+
+
 
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">

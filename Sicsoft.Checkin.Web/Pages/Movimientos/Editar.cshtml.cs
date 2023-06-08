@@ -21,6 +21,9 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<LlamadasViewModel, int> serviceLlamada;
         private readonly ICrudApi<ProductosHijosViewModel, int> service2;
         private readonly ICrudApi<ImpuestosViewModel, int> impuestos;
+        private readonly ICrudApi<ProductosViewModel, int> prods;
+        private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
+
 
 
 
@@ -35,6 +38,11 @@ namespace Boletaje.Pages.Movimientos
 
         [BindProperty]
         public bool RolAceptacion { get; set; }
+        [BindProperty]
+        public ProductosPadresViewModel ProductoPadre { get; set; }
+
+        [BindProperty]
+        public ProductosHijosViewModel[] Productos { get; set; }
 
         [BindProperty]
         public ProductosHijosViewModel[] ProductosHijos { get; set; }
@@ -48,13 +56,19 @@ namespace Boletaje.Pages.Movimientos
         [BindProperty]
         public ProductosHijosViewModel[] ProductosHijosInsertar { get; set; }
 
-        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos)
+        [BindProperty]
+
+        public Producto ProductoPadreLlamada { get; set; }
+
+        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods, ICrudApi<ProductosPadresViewModel, int> prodsPadre)
         {
             this.service = service;
             this.clientes = clientes;
             this.serviceLlamada = serviceLlamada;
             this.service2 = service2;
             this.impuestos = impuestos;
+            this.prods = prods; 
+            this.prodsPadre = prodsPadre;   
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -80,7 +94,7 @@ namespace Boletaje.Pages.Movimientos
 
                 var ProductosHijos2 = new List<ProductosHijosViewModel>();
                 var Produc = await service2.ObtenerLista("");
-
+                Productos = Produc;
                 foreach (var item in Input.Detalle)
                 {
                     var Pr = Produc.Where(a => a.codSAP == item.ItemCode).FirstOrDefault();
@@ -97,6 +111,19 @@ namespace Boletaje.Pages.Movimientos
                     ProductosHijosInsertar = ProductosHijosInsertar.Where(a => a.id != item.id).ToArray();
                 }
 
+                var ProductosPadres = await prodsPadre.ObtenerLista("");
+                ProductoPadre = ProductosPadres.Where(a => a.codSAP == Llamada.ItemCode).FirstOrDefault();
+                if(ProductoPadre == null)
+                {
+                    ProductoPadre = new ProductosPadresViewModel();
+                    ProductoPadre.codSAP = Llamada.ItemCode;
+                    ProductoPadre.Nombre = Llamada.ItemCode;
+                    ProductoPadre.Precio = 0;
+                }
+                else
+                {
+                    ProductoPadre.Precio = Math.Round(ProductoPadre.Precio, 2);
+                }
 
                 return Page();
             }
@@ -148,7 +175,9 @@ namespace Boletaje.Pages.Movimientos
                     coleccion.Detalle[cantidad - 1].Impuestos = item.Impuestos;
                     coleccion.Detalle[cantidad - 1].TotalLinea = item.TotalLinea;
                     coleccion.Detalle[cantidad - 1].Garantia = item.Garantia;
+                    coleccion.Detalle[cantidad - 1].Opcional = item.Opcional;
                     coleccion.Detalle[cantidad - 1].idImpuesto = item.idImpuesto;
+
 
 
                     cantidad++;

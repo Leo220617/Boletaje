@@ -14,7 +14,7 @@ namespace Boletaje.Pages.Asuntos
 {
     public class IndexModel : PageModel
     {
-        private readonly IConfiguration configuration;
+        
         private readonly ICrudApi<AsuntosViewModel, int> service;
 
         [BindProperty]

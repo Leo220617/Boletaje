@@ -11,5 +11,6 @@ namespace Boletaje.Models
         public string codSAP { get; set; }
         public string Nombre { get; set; }
         public decimal Stock { get; set; }
+        public decimal Precio { get; set; }
     }
 }

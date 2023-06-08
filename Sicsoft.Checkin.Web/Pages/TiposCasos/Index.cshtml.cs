@@ -16,8 +16,7 @@ using Sicsoft.Checkin.Web.Servicios;
 namespace Boletaje.Pages.TiposCasos
 {
     public class IndexModel : PageModel
-    {
-        private readonly IConfiguration configuration;
+    { 
         private readonly ICrudApi<TiposCasosViewModel, int> service;
 
         [BindProperty]

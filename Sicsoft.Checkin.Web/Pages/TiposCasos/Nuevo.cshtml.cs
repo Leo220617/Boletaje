@@ -15,8 +15,7 @@ using Sicsoft.Checkin.Web.Servicios;
 namespace Boletaje.Pages.TiposCasos
 {
     public class NuevoModel : PageModel
-    {
-        private readonly IConfiguration configuration;
+    { 
         private readonly ICrudApi<TiposCasosViewModel, int> service;
 
         [BindProperty]
