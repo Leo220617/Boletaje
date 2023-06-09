@@ -20,11 +20,15 @@
 
 @section scripts{
     <script>
-        var btn = document.getElementById('Guardar');
+        var btn = document.getElementById('Guardar'); 
+        $(document).ready(function () {
+            btn.disabled = false;
+        });
+
         function onGuardar() {
             btn.disabled = true;
             $("#formTipos").submit();
-            btn.disabled = false;
+             
 
         }
     </script>
@@ -116,7 +120,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar();">Guardar Cambios</button>
+                                <button type="button" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar();">Guardar Cambios</button>
                             </div>
                         </div>
                     </div>

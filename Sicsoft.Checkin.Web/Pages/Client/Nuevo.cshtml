@@ -21,13 +21,28 @@
 @section scripts{
 
     <script>
-        var btn = document.getElementById('Guardar');
-        function onGuardar() {
-            btn.disabled = true;
-            $("#formTipos").submit();
-            btn.disabled = false;
 
-        }
+
+                            var btn = document.getElementById('Guardar');
+                $(document).ready(function() {
+                    btn.disabled = false;
+                });
+
+
+        function onGuardar() {
+               try
+               {
+                   btn.disabled = true;
+                    $("#formTipos").submit();
+              //  btn.disabled = false;
+               }catch(e)
+               {
+                   console.log(e);
+               }
+
+
+
+            }
     </script>
 
 }
@@ -42,9 +57,6 @@
                     </div>
 
                     <div class="col-sm-6" style="text-align: right">
-
-
-
                     </div>
                 </div>
 
@@ -111,17 +123,17 @@
                             <div class="form-group">
                                 <label>Dirección:</label>
 
-                                <input type="text" class="form-control form-control-lg" id="dir" placeholder="Direccion" asp-for="Input.Direccion" >
+                                <input type="text" class="form-control form-control-lg" id="dir" placeholder="Direccion" asp-for="Input.Direccion">
 
                             </div>
                         </div>
-                       
+
                     </div>
 
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar();">Guardar Cambios</button>
+                                <button type="button" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar();">Guardar Cambios</button>
                             </div>
                         </div>
                     </div>

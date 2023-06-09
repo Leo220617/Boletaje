@@ -21,7 +21,12 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<LlamadasViewModel, int> service;
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<StatusViewModel, int> serviceStatus;
+        private readonly ICrudApi<ProductosViewModel, int> prods;
+        private readonly ICrudApi<SucursalesViewModel, int> sucursales;
 
+        [BindProperty]
+
+        public SucursalesViewModel[] Sucursales { get; set; }
         [BindProperty]
         public StatusViewModel[] Status { get; set; }
         [BindProperty]
@@ -31,12 +36,16 @@ namespace Boletaje.Pages.Llamadas
 
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
+        [BindProperty]
+        public ProductosViewModel Productos { get; set; }
 
-        public IndexModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> serviceStatus)
+        public IndexModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> serviceStatus, ICrudApi<ProductosViewModel, int> prods, ICrudApi<SucursalesViewModel, int> sucursales)
         {
             this.service = service;
             this.clientes = clientes;
             this.serviceStatus = serviceStatus;
+            this.prods = prods;
+            this.sucursales = sucursales;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -73,6 +82,8 @@ namespace Boletaje.Pages.Llamadas
 
                 Objeto = await service.ObtenerLista(filtro);
                 Status = await serviceStatus.ObtenerLista("");
+                Productos = await prods.ObtenerListaEspecial("");
+                Sucursales = await sucursales.ObtenerLista("");
 
                 return Page();
             }
