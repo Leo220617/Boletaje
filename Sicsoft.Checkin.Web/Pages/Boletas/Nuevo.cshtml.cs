@@ -64,8 +64,19 @@ namespace Boletaje.Pages.Boletas
         {
             try
             {
-                Input.CardCode = Input.CardCode.Split("/")[0];
+
+
+                Input.CardCode = Input.CardCode.Split("/")[0].TrimStart().TrimEnd();
                 Input.ItemCode = Input.ItemCode.Split("/")[0];
+
+
+
+                Clientes = await serviceClientes.ObtenerListaEspecial("");
+                var Existe = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault();
+                if (Existe == null)
+                {
+                    throw new Exception("Cliente es invalido");
+                }
 
                 await service.Agregar(Input);
                 return RedirectToPage("/Llamadas/Nuevo");

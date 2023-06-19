@@ -53,6 +53,7 @@
             <div class="card-body">
                 <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input   asp-for="ItemCode2" readonly disabled hidden />
 
                     <div class="row">
                         <div class="col-md-6">
@@ -60,6 +61,8 @@
                                 <label>No Serie:</label>
 
                                 <input type="text" class="form-control form-control-lg" id="serie" placeholder="Numero de serie" asp-for="Producto.internalSN" readonly>
+                                <input type="text" class="form-control form-control-lg" id="serie" placeholder="Numero de serie" asp-for="Input.ItemCode" readonly hidden>
+                                 
 
                             </div>
                         </div>
@@ -104,10 +107,11 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
+                                 
                                 <label>Producto:</label>
                                 <input type="text"  class="form-control form-control-lg" id="itemcode" placeholder="Producto" value="@Model.Producto.itemCode - @Model.Producto.itemName " readonly disabled />
 
-                                <input type="text"  asp-for="Producto.itemCode" readonly disabled hidden/>
+
 
                                 
                             </div>

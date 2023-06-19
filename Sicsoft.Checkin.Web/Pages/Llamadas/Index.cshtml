@@ -359,7 +359,7 @@
                                 <tr> 
                                     <td>@item.DocEntry</td>
 
-                                    <td> @Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName</td>
+                                    <td> @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" :Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName )</td>
                                     <td>@item.ItemCode - @item.SerieFabricante - @(
                                     Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault().itemName
                                     )</td>

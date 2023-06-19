@@ -294,7 +294,33 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.Horas = recibido.Horas;
 
                 coleccion.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
-                coleccion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
+                try
+                {
+                    coleccion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
+                    var Validacion  = recibido.CardCode.Split("/")[1].Replace(" ", "");
+
+                }
+                catch (Exception)
+                {
+
+                    throw new Exception("Debe seleccionar el cliente de la manera correcta");
+                }
+
+                try
+                {
+                    Clientes = await clientes.ObtenerListaEspecial("");
+                    var Existe = Clientes.Clientes.Where(a => a.CardCode == coleccion.CardCode).FirstOrDefault();
+                    if(Existe == null)
+                    {
+                        throw new Exception("Cliente es invalido");
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                     throw new Exception($"{ex.Message}");
+                }
+
                 var item = recibido.ItemCode;
                 coleccion.ItemCode = item.Split("/")[0].Replace(" ", "");
                 coleccion.SerieFabricante = item.Split("/")[1].Replace(" ", "");

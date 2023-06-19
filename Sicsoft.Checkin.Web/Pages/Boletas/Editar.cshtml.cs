@@ -33,6 +33,8 @@ namespace Boletaje.Pages.Boletas
 
         [BindProperty]
         public Producto Producto { get; set; }
+        [BindProperty]
+        public string ItemCode2 { get; set; }
 
         public EditarModel(ICrudApi<BoletaViewModel, int> service, ICrudApi<ProductosBoletaViewModel, int> serviceProductos, ICrudApi<ClientesViewModel, int> serviceClientes, ICrudApi<ProductosViewModel, int> prods)
         {
@@ -59,6 +61,9 @@ namespace Boletaje.Pages.Boletas
                 var productos = await prods.ObtenerListaEspecial("");
                 var Serie = id.Split("|")[1].TrimStart();
                 var ItemCode = id.Split("|")[0].TrimEnd();
+                Input = new BoletaViewModel();
+                Input.ItemCode = ItemCode;
+                ItemCode2 = ItemCode;
                 Producto = productos.Productos.Where(a => a.manufSN == Serie && a.itemCode == ItemCode).FirstOrDefault();
                 Producto.customer = Producto.customer + " / " + Clientes.Clientes.Where(a => a.CardCode == Producto.customer).FirstOrDefault().CardName;
                 return Page();
@@ -74,11 +79,19 @@ namespace Boletaje.Pages.Boletas
         {
             try
             {
-                Input = new BoletaViewModel();
+                
+                //Input = new BoletaViewModel();
                 Input.NoSerie = Producto.internalSN;
                 Input.NoSerieFabricante = Producto.manufSN;
-               // Input.ItemCode = Producto.itemCode.Split("/")[0].TrimStart().TrimEnd(); 
-                Input.CardCode = Producto.customer.Split("/")[0].TrimStart().TrimEnd(); 
+                //Input.ItemCode = ItemCode2;
+                Input.CardCode = Producto.customer.Split("/")[0].TrimStart().TrimEnd();
+
+                Clientes = await serviceClientes.ObtenerListaEspecial("");
+                var Existe = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault();
+                if (Existe == null)
+                {
+                    throw new Exception("Cliente es invalido");
+                }
 
                 await service.Editar(Input);
                 return RedirectToPage("/Llamadas/Nuevo");
