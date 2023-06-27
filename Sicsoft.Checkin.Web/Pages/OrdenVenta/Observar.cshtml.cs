@@ -22,6 +22,9 @@ namespace Boletaje.Pages.OrdenVenta
         private readonly ICrudApi<ImpuestosViewModel, int> impuestos;
         private readonly ICrudApi<ClientesPOrdenesViewModel, int> clientes;
         private readonly ICrudApi<ProductosCOrdenesViewModel, int> prod;
+        private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
+        private readonly ICrudApi<GarantiasViewModel, int> garan;
+        private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
 
         [BindProperty]
         public string Bodega { get; set; }
@@ -36,12 +39,26 @@ namespace Boletaje.Pages.OrdenVenta
 
         [BindProperty]
         public ProductosCOrdenesViewModel Productos { get; set; }
-        public ObservarModel(ICrudApi<OrdenVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod)
+
+        [BindProperty]
+        public CondicionesPagosViewModel[] Condiciones { get; set; }
+
+        [BindProperty]
+        public GarantiasViewModel[] Garantias { get; set; }
+
+        [BindProperty]
+        public TiemposEntregasViewModel[] Tiempos { get; set; }
+        public ObservarModel(ICrudApi<OrdenVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod,
+             ICrudApi<CondicionesPagosViewModel, int> conds,
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp)
         {
             this.service = service;
             this.impuestos = impuestos;
             this.clientes = clientes;
             this.prod = prod;
+            this.conds = conds;
+            this.garan = garan;
+            this.tiemp = tiemp;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -54,7 +71,9 @@ namespace Boletaje.Pages.OrdenVenta
                     return RedirectToPage("/NoPermiso");
                 }
                 Bodega = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Bodega").Select(s1 => s1.Value).FirstOrDefault();
-
+                Condiciones = await conds.ObtenerLista("");
+                Garantias = await garan.ObtenerLista("");
+                Tiempos = await tiemp.ObtenerLista("");
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Impuestos = await impuestos.ObtenerLista("");
 

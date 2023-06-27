@@ -23,7 +23,9 @@ namespace Boletaje.Pages.OrdenVenta
         private readonly ICrudApi<ImpuestosViewModel, int> impuestos;
         private readonly ICrudApi<ClientesPOrdenesViewModel, int> clientes;
         private readonly ICrudApi<ProductosCOrdenesViewModel, int> prod;
-
+        private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
+        private readonly ICrudApi<GarantiasViewModel, int> garan;
+        private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
 
         [BindProperty]
         public string Bodega { get; set; }
@@ -35,13 +37,27 @@ namespace Boletaje.Pages.OrdenVenta
 
         [BindProperty]
         public ClientesPOrdenesViewModel Clientes { get; set; }
-        public NuevoModel(ICrudApi<OrdenVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod, ICrudApi<OfertaVentaViewModel, int> service2)
+
+        [BindProperty]
+        public CondicionesPagosViewModel[] Condiciones { get; set; }
+
+        [BindProperty]
+        public GarantiasViewModel[] Garantias { get; set; }
+
+        [BindProperty]
+        public TiemposEntregasViewModel[] Tiempos { get; set; }
+        public NuevoModel(ICrudApi<OrdenVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod, ICrudApi<OfertaVentaViewModel, int> service2,
+             ICrudApi<CondicionesPagosViewModel, int> conds,
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp)
         {
             this.service = service;
             this.impuestos = impuestos;
             this.clientes = clientes;
             this.prod = prod;
             this.service2 = service2;
+            this.conds = conds;
+            this.garan = garan;
+            this.tiemp = tiemp;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -57,7 +73,9 @@ namespace Boletaje.Pages.OrdenVenta
 
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Impuestos = await impuestos.ObtenerLista("");
-
+                Condiciones = await conds.ObtenerLista("");
+                Garantias = await garan.ObtenerLista("");
+                Tiempos = await tiemp.ObtenerLista("");
 
                 if (id != 0)
                 {
@@ -72,8 +90,11 @@ namespace Boletaje.Pages.OrdenVenta
                     Orden.TipoDocumento = Ofertas.TipoDocumento;
                     Orden.NumAtCard = Ofertas.NumAtCard;
                     Orden.Comentarios = Ofertas.Comentarios + " | Basado en la oferta de ventas # " + id;
-                    Orden.CodVendedor = Ofertas.CodVendedor; 
-                     
+                    Orden.CodVendedor = Ofertas.CodVendedor;
+
+                    Orden.idCondPago = Ofertas.idCondPago;
+                    Orden.idGarantia = Ofertas.idGarantia;
+                    Orden.idTiemposEntregas = Ofertas.idTiemposEntregas;
                     var Tamaño = Ofertas.Detalle.Count();
                     Orden.Detalle = new List<Detalle>();
 
@@ -174,6 +195,9 @@ namespace Boletaje.Pages.OrdenVenta
                 coleccion.Series = recibido.Series;
                 coleccion.Comentarios = recibido.Comentarios;
 
+                coleccion.idCondPago = recibido.idCondPago;
+                coleccion.idGarantia = recibido.idGarantia;
+                coleccion.idTiemposEntregas = recibido.idTiemposEntregas;
                 coleccion.CodVendedor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
                 
                 coleccion.ProcesadaSAP = false;
@@ -215,6 +239,8 @@ namespace Boletaje.Pages.OrdenVenta
 
 
                 await service.Agregar(coleccion);
+
+                await service2.Eliminar(coleccion.BaseEntry);
 
                 var obj = new
                 {

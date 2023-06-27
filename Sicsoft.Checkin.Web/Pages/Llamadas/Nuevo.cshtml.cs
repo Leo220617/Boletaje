@@ -67,7 +67,10 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public AsuntosViewModel[] Asuntos { get; set; }
 
-        public NuevoModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
+        [BindProperty]
+        public string EmpiezaPor { get; set; }
+
+        public NuevoModel(IConfiguration configuration, ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
             ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos)
         {
             this.service = service;
@@ -79,6 +82,7 @@ namespace Boletaje.Pages.Llamadas
             this.status = status;
             this.tp = tp;
             this.asuntos = asuntos;
+            this.configuration = configuration;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -89,8 +93,10 @@ namespace Boletaje.Pages.Llamadas
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+
+                 EmpiezaPor = configuration["BusquedaPor"].ToString();
                 Asuntos = await asuntos.ObtenerLista("");
-                //Clientes = await clientes.ObtenerListaEspecial("");
+                //
                 // Productos = await prods.ObtenerListaEspecial("");
                 TP = await tp.ObtenerLista("");
                 Garantias = await garantias.ObtenerLista("");
@@ -99,7 +105,20 @@ namespace Boletaje.Pages.Llamadas
                 Status = await status.ObtenerLista("");
                 Input = new LlamadasViewModel();
                 Input.Horas = 0;
-                Productos = await prods.ObtenerListaEspecial("");
+                if (EmpiezaPor == "C")
+                {
+                    Clientes = await clientes.ObtenerListaEspecial("");
+                    Productos = new ProductosViewModel();
+                    Productos.Productos = new Producto[0];
+                }
+                else if (EmpiezaPor == "P")
+                {
+                    Clientes = new ClientesViewModel();
+                    Clientes.Clientes = new cliente[0];
+
+                    Productos = await prods.ObtenerListaEspecial("");
+
+                }
                 return Page();
             }
             catch (ApiException ex)
@@ -133,8 +152,8 @@ namespace Boletaje.Pages.Llamadas
                 var objeto = objetos.Productos.ToList();
                 if (idB != "0")
                 {
-                     objeto = objetos.Productos.Where(a => a.customer.ToString().Contains(idB.ToUpper())
-               ).ToList();
+                    objeto = objetos.Productos.Where(a => a.customer.ToString().Contains(idB.ToUpper())
+              ).ToList();
                 }
 
 
@@ -196,7 +215,7 @@ namespace Boletaje.Pages.Llamadas
                 }
                 else
                 {
-                  
+
 
 
                     var prod = await prods.ObtenerListaEspecial("");
@@ -218,7 +237,7 @@ namespace Boletaje.Pages.Llamadas
 
                     return new JsonResult(objeto);
                 }
-                 
+
             }
             catch (ApiException ex)
             {
@@ -237,7 +256,7 @@ namespace Boletaje.Pages.Llamadas
         }
 
 
-       
+
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -297,7 +316,7 @@ namespace Boletaje.Pages.Llamadas
                 try
                 {
                     coleccion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
-                    var Validacion  = recibido.CardCode.Split("/")[1].Replace(" ", "");
+                    var Validacion = recibido.CardCode.Split("/")[1].Replace(" ", "");
 
                 }
                 catch (Exception)
@@ -310,7 +329,7 @@ namespace Boletaje.Pages.Llamadas
                 {
                     Clientes = await clientes.ObtenerListaEspecial("");
                     var Existe = Clientes.Clientes.Where(a => a.CardCode == coleccion.CardCode).FirstOrDefault();
-                    if(Existe == null)
+                    if (Existe == null)
                     {
                         throw new Exception("Cliente es invalido");
                     }
@@ -318,7 +337,7 @@ namespace Boletaje.Pages.Llamadas
                 catch (Exception ex)
                 {
 
-                     throw new Exception($"{ex.Message}");
+                    throw new Exception($"{ex.Message}");
                 }
 
                 var item = recibido.ItemCode;

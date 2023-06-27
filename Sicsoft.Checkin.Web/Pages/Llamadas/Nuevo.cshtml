@@ -1108,20 +1108,17 @@
             }
         }
 
-        function EditarTarjeta()
-        {
-            try
-            {
+        function EditarTarjeta() {
+            try {
                 var id = $("#producto").val();
-                if(id == null || id == undefined || id == "0")
-                {
+                if (id == null || id == undefined || id == "0") {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Seleccione primero un producto'
 
                     })
-                }else{
+                } else {
 
                     var id2 = id.split("/")[0].trimEnd().trim() + " | " + id.split("/")[1].trimEnd().trim();
 
@@ -1475,8 +1472,27 @@
                     <div class="col-md-6">
                         <label>Realiza búsqueda por:</label>
                         <select id="rBusqueda" class="form-control" required onchange="javascript: cambiarBusqueda();">
-                            <option value="0">Cliente</option>
-                            <option value="1" selected>Producto</option>
+                            @if (Model.EmpiezaPor == "C")
+                            {
+                                <option value="0" selected>Cliente</option>
+
+                            }
+                            else
+                            {
+                                <option value="0">Cliente</option>
+
+                            }
+
+                            @if (Model.EmpiezaPor == "P")
+                            {
+                                <option value="1" selected>Producto</option>
+
+                            }
+                            else
+                            {
+                                <option value="1">Producto</option>
+
+                            }
 
 
                         </select>
@@ -1493,15 +1509,15 @@
                             <datalist id="cardcodes">
                                 <option value="0/0">Seleccione</option>
 
-                                @*   @foreach (var item in Model.Clientes.Clientes)
+                                @foreach (var item in Model.Clientes.Clientes)
                                 {
-                                <option value="@item.CardCode / @item.CardName"> </option>
-                                }*@
+                                    <option value="@item.CardCode / @item.CardName"> </option>
+                                }
                             </datalist>
 
 
                         </div>
-                            <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
+                        <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
@@ -1517,7 +1533,7 @@
 
                             </datalist>
 
-                            
+
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -1747,7 +1763,7 @@
                     <div class="row">
                         <div class="col-md-12">
 
-                            <input type="button" class="btn btn-rounded btn-outline-primary" id="draw-clearBtn" value="Borrar Firma"/>
+                            <input type="button" class="btn btn-rounded btn-outline-primary" id="draw-clearBtn" value="Borrar Firma" />
 
                             <label hidden>Color</label>
                             <input type="color" id="color" hidden>

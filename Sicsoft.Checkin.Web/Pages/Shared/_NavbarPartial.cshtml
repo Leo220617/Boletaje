@@ -176,6 +176,28 @@
                                     }
 
                                 </li>
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "50").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/CondicionesPagos/Index">Condiciones de Pago</a>
+                                        }
+
+                                    }
+
+                                </li>
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "52").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/TiemposEntregas/Index">Tiempos de Entrega</a>
+                                        }
+
+                                    }
+
+                                </li>
                             </ul>
                         </div>
                     </li>

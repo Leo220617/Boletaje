@@ -21,6 +21,10 @@ namespace Boletaje.Pages.OfertaVenta
         private readonly ICrudApi<ImpuestosViewModel, int> impuestos;
         private readonly ICrudApi<ClientesPOrdenesViewModel, int> clientes;
         private readonly ICrudApi<ProductosCOrdenesViewModel, int> prod;
+        private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
+        private readonly ICrudApi<GarantiasViewModel, int> garan;
+        private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
+
 
 
         [BindProperty]
@@ -33,15 +37,28 @@ namespace Boletaje.Pages.OfertaVenta
 
         [BindProperty]
         public ClientesPOrdenesViewModel Clientes { get; set; }
-        public NuevoModel(ICrudApi<OfertaVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod)
+
+        [BindProperty]
+        public CondicionesPagosViewModel[] Condiciones { get; set; }
+
+        [BindProperty]
+        public GarantiasViewModel[] Garantias { get; set; }
+
+        [BindProperty]
+        public TiemposEntregasViewModel[] Tiempos { get; set; }
+        public NuevoModel(ICrudApi<OfertaVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod, ICrudApi<CondicionesPagosViewModel, int> conds,
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp)
         {
             this.service = service;
             this.impuestos = impuestos;
             this.clientes = clientes;
             this.prod = prod;
+            this.conds = conds;
+            this.garan = garan;
+            this.tiemp = tiemp;
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int id)
         {
             try
             {
@@ -55,7 +72,9 @@ namespace Boletaje.Pages.OfertaVenta
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Impuestos = await impuestos.ObtenerLista("");
 
-
+                Condiciones = await conds.ObtenerLista("");
+                Garantias = await garan.ObtenerLista("");
+                Tiempos = await tiemp.ObtenerLista("");
 
 
                 Orden = new OfertaVentaViewModel();
@@ -63,6 +82,45 @@ namespace Boletaje.Pages.OfertaVenta
                 Orden.Fecha = DateTime.Now;
                 Orden.FechaVencimiento = DateTime.Now;
                 Orden.FechaEntrega = DateTime.Now;
+
+                if(id != 0)
+                {
+                    var Ofertas = await service.ObtenerPorId(id);
+                    Orden.CardCode = Ofertas.CardCode;
+                    Orden.Moneda = Ofertas.Moneda;
+                    Orden.FechaEntrega = Ofertas.FechaEntrega;
+                    Orden.Fecha = DateTime.Now;
+                    Orden.FechaVencimiento = Ofertas.FechaVencimiento;
+                    Orden.TipoDocumento = Ofertas.TipoDocumento;
+                    Orden.NumAtCard = Ofertas.NumAtCard;
+                    Orden.Comentarios = Ofertas.Comentarios + " | Basado en la oferta de ventas # " + id;
+                    Orden.CodVendedor = Ofertas.CodVendedor;
+
+                    Orden.idCondPago = Ofertas.idCondPago;
+                    Orden.idGarantia = Ofertas.idGarantia;
+                    Orden.idTiemposEntregas = Ofertas.idTiemposEntregas;
+                    var Tamaño = Ofertas.Detalle.Count();
+                    Orden.Detalle = new List<DetalleOferta>();
+
+                    var i = 0;
+                    foreach (var item in Ofertas.Detalle)
+                    {
+
+                        DetalleOferta det = new DetalleOferta();
+                        det.ItemCode = item.ItemCode;
+                        det.NumLinea = item.NumLinea;
+                        det.Cantidad = item.Cantidad;
+                        det.Bodega = item.Bodega;
+                        det.PrecioUnitario = item.PrecioUnitario;
+                        det.PorcentajeDescuento = item.PorcentajeDescuento;
+                        det.Impuesto = item.Impuesto;
+                        det.TaxOnly = item.TaxOnly;
+                        det.Total = item.Total;
+                        Orden.Detalle.Add(det);
+                        i++;
+                    }
+                }
+
                 return Page();
             }
             catch (Exception ex)
@@ -127,7 +185,9 @@ namespace Boletaje.Pages.OfertaVenta
                 coleccion.NumAtCard = recibido.NumAtCard;
                 coleccion.Series = recibido.Series;
                 coleccion.Comentarios = recibido.Comentarios;
-
+                coleccion.idCondPago = recibido.idCondPago;
+                coleccion.idGarantia = recibido.idGarantia;
+                coleccion.idTiemposEntregas = recibido.idTiemposEntregas;
                 coleccion.CodVendedor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
 
                 coleccion.ProcesadaSAP = false;

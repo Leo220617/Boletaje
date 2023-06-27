@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{id}"
 @model Boletaje.Pages.OfertaVenta.NuevoModel
 @{
     ViewData["Title"] = "Generar Oferta Venta";
@@ -34,6 +34,8 @@
 
             jQuery(document).ready(function($) {
                 $(document).ready(function() {
+                    $("#nombreArea").hide();
+
                 });
             });
 
@@ -48,6 +50,7 @@
         var impuestos = 0;
         var descuentos = 0;
         var TipoCambio = 0;
+        var Documento = [];
 
         function formatDate(date) {
             var d = new Date(date),
@@ -93,6 +96,7 @@
             try {
                 Clientes = JSON.parse($("#Clientes").val());
                 Impuestos = JSON.parse($("#Impuestos").val());
+                Documento = JSON.parse($("#Documento").val());
 
                 $('.select2').select2({
                     width: 'resolve',
@@ -100,7 +104,11 @@
                 });
                 TipodeCambio();
                 ModificaMoneda();
-
+                if (Documento != null && Documento != undefined && Documento.Moneda != null) {
+                    $("#cliente").val(Documento.CardCode);
+                    cambiarCliente(1);
+                     
+                }
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -113,10 +121,102 @@
 
 
         }
-
-        function cambiarCliente() {
+        function RecuperarInformacion() {
             try {
-                var idCliente = $("#cliente").val().split("/")[0].trim();
+                $("#moneda").val(Documento.Moneda);
+                $("#tipoDocumento").val(Documento.TipoDocumento);
+                $("#referencia").val(Documento.NumAtCard);
+                $("#Comentario").val(Documento.Comentarios);
+
+
+                for (var i = 0; i < Documento.Detalle.length; i++) {
+
+                    var Prod = Productos.find(a => a.codigo == Documento.Detalle[i].ItemCode);
+
+                    var detalle = {
+                        id: 0,
+                        idEncabezado: 0,
+                        NumLinea: 0,
+                        ItemCode: Documento.Detalle[i].ItemCode,
+                        Bodega: Documento.Detalle[i].Bodega,
+                        PorcentajeDescuento: Documento.Detalle[i].PorcentajeDescuento,
+                        Cantidad: Documento.Detalle[i].Cantidad,
+                        Impuesto: parseFloat(Documento.Detalle[i].Impuesto),
+                        TaxOnly: Documento.Detalle[i].TaxOnly,
+                        PrecioUnitario: Documento.Detalle[i].PrecioUnitario,
+                        Total: 0,
+                        Nombre: Prod.nombre,
+                        Moneda: Documento.Monedaa,
+                        PrecioUnitario1: 0
+
+                    };
+                    var Moneda = $("#moneda").val();
+
+                    //if (detalle.Moneda != Moneda) {
+                    //    if (Moneda != "COL") {
+
+                    //        detalle.Moneda = Moneda;
+                    //        detalle.PrecioUnitario = parseFloat((detalle.PrecioUnitario / TipoCambio).toFixed(2));
+                    //    } else {
+
+                    //        detalle.Moneda = Moneda;
+                    //        detalle.PrecioUnitario = parseFloat((detalle.PrecioUnitario * TipoCambio).toFixed(2));
+                    //    }
+                    //}
+
+
+                    if (!detalle.TaxOnly) {
+
+                        var subtotalL = detalle.Cantidad * detalle.PrecioUnitario;
+                        var descuentosL = (subtotalL * (detalle.PorcentajeDescuento / 100));
+                        var impuestosL = ((subtotalL - descuentosL) * (parseFloat(detalle.Impuesto) / 100));
+
+                        detalle.Total = subtotalL - descuentosL + impuestosL;
+
+
+                        subtotal += subtotalL;
+                        descuentos += descuentosL;
+                        impuestos += impuestosL;
+
+                    } else {
+                        var subtotalL = detalle.Cantidad * detalle.PrecioUnitario;
+                        var descuentosL = (subtotalL * detalle.PorcentajeDescuento / 100);
+                        var impuestosL = ((subtotalL - descuentosL) * (parseFloat(detalle.Impuesto) / 100));
+
+                        detalle.Total = impuestosL;
+
+                        impuestos += impuestosL;
+
+                    }
+                    ProdCadena.push(detalle);
+
+
+
+                }
+
+
+                ActualizaDatos();
+                RellenaTabla();
+
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar recuperar informacion ' + e
+
+                })
+            }
+        }
+        function cambiarCliente(primeraVez) {
+            try {
+                var idCliente = $("#cliente").val().split("/")[0].trim(); 
+                if (primeraVez == 1) {
+                    $("#cliente").val(idCliente + " / " + Clientes.find(a => a.CardCode == idCliente).CardName);
+                }
+
 
                 if (idCliente != "0") {
                     var ListaPrecio = Clientes.find(a => a.CardCode == idCliente).ListNum;
@@ -151,7 +251,9 @@
                             }
 
                             $("#ProductoSeleccionado").html(sOptions);
-
+                            if (primeraVez == 1) {
+                                RecuperarInformacion();
+                            }
 
                         },
 
@@ -198,11 +300,17 @@
                     if(Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).editable == 1)
                     {
                        $("#nombre").prop('readonly', false);
+                        $("#nombre").hide();
+
+                        $("#nombreArea").show();
                     }else{
                        $("#nombre").prop('readonly', true);
+                        $("#nombreArea").hide();
+                        $("#nombre").show();
 
                     }
                     $("#nombre").val(Nombre);
+                    $("#nombreArea").val(Nombre);
 
                 }
             } catch (e) {
@@ -303,7 +411,7 @@
                         idEncabezado: 0,
                         NumLinea: 0,
                         ItemCode: $("#ProductoSeleccionado").val(),
-                        ItemName:  $("#nombre").val(),
+                        ItemName: $("#nombreArea").val(),
                         Bodega: Prod.idBodega,
                         PorcentajeDescuento: $("#descuento").val(),
                         Cantidad: $("#cantidad").val(),
@@ -311,7 +419,7 @@
                         TaxOnly: document.getElementById("taxonly").checked,
                         PrecioUnitario: parseFloat($("#inputPrecio").val()),
                         Total: 0,
-                        Nombre:  $("#nombre").val(),
+                        Nombre: $("#nombreArea").val(),
                         Moneda: Prod.moneda,
                         PrecioUnitario1: 0
 
@@ -405,6 +513,8 @@
                 $("#inputPrecio").val(1);
                 $("#ProductoSeleccionado").val("0").trigger('change.select2');
                 $("#impuesto").val("0").trigger('change.select2');
+                $("#nombreArea").val("");
+                $("#nombre").val("");
 
                 $("#comentario").val("");
                 document.getElementById("taxonly").checked = false;
@@ -557,6 +667,9 @@
 
                 var recibidos = {
                     id: 0,
+                    idCondPago: $("#condPago").val(),
+                    idGarantia: $("#tipoGarantia").val(),
+                    idTiemposEntregas: $("#tiemposEntrega").val(),
                     DocEntry: 0,
                     DocNum: 0,
                     CardCode: $("#cliente").val(),
@@ -571,6 +684,7 @@
                     Comentarios: $("#Comentario").val(),
                     CodVendedor: 0,
                     ProcesadaSAP: false,
+
                     Detalle: ProdCadena
 
                 }
@@ -629,7 +743,9 @@
                                             title: 'Oops...',
                                             text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
 
-                                        })
+                                        });
+                                        $("#divProcesando").hide();
+
                                     }
                                 },
 
@@ -643,12 +759,14 @@
                                 },
                                 error: function(error) {
                                     button.disabled = false;
+                                    $("#divProcesando").hide();
 
                                 }
                             });
                         }
 
                         button.disabled = false;
+                        $("#divProcesando").hide();
 
                     })
                 }
@@ -702,7 +820,32 @@
 
 
         }
+        function EditarCliente() {
+            try {
+                var id = $("#cliente").val();
+                if (id == null || id == undefined || id == "") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Seleccione primero un cliente'
 
+                    })
+                } else {
+
+                    var id2 = id.split("/")[0].trimEnd().trim();
+
+                    window.location.href = window.location.href.toString().replace("OfertaVenta/Nuevo/" + window.location.href.split("/")[window.location.href.split("/").length - 1], "Client/Actualizar/" + id2);
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
     </script>
 
 
@@ -716,6 +859,8 @@
 
                     <input hidden id="Clientes" value="@JsonConvert.SerializeObject(Model.Clientes.Clientes)" />
                     <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
+                <input hidden id="Documento" value="@JsonConvert.SerializeObject(Model.Orden)" />
+
 
                     <div class="row">
                         <div class="col-sm-6">
@@ -765,10 +910,20 @@
                                     <option value="@item.CardCode / @item.CardName">@item.CardCode / @item.CardName </option>
                                 }
                             </datalist>
-                            <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
+                            
 
+                           
 
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
 
+                            </div>
+                            <div class="col-md-6">
+                                <a onclick="javascript: EditarCliente();" style="text-decoration: underline;" class="nav-link">Editar Cliente</a>
+
+                            </div>
                         </div>
                     </div>
 
@@ -788,7 +943,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Tipo Documento:</label>
-                            <select id="tipoDocumento" class="form-control" required>
+                            <select id="tipoDocumento" class="form-control" required >
 
                                 <option value="I" selected>Item</option>
                                 <option value="S">Servicios</option>
@@ -797,6 +952,56 @@
                             </select>
                         </div>
                     </div>
+
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Condiciones de Pago:</label>
+                            <select id="condPago" class="form-control" required asp-for="Orden.idCondPago">
+
+                                @foreach(var item in Model.Condiciones)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tipo de Garantia:</label>
+                            <select id="tipoGarantia" class="form-control" required asp-for="Orden.idGarantia">
+
+
+                                @foreach (var item in Model.Garantias)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tiempos de Entrega:</label>
+                            <select id="tiemposEntrega" class="form-control" required asp-for="Orden.idTiemposEntregas">
+
+                                @foreach (var item in Model.Tiempos)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+
+                            </select>
+
+                        </div>
+                    </div>
+
 
                     <div class="col-md-4">
                         <div class="form-group">
@@ -852,6 +1057,7 @@
                          <div class="form-group">
                             <label>Nombre</label>
                             <input type="text" class="form-control" id="nombre" placeholder="Nombre" readonly>
+                            <textarea  class="form-control" id="nombreArea" placeholder="Nombre"> </textarea>
 
 
                         </div>

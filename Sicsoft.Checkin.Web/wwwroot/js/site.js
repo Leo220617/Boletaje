@@ -10,6 +10,8 @@ const htmlInyectadoOferta = "<tr><td>ItemCode</td><td></td><td>ItemName</td><td>
 const htmlEntrega = "";
 const htmlInyectadoEntrega = "";
 
+const BuscarPor = "C";
+
 function formatoDecimal(numero) {
     var number = numero;
 

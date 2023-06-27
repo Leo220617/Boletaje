@@ -929,6 +929,10 @@
                 };
                 Detalles.push(detalle);
                 RellenaTabla();
+
+               var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
+               ModificaLinea(posicion,"false");
+
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -1060,6 +1064,10 @@
                 }
                 Detalles.splice(i, 1);
                 RellenaTabla();
+                for (var i = 0; i < Detalles.length; i++) {
+                    ModificaLinea(i, "false");
+
+                }
             } catch (e) {
                 Swal.fire({
                     icon: 'error',

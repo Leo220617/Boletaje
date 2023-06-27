@@ -53,6 +53,96 @@
 
 
         });
+
+        var ids = 0;
+        var correo = '';
+        function onClickModal(id, correos) {
+            ids = id;
+            correo = correos;
+
+
+            Swal.fire({
+                title: "¿Desea reenviar este correo?",
+                input: "text",
+                inputValue: correo,
+                showCancelButton: true,
+                confirmButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                inputValidator: nombre => {
+                    // Si el valor es válido, debes regresar undefined. Si no, una cadena
+                    if (!nombre) {
+                        return "Por favor escribe el correo";
+                    } else {
+                        return undefined;
+                    }
+                }
+            })
+                .then(resultado => {
+                    if (resultado.value) {
+                        let nombre = resultado.value;
+                        correo = nombre;
+                        Reenviar();
+                    }
+                });
+
+
+
+
+
+
+        }
+
+        function Reenviar() {
+
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Page("Index", "Reenviar")',
+                data: { id: ids, correos: correo },
+                success: function (result) {
+                    console.log(result);
+                    $("#divProcesando").modal("hide");
+
+                    if (result == false) {
+                        ids = 0;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Ha ocurrido un error al intentar reenviar'
+
+                        })
+
+                    } else {
+                        Swal.fire({
+                            title: "Ha sido reenviado con éxito",
+
+                            icon: 'success',
+                            showCancelButton: false,
+                            customClass: {
+                                confirmButton: 'swalBtnColor',
+
+                            },
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+
+                            }
+                        })
+                    }
+                },
+                beforeSend: function () {
+                    $("#divProcesando").modal("show");
+
+                }, 
+                error: function(error)
+                {
+                    $("#divProcesando").modal("hide");
+
+                }
+            })
+        }
+
+
         function ProcesarSAP(id) {
             $.ajax({
                 type: 'POST',
@@ -97,6 +187,8 @@
                             text: 'Ha ocurrido un error al intentar procesar ' + json
 
                         })
+                        $("#divProcesando").hide();
+
                     }
                 },
 
@@ -117,6 +209,72 @@
 
         }
 
+
+        function Eliminar(id) {
+            $.ajax({
+                type: 'POST',
+
+                url: '@Url.Page("Index", "Eliminar")',
+                dataType: 'text',
+                data: { id: id },
+                headers: {
+                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                success: function (json) {
+
+
+                    console.log("resultado " + json);
+                    if (json == "true") {
+                        $("#divProcesando").modal("hide");
+
+                        Swal.fire({
+                            title: "Ha sido procesado con éxito",
+
+                            icon: 'success',
+                            showCancelButton: false,
+
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'swalBtnColor',
+
+                            },
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $("#divProcesando").modal("hide");
+
+                                window.location.reload();
+                            }
+                        })
+
+                    } else {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Ha ocurrido un error al intentar procesar ' + json
+
+                        })
+                        $("#divProcesando").hide();
+
+                    }
+                },
+
+                beforeSend: function (xhr) {
+
+                    $("#divProcesando").modal("show");
+
+                },
+                complete: function () {
+
+                },
+                error: function (error) {
+                    $("#divProcesando").modal("hide");
+
+
+                }
+            });
+
+        }
 
     </script>
 
@@ -199,7 +357,7 @@
                             <h5>Ofertas de Venta</h5>
                         </div>
                         <div class="col-md-4">
-                            <a asp-page="Nuevo" class="btn btn-rounded btn-outline-primary" title="Agregar">+  Agregar</a>
+                        <a asp-page="Nuevo" asp-route-id="0" class="btn btn-rounded btn-outline-primary" title="Agregar">+  Agregar</a>
                         </div>
                     </div>
                 </div>
@@ -247,8 +405,19 @@
                                             }
 
                                         }&nbsp;
-                                        <a asp-page="/OrdenVenta/Nuevo" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-success"> Crear Orden Venta</a> 
 
+                                        @if(item.Status != "C")
+                                        {
+                                            <a asp-page="/OrdenVenta/Nuevo" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-success"> Crear Orden Venta</a>
+
+                                        }
+                                        &nbsp;
+                                        <a asp-page="/OfertaVenta/Nuevo" asp-route-id="@item.id" title="Regenerar" class="btn btn-rounded btn-outline-secondary"> Regenerar</a>
+                                        &nbsp;
+                                        <a onclick="javascript: Eliminar(@item.id)" title="Eliminar" class="btn btn-rounded btn-outline-danger"> Eliminar</a>
+                                        &nbsp;
+
+                                        <a onclick="javascript: onClickModal('@item.id', '')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
 
                                     </td>
 

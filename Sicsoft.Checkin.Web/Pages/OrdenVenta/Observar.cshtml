@@ -117,7 +117,53 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Condiciones de Pago:</label>
+                            <select id="condPago" class="form-control" required asp-for="Orden.idCondPago" disabled readonly>
 
+                                @foreach (var item in Model.Condiciones)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tipo de Garantia:</label>
+                            <select id="tipoGarantia" class="form-control" required asp-for="Orden.idGarantia" disabled readonly>
+
+
+                                @foreach (var item in Model.Garantias)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tiempos de Entrega:</label>
+                            <select id="tiemposEntrega" class="form-control" required asp-for="Orden.idTiemposEntregas" disabled readonly>
+
+                                @foreach (var item in Model.Tiempos)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+
+                            </select>
+
+                        </div>
+                    </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Referencia:</label>

@@ -87,7 +87,19 @@ namespace Boletaje.Pages.OfertaVenta
                 return Page();
             }
         }
+        public async Task<IActionResult> OnGetReenviar(int id, string correos)
+        {
+            try
+            {
 
+                await service.ReenvioFacturas(id, correos);
+                return new JsonResult(true);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(false);
+            }
+        }
         public async Task<IActionResult> OnPostGenerar(int id)
         {
 
@@ -110,6 +122,37 @@ namespace Boletaje.Pages.OfertaVenta
                     return new JsonResult(false);
 
                 }
+            }
+            catch (ApiException ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Content.ToString());
+                return new JsonResult(ex.Content.ToString());
+                //return new JsonResult(false);
+            }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                return new JsonResult(ex.Message);
+            }
+        }
+
+
+        public async Task<IActionResult> OnPostEliminar(int id)
+        {
+
+
+            try
+            {
+
+                await service.EliminarOferta(id);
+
+                return new JsonResult(true);
+
+
+
             }
             catch (ApiException ex)
             {
