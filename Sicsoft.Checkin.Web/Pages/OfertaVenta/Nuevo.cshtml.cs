@@ -24,6 +24,7 @@ namespace Boletaje.Pages.OfertaVenta
         private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
         private readonly ICrudApi<GarantiasViewModel, int> garan;
         private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
+        private readonly ICrudApi<PersonasContactoViewModel, int> pContact;
 
 
 
@@ -46,8 +47,12 @@ namespace Boletaje.Pages.OfertaVenta
 
         [BindProperty]
         public TiemposEntregasViewModel[] Tiempos { get; set; }
+
+        [BindProperty]
+        public PersonasContactoViewModel PContactos { get; set; }
+
         public NuevoModel(ICrudApi<OfertaVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod, ICrudApi<CondicionesPagosViewModel, int> conds,
-            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp)
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<PersonasContactoViewModel, int> pContact)
         {
             this.service = service;
             this.impuestos = impuestos;
@@ -56,6 +61,7 @@ namespace Boletaje.Pages.OfertaVenta
             this.conds = conds;
             this.garan = garan;
             this.tiemp = tiemp;
+            this.pContact = pContact;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -69,6 +75,7 @@ namespace Boletaje.Pages.OfertaVenta
                 }
                 Bodega = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Bodega").Select(s1 => s1.Value).FirstOrDefault();
 
+                PContactos = await pContact.ObtenerListaEspecial("");
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Impuestos = await impuestos.ObtenerLista("");
 
@@ -191,6 +198,9 @@ namespace Boletaje.Pages.OfertaVenta
                 coleccion.CodVendedor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
 
                 coleccion.ProcesadaSAP = false;
+                coleccion.PersonaContacto = recibido.PersonaContacto;
+                coleccion.TelefonoContacto = recibido.TelefonoContacto;
+                coleccion.CorreoContacto = recibido.CorreoContacto;
                 coleccion.Detalle = new List<DetalleOferta>();
                 var cantidad = 1;
                 foreach (var item in recibido.Detalle)

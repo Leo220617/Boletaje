@@ -14,8 +14,8 @@
     </li>
 
 }
-    @using Newtonsoft.Json;
-    @section styles{
+@using Newtonsoft.Json;
+@section styles{
     <style>
         .input {
             width: 40%;
@@ -26,14 +26,14 @@
     </style>
 
 }
-    @section scripts
+@section scripts
     {
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            jQuery(document).ready(function($) {
-                $(document).ready(function() {
+            jQuery(document).ready(function ($) {
+                $(document).ready(function () {
                 });
             });
 
@@ -50,6 +50,9 @@
         var impuestos = 0;
         var descuentos = 0;
         var TipoCambio = 0;
+        var PersonasContactoG = [];
+        var PersonasContacto = [];
+
 
         function formatDate(date) {
             var d = new Date(date),
@@ -70,7 +73,7 @@
                 dataType: 'json',
                 url: 'https://tipodecambio.paginasweb.cr/api//' + formatDate(Date(Date.now())).split('-')[2] + '/' + formatDate(Date(Date.now())).split('-')[1] + '/' + formatDate(Date(Date.now())).split('-')[0],
                 data: {},
-                success: function(result) {
+                success: function (result) {
 
                     if (result == null) {
                         ids = 0;
@@ -86,7 +89,7 @@
                         $("#TipoCambioBCCR").val(TipoCambio);
                     }
                 },
-                beforeSend: function() {
+                beforeSend: function () {
 
                 }
             })
@@ -96,7 +99,7 @@
                 Clientes = JSON.parse($("#Clientes").val());
                 Impuestos = JSON.parse($("#Impuestos").val());
                 Documento = JSON.parse($("#Documento").val());
-
+                PersonasContactoG = JSON.parse($("#PersonasContacto").val());
 
                 $('.select2').select2({
                     width: 'resolve',
@@ -105,9 +108,10 @@
                 TipodeCambio();
                 ModificaMoneda();
                 if (Documento != null && Documento != undefined && Documento.BaseEntry != 0) {
-                     $("#cliente").val(Documento.CardCode);
-                      cambiarCliente(1);
-                    
+                    $("#cliente").val(Documento.CardCode);
+                    cambiarCliente(1);
+
+                     
 
                 }
             } catch (e) {
@@ -124,16 +128,16 @@
         }
 
         function RecuperarInformacion() {
-            try {  
+            try {
                 $("#moneda").val(Documento.Moneda);
                 $("#tipoDocumento").val(Documento.TipoDocumento);
                 $("#referencia").val(Documento.NumAtCard);
                 $("#Comentario").val(Documento.Comentarios);
-               
 
-                for (var i = 0; i < Documento.Detalle.length; i++) { 
 
-                      var Prod = Productos.find(a => a.codigo == Documento.Detalle[i].ItemCode);
+                for (var i = 0; i < Documento.Detalle.length; i++) {
+
+                    var Prod = Productos.find(a => a.codigo == Documento.Detalle[i].ItemCode);
 
                     var detalle = {
                         id: 0,
@@ -191,14 +195,14 @@
 
                     }
                     ProdCadena.push(detalle);
-                    
+
 
 
                 }
 
-             
-                    ActualizaDatos();
-                    RellenaTabla();
+
+                ActualizaDatos();
+                RellenaTabla();
 
 
 
@@ -216,11 +220,23 @@
         function cambiarCliente(primeraVez) {
             try {
                 var idCliente = $("#cliente").val().split("/")[0].trim();
-                if(primeraVez == 1)
-                {
+                if (primeraVez == 1) {
                     $("#cliente").val(idCliente + " / " + Clientes.find(a => a.CardCode == idCliente).CardName);
                 }
+
+
+
+
                 if (idCliente != "0") {
+
+                    PersonasContacto = PersonasContactoG.filter(a => a.CardCode == idCliente);
+                    RellenaPersonasContacto();
+
+                    $("#pContact").val(idCliente + " / " + Documento.PersonaContacto);
+                    $("#emailContacto").val(Documento.CorreoContacto);
+                    $("#tContacto").val(Documento.TelefonoContacto);
+
+
                     var ListaPrecio = Clientes.find(a => a.CardCode == idCliente).ListNum;
                     var Bodega = "@Model.Bodega";
 
@@ -234,7 +250,7 @@
                         headers: {
                             RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                         },
-                        success: function(json) {
+                        success: function (json) {
 
                             console.log(json);
                             var Prods = json;
@@ -254,20 +270,19 @@
 
                             $("#ProductoSeleccionado").html(sOptions);
 
-                            if(primeraVez == 1)
-                            {
+                            if (primeraVez == 1) {
                                 RecuperarInformacion();
                             }
                         },
 
-                        beforeSend: function(xhr) {
+                        beforeSend: function (xhr) {
 
 
                         },
-                        complete: function() {
+                        complete: function () {
 
                         },
-                        error: function(error) {
+                        error: function (error) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
@@ -280,6 +295,9 @@
 
 
 
+                } else {
+                    PersonasContacto = PersonasContactoG.filter(a => a.CardCode == idCliente);
+                    RellenaPersonasContacto();
                 }
 
             } catch (e) {
@@ -291,7 +309,55 @@
                 })
             }
         }
+        function RellenaPersonasContacto() {
+            try {
+                var html = "";
+                $("#pContact").html(html);
 
+                for (var i = 0; i < PersonasContacto.length; i++) {
+                    html += '<option value="' + PersonasContacto[i].CardCode + ' / ' + PersonasContacto[i].NombreContacto + '">' + PersonasContacto[i].NombreContacto + '</option>';
+                }
+
+                $("#pContact").html(html);
+
+                onChangePersonaContacto();
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
+
+        function onChangePersonaContacto() {
+            try {
+
+                try {
+                    var Persona = $("#pContact").val().split("/");
+                    var CardCode = Persona[0].trimEnd();
+                    var Nombre = Persona[1].trimStart();
+
+                    var PP = PersonasContacto.find(a => a.CardCode == CardCode && a.NombreContacto == Nombre);
+
+                    $("#emailContacto").val(PP.Correo);
+                    $("#tContacto").val(PP.Telefono);
+                } catch (e) {
+
+                }
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
         function onChangeProducto() {
             try {
                 if ($("#ProductoSeleccionado").val() != "0") {
@@ -648,7 +714,14 @@
             try {
                 let button = document.getElementById("Guardar");
                 GenerarPrecioUnitario1();
+                var Nombre = "";
+                try {
+                    var Persona = $("#pContact").val().split("/");
+                    var CardCode = Persona[0].trimEnd();
+                    var Nombre = Persona[1].trimStart();
+                } catch (e) {
 
+                }
 
                 var recibidos = {
                     id: 0,
@@ -669,6 +742,9 @@
                     Series: 0,
                     Comentarios: $("#Comentario").val(),
                     CodVendedor: 0,
+                    PersonaContacto: Nombre,
+                    TelefonoContacto: $("#tContacto").val(),
+                    CorreoContacto: $("#emailContacto").val(),
                     ProcesadaSAP: false,
                     Detalle: ProdCadena
 
@@ -698,7 +774,7 @@
                                 headers: {
                                     RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                                 },
-                                success: function(json) {
+                                success: function (json) {
 
                                     $("#divProcesando").hide();
 
@@ -734,15 +810,15 @@
                                     }
                                 },
 
-                                beforeSend: function(xhr) {
+                                beforeSend: function (xhr) {
 
                                     $("#divProcesando").modal("show");
 
                                 },
-                                complete: function() {
+                                complete: function () {
 
                                 },
-                                error: function(error) {
+                                error: function (error) {
                                     button.disabled = false;
                                     $("#divProcesando").hide();
 
@@ -807,79 +883,134 @@
 
 
         }
+        function EditarCliente() {
+            try {
+                var id = $("#cliente").val();
+                if (id == null || id == undefined || id == "") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Seleccione primero un cliente'
 
+                    })
+                } else {
+
+                    var id2 = id.split("/")[0].trimEnd().trim();
+
+                    window.location.href = window.location.href.toString().replace("OrdenVenta/Nuevo/" + window.location.href.split("/")[window.location.href.split("/").length - 1], "Client/Actualizar/" + id2);
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
     </script>
 
 
 
 
 }
-    <div class="row">
-        <div class=" col-md-12 col-sm-12 col-12">
-            <div class="card">
-                <div class="card-header p-4">
+<div class="row">
+    <div class=" col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header p-4">
 
-                    <input hidden id="Clientes" value="@JsonConvert.SerializeObject(Model.Clientes.Clientes)" />
-                    <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
-                    <input hidden id="Documento" value="@JsonConvert.SerializeObject(Model.Orden)" />
-                    <input hidden id="BaseEntry" value="@Model.Orden.BaseEntry" />
+                <input hidden id="Clientes" value="@JsonConvert.SerializeObject(Model.Clientes.Clientes)" />
+                <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
+                <input hidden id="Documento" value="@JsonConvert.SerializeObject(Model.Orden)" />
+                <input hidden id="BaseEntry" value="@Model.Orden.BaseEntry" />
+                <input hidden id="PersonasContacto" value="@JsonConvert.SerializeObject(Model.PContactos.PersonasContacto)" />
 
 
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h5 class="title">Orden de Venta</h5>
-                        </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Orden de Venta</h5>
+                    </div>
 
-                        <div class="col-sm-6" style="text-align: right">
+                    <div class="col-sm-6" style="text-align: right">
 
-                            <a asp-page="/OrdenVenta/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                        <a asp-page="/OrdenVenta/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Fecha:</label>
+                            <input type="date" class="form-control form-control-lg" id="fecha" asp-for="Orden.Fecha">
 
                         </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Fecha:</label>
-                                <input type="date" class="form-control form-control-lg" id="fecha" asp-for="Orden.Fecha">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Fecha Entrega:</label>
+                            <input type="date" class="form-control form-control-lg" id="fechaEntrega" asp-for="Orden.FechaEntrega">
 
-                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Fecha Entrega:</label>
-                                <input type="date" class="form-control form-control-lg" id="fechaEntrega" asp-for="Orden.FechaEntrega">
+                    </div>
 
-                            </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Fecha Vencimiento:</label>
+                            <input type="date" class="form-control form-control-lg" id="fechaVencimiento" asp-for="Orden.FechaVencimiento">
+
                         </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Cliente:</label>
 
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Fecha Vencimiento:</label>
-                                <input type="date" class="form-control form-control-lg" id="fechaVencimiento" asp-for="Orden.FechaVencimiento">
+                            <input type="text" list="cardcodes" class="form-control form-control-lg" id="cliente" placeholder="Nombre Cliente" onchange="javascript: cambiarCliente();">
 
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Cliente:</label>
-
-                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cliente" placeholder="Nombre Cliente" onchange="javascript: cambiarCliente();">
-
-                                <datalist id="cardcodes">
-                                    @foreach (var item in Model.Clientes.Clientes)
+                            <datalist id="cardcodes">
+                                @foreach (var item in Model.Clientes.Clientes)
                                 {
                                     <option value="@item.CardCode / @item.CardName">@item.CardCode / @item.CardName </option>
                                 }
                             </datalist>
-                            <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
-
+                            
 
 
                         </div>
-                    </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a asp-page="/Client/Nuevo" style="text-decoration: underline;" class="nav-link" target="_blank">Crear Cliente</a>
 
+                            </div>
+                            <div class="col-md-6">
+                                <a onclick="javascript: EditarCliente();" style="text-decoration: underline;" class="nav-link">Editar Cliente</a>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Persona Contacto:</label>
+                            <select id="pContact" class="form-control" required onchange="javascript: onChangePersonaContacto()">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Teléfono Contacto:</label>
+                            <input type="text" class="form-control form-control-lg" id="tContacto">
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Correo Contacto:</label>
+                            <input type="text" class="form-control form-control-lg" id="emailContacto">
+
+                        </div>
+                    </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Moneda:</label>

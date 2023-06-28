@@ -14,8 +14,8 @@
     </li>
 
 }
-    @using Newtonsoft.Json;
-    @section styles{
+@using Newtonsoft.Json;
+@section styles{
     <style>
         .input {
             width: 40%;
@@ -26,14 +26,14 @@
     </style>
 
 }
-    @section scripts
+@section scripts
     {
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            jQuery(document).ready(function($) {
-                $(document).ready(function() {
+            jQuery(document).ready(function ($) {
+                $(document).ready(function () {
                     $("#nombreArea").hide();
 
                 });
@@ -51,6 +51,9 @@
         var descuentos = 0;
         var TipoCambio = 0;
         var Documento = [];
+        var PersonasContactoG = [];
+        var PersonasContacto = [];
+
 
         function formatDate(date) {
             var d = new Date(date),
@@ -71,7 +74,7 @@
                 dataType: 'json',
                 url: 'https://tipodecambio.paginasweb.cr/api//' + formatDate(Date(Date.now())).split('-')[2] + '/' + formatDate(Date(Date.now())).split('-')[1] + '/' + formatDate(Date(Date.now())).split('-')[0],
                 data: {},
-                success: function(result) {
+                success: function (result) {
 
                     if (result == null) {
                         ids = 0;
@@ -87,7 +90,7 @@
                         $("#TipoCambioBCCR").val(TipoCambio);
                     }
                 },
-                beforeSend: function() {
+                beforeSend: function () {
 
                 }
             })
@@ -97,6 +100,8 @@
                 Clientes = JSON.parse($("#Clientes").val());
                 Impuestos = JSON.parse($("#Impuestos").val());
                 Documento = JSON.parse($("#Documento").val());
+                PersonasContactoG = JSON.parse($("#PersonasContacto").val());
+
 
                 $('.select2').select2({
                     width: 'resolve',
@@ -107,7 +112,7 @@
                 if (Documento != null && Documento != undefined && Documento.Moneda != null) {
                     $("#cliente").val(Documento.CardCode);
                     cambiarCliente(1);
-                     
+
                 }
             } catch (e) {
                 Swal.fire({
@@ -212,16 +217,17 @@
         }
         function cambiarCliente(primeraVez) {
             try {
-                var idCliente = $("#cliente").val().split("/")[0].trim(); 
+                var idCliente = $("#cliente").val().split("/")[0].trim();
                 if (primeraVez == 1) {
                     $("#cliente").val(idCliente + " / " + Clientes.find(a => a.CardCode == idCliente).CardName);
                 }
 
-
+                PersonasContacto = PersonasContactoG.filter(a => a.CardCode == idCliente);
+                RellenaPersonasContacto();
                 if (idCliente != "0") {
                     var ListaPrecio = Clientes.find(a => a.CardCode == idCliente).ListNum;
                     var Bodega = "@Model.Bodega";
-
+                   
 
                     $.ajax({
                         type: 'GET',
@@ -232,7 +238,7 @@
                         headers: {
                             RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                         },
-                        success: function(json) {
+                        success: function (json) {
 
                             console.log(json);
                             var Prods = json;
@@ -257,14 +263,14 @@
 
                         },
 
-                        beforeSend: function(xhr) {
+                        beforeSend: function (xhr) {
 
 
                         },
-                        complete: function() {
+                        complete: function () {
 
                         },
-                        error: function(error) {
+                        error: function (error) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
@@ -288,6 +294,62 @@
                 })
             }
         }
+        function RellenaPersonasContacto()
+        {
+            try
+            {
+                var html = "";
+                $("#pContact").html(html);
+
+                for(var i = 0; i < PersonasContacto.length; i++)
+                {
+                    html += '<option value="' + PersonasContacto[i].CardCode + ' / ' + PersonasContacto[i].NombreContacto + '">' + PersonasContacto[i].NombreContacto + '</option>';
+                }
+
+                $("#pContact").html(html);
+
+                onChangePersonaContacto();
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
+
+        function onChangePersonaContacto()
+        {
+            try {
+                try
+                {
+                    var Persona = $("#pContact").val().split("/");
+                    var CardCode = Persona[0].trimEnd();
+                    var Nombre = Persona[1].trimStart();
+
+                    var PP = PersonasContacto.find(a => a.CardCode == CardCode && a.NombreContacto == Nombre);
+
+                    $("#emailContacto").val(PP.Correo);
+                    $("#tContacto").val(PP.Telefono);
+                } catch (e)
+                {
+
+                }
+               
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
 
         function onChangeProducto() {
             try {
@@ -297,14 +359,13 @@
                     var Nombre = Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).nombre;
                     $("#inputPrecio").val(parseInt(Precio));
                     $("#inputMoneda").val(Moneda);
-                    if(Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).editable == 1)
-                    {
-                       $("#nombre").prop('readonly', false);
+                    if (Productos.find(a => a.codigo == $("#ProductoSeleccionado").val()).editable == 1) {
+                        $("#nombre").prop('readonly', false);
                         $("#nombre").hide();
 
                         $("#nombreArea").show();
-                    }else{
-                       $("#nombre").prop('readonly', true);
+                    } else {
+                        $("#nombre").prop('readonly', true);
                         $("#nombreArea").hide();
                         $("#nombre").show();
 
@@ -663,7 +724,16 @@
             try {
                 let button = document.getElementById("Guardar");
                 GenerarPrecioUnitario1();
+                var Nombre = "";
+                try{
+                    var Persona = $("#pContact").val().split("/");
+                    var CardCode = Persona[0].trimEnd();
+                    var Nombre = Persona[1].trimStart();
+                }catch(e)
+                {
 
+                }
+               
 
                 var recibidos = {
                     id: 0,
@@ -684,7 +754,9 @@
                     Comentarios: $("#Comentario").val(),
                     CodVendedor: 0,
                     ProcesadaSAP: false,
-
+                    PersonaContacto: Nombre,
+                    TelefonoContacto: $("#tContacto").val(),
+                    CorreoContacto: $("#emailContacto").val(),
                     Detalle: ProdCadena
 
                 }
@@ -713,7 +785,7 @@
                                 headers: {
                                     RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                                 },
-                                success: function(json) {
+                                success: function (json) {
 
                                     $("#divProcesando").hide();
 
@@ -749,15 +821,15 @@
                                     }
                                 },
 
-                                beforeSend: function(xhr) {
+                                beforeSend: function (xhr) {
 
                                     $("#divProcesando").modal("show");
 
                                 },
-                                complete: function() {
+                                complete: function () {
 
                                 },
-                                error: function(error) {
+                                error: function (error) {
                                     button.disabled = false;
                                     $("#divProcesando").hide();
 
@@ -852,67 +924,69 @@
 
 
 }
-    <div class="row">
-        <div class=" col-md-12 col-sm-12 col-12">
-            <div class="card">
-                <div class="card-header p-4">
+<div class="row">
+    <div class=" col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header p-4">
 
-                    <input hidden id="Clientes" value="@JsonConvert.SerializeObject(Model.Clientes.Clientes)" />
-                    <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
+                <input hidden id="Clientes" value="@JsonConvert.SerializeObject(Model.Clientes.Clientes)" />
+                <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
                 <input hidden id="Documento" value="@JsonConvert.SerializeObject(Model.Orden)" />
+                <input hidden id="PersonasContacto" value="@JsonConvert.SerializeObject(Model.PContactos.PersonasContacto)" />
 
 
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h5 class="title">Oferta de Venta</h5>
-                        </div>
 
-                        <div class="col-sm-6" style="text-align: right">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Oferta de Venta</h5>
+                    </div>
 
-                            <a asp-page="/OfertaVenta/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/OfertaVenta/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Fecha:</label>
+                            <input type="date" class="form-control form-control-lg" id="fecha" asp-for="Orden.Fecha">
 
                         </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Fecha:</label>
-                                <input type="date" class="form-control form-control-lg" id="fecha" asp-for="Orden.Fecha">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Fecha Entrega:</label>
+                            <input type="date" class="form-control form-control-lg" id="fechaEntrega" asp-for="Orden.FechaEntrega">
 
-                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Fecha Entrega:</label>
-                                <input type="date" class="form-control form-control-lg" id="fechaEntrega" asp-for="Orden.FechaEntrega">
+                    </div>
 
-                            </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Fecha Vencimiento:</label>
+                            <input type="date" class="form-control form-control-lg" id="fechaVencimiento" asp-for="Orden.FechaVencimiento">
+
                         </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Cliente:</label>
 
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Fecha Vencimiento:</label>
-                                <input type="date" class="form-control form-control-lg" id="fechaVencimiento" asp-for="Orden.FechaVencimiento">
+                            <input type="text" list="cardcodes" class="form-control form-control-lg" id="cliente" placeholder="Nombre Cliente" onchange="javascript: cambiarCliente();">
 
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Cliente:</label>
-
-                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cliente" placeholder="Nombre Cliente" onchange="javascript: cambiarCliente();">
-
-                                <datalist id="cardcodes">
-                                    @foreach (var item in Model.Clientes.Clientes)
+                            <datalist id="cardcodes">
+                                @foreach (var item in Model.Clientes.Clientes)
                                 {
                                     <option value="@item.CardCode / @item.CardName">@item.CardCode / @item.CardName </option>
                                 }
                             </datalist>
-                            
 
-                           
+
+
 
                         </div>
                         <div class="row">
@@ -926,6 +1000,31 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Persona Contacto:</label>
+                            <select id="pContact" class="form-control" required onchange="javascript: onChangePersonaContacto()">
+  
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Teléfono Contacto:</label>
+                            <input type="text" class="form-control form-control-lg" id="tContacto" >
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Correo Contacto:</label>
+                            <input type="text" class="form-control form-control-lg" id="emailContacto" >
+
+                        </div>
+                    </div>
+
+
 
                     <div class="col-md-4">
                         <div class="form-group">
@@ -943,7 +1042,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Tipo Documento:</label>
-                            <select id="tipoDocumento" class="form-control" required >
+                            <select id="tipoDocumento" class="form-control" required>
 
                                 <option value="I" selected>Item</option>
                                 <option value="S">Servicios</option>
@@ -959,7 +1058,7 @@
                             <label>Condiciones de Pago:</label>
                             <select id="condPago" class="form-control" required asp-for="Orden.idCondPago">
 
-                                @foreach(var item in Model.Condiciones)
+                                @foreach (var item in Model.Condiciones)
                                 {
                                     <option value="@item.id">@item.Nombre</option>
                                 }
@@ -1054,10 +1153,10 @@
                 <br />
                 <div class="row">
                     <div class="col-md-12">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Nombre</label>
                             <input type="text" class="form-control" id="nombre" placeholder="Nombre" readonly>
-                            <textarea  class="form-control" id="nombreArea" placeholder="Nombre"> </textarea>
+                            <textarea class="form-control" id="nombreArea" placeholder="Nombre"> </textarea>
 
 
                         </div>
