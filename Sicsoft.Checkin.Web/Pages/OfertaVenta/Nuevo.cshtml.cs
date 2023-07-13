@@ -115,6 +115,7 @@ namespace Boletaje.Pages.OfertaVenta
 
                         DetalleOferta det = new DetalleOferta();
                         det.ItemCode = item.ItemCode;
+                        det.ItemName = item.ItemName;
                         det.NumLinea = item.NumLinea;
                         det.Cantidad = item.Cantidad;
                         det.Bodega = item.Bodega;

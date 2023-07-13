@@ -40,6 +40,7 @@
             });
 
             Recuperar();
+
         });
         var ProdCadena = [];
 
@@ -143,6 +144,7 @@
                         idEncabezado: 0,
                         NumLinea: 0,
                         ItemCode: Documento.Detalle[i].ItemCode,
+                        ItemName: Documento.Detalle[i].ItemName,
                         Bodega: Documento.Detalle[i].Bodega,
                         PorcentajeDescuento: Documento.Detalle[i].PorcentajeDescuento,
                         Cantidad: Documento.Detalle[i].Cantidad,
@@ -150,7 +152,7 @@
                         TaxOnly: Documento.Detalle[i].TaxOnly,
                         PrecioUnitario: Documento.Detalle[i].PrecioUnitario,
                         Total: 0,
-                        Nombre: Prod.nombre,
+                        Nombre: Documento.Detalle[i].ItemName, //Prod.nombre,
                         Moneda: Documento.Monedaa,
                         PrecioUnitario1: 0
 
@@ -227,7 +229,7 @@
                 if (idCliente != "0") {
                     var ListaPrecio = Clientes.find(a => a.CardCode == idCliente).ListNum;
                     var Bodega = "@Model.Bodega";
-                   
+
 
                     $.ajax({
                         type: 'GET',
@@ -252,13 +254,15 @@
                             sOptions += '<option value="0">Seleccione</option>';
                             for (var i = 0; i < Prods.length; i++) {
 
-                                sOptions += ' <option value="' + Prods[i].codigo + '">  ' + Prods[i].nombre + " - Stock: " + Prods[i].stockReal + '</option>';
+                                sOptions += ' <option value="' + Prods[i].codigo + '">  ' + Prods[i].codigo + ' - ' + Prods[i].nombre + " - Stock: " + Prods[i].stockReal + '</option>';
 
                             }
 
                             $("#ProductoSeleccionado").html(sOptions);
                             if (primeraVez == 1) {
                                 RecuperarInformacion();
+                                ModificaMoneda();
+
                             }
 
                         },
@@ -294,15 +298,12 @@
                 })
             }
         }
-        function RellenaPersonasContacto()
-        {
-            try
-            {
+        function RellenaPersonasContacto() {
+            try {
                 var html = "";
                 $("#pContact").html(html);
 
-                for(var i = 0; i < PersonasContacto.length; i++)
-                {
+                for (var i = 0; i < PersonasContacto.length; i++) {
                     html += '<option value="' + PersonasContacto[i].CardCode + ' / ' + PersonasContacto[i].NombreContacto + '">' + PersonasContacto[i].NombreContacto + '</option>';
                 }
 
@@ -320,11 +321,9 @@
             }
         }
 
-        function onChangePersonaContacto()
-        {
+        function onChangePersonaContacto() {
             try {
-                try
-                {
+                try {
                     var Persona = $("#pContact").val().split("/");
                     var CardCode = Persona[0].trimEnd();
                     var Nombre = Persona[1].trimStart();
@@ -333,11 +332,10 @@
 
                     $("#emailContacto").val(PP.Correo);
                     $("#tContacto").val(PP.Telefono);
-                } catch (e)
-                {
+                } catch (e) {
 
                 }
-               
+
 
 
 
@@ -390,11 +388,22 @@
                 $("#tbody").html('');
 
                 for (var i = 0; i < ProdCadena.length; i++) {
+                    var Prod = Productos.find(a => a.codigo == ProdCadena[i].ItemCode);
+                    console.log(Prod);
+
                     sOptions += '<tr>';
 
                     sOptions += '<td align="center" style="padding-top:13px;">    <a style="margin-left: -1%; position: inherit !important;" onclick = "javascript: EliminaProducto(' + i + ')" title="Eliminar" class="btn btn-danger">X</a> ';
-                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:13px;">' + ProdCadena[i].Nombre + '</p></td>';
-                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:13px;">' + formatoDecimal(ProdCadena[i].Cantidad) + '</p></td>';
+                    if (Prod.editable) {
+                        sOptions += '<td align="center" style="padding-top:15px;">  <textarea class="form-control" readonly>' + ProdCadena[i].ItemCode + ' - ' + ProdCadena[i].Nombre + '</textarea></td>';
+
+                    } else {
+                        sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:13px;">' + ProdCadena[i].ItemCode + ' - ' + ProdCadena[i].Nombre + '</p></td>';
+
+                    }
+                    sOptions += '<td align="center" style="padding-top:15px;">   <input class="form-control" type="number" id="cantidadProd' + i + '" onchange="javascript: onChangePrecio(' + i + ')" value="' + ProdCadena[i].Cantidad + '"/> </td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">   <input class="form-control" type="number" id="precioProd' + i + '" onchange="javascript: onChangePrecio(' + i + ')" value="' + ProdCadena[i].PrecioUnitario + '"/></td > ';
+
                     sOptions += '<td align="right" style="padding-top:15px;">  <p style="font-size:13px;">' + formatoDecimal(ProdCadena[i].PorcentajeDescuento) + '% </p></td>';
                     sOptions += '<td align="center" style="padding-top:13px;">  <p style="font-size:13px;">' + ProdCadena[i].Impuesto + '</p></td>';
                     sOptions += '<td align="right" style="padding-top:15px;">  <p style="font-size:13px;">' + formatoDecimal(ProdCadena[i].Total) + '</p></td>';
@@ -416,6 +425,79 @@
             }
 
         }
+
+        function onChangePrecio(campo) {
+            try {
+                var cantidad = parseFloat($("#cantidadProd" + campo).val());
+                var precio = parseFloat($("#precioProd" + campo).val());
+
+                if (!ProdCadena[campo].TaxOnly) {
+
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * (ProdCadena[campo].PorcentajeDescuento / 100));
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+
+                    subtotal -= subtotalL;
+                    descuentos -= descuentosL;
+                    impuestos -= impuestosL;
+
+                } else {
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * ProdCadena[campo].PorcentajeDescuento / 100);
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+
+                    impuestos -= impuestosL;
+
+                }
+
+
+                ProdCadena[campo].Cantidad = cantidad;
+                ProdCadena[campo].PrecioUnitario = precio;
+
+                var Moneda = $("#moneda").val();
+
+
+
+
+                if (!ProdCadena[campo].TaxOnly) {
+
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * (ProdCadena[campo].PorcentajeDescuento / 100));
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+                    ProdCadena[campo].Total = subtotalL - descuentosL + impuestosL;
+
+
+                    subtotal += subtotalL;
+                    descuentos += descuentosL;
+                    impuestos += impuestosL;
+
+                } else {
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * ProdCadena[campo].PorcentajeDescuento / 100);
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+                    ProdCadena[campo].Total = impuestosL;
+
+                    impuestos += impuestosL;
+
+                }
+
+                ActualizaDatos();
+                RellenaTabla();
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
+
         function EliminaProducto(campo) {
             try {
 
@@ -725,15 +807,14 @@
                 let button = document.getElementById("Guardar");
                 GenerarPrecioUnitario1();
                 var Nombre = "";
-                try{
+                try {
                     var Persona = $("#pContact").val().split("/");
                     var CardCode = Persona[0].trimEnd();
                     var Nombre = Persona[1].trimStart();
-                }catch(e)
-                {
+                } catch (e) {
 
                 }
-               
+
 
                 var recibidos = {
                     id: 0,
@@ -1005,21 +1086,20 @@
                         <div class="form-group">
                             <label>Persona Contacto:</label>
                             <select id="pContact" class="form-control" required onchange="javascript: onChangePersonaContacto()">
-  
                             </select>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Teléfono Contacto:</label>
-                            <input type="text" class="form-control form-control-lg" id="tContacto" >
+                            <input type="text" class="form-control form-control-lg" id="tContacto">
 
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Correo Contacto:</label>
-                            <input type="text" class="form-control form-control-lg" id="emailContacto" >
+                            <input type="text" class="form-control form-control-lg" id="emailContacto">
 
                         </div>
                     </div>
@@ -1266,6 +1346,8 @@
                                         <th align="center" style=" text-align: center;">Eliminar</th>
                                         <th align="center" style=" text-align: center;">Item</th>
                                         <th align="center" style=" text-align: center;">Cantidad </th>
+                                        <th align="center" style=" text-align: center;">Precio Uni </th>
+
                                         <th align="center" style=" text-align: center;">Descuento</th>
                                         <th align="center" style=" text-align: center;">Impuesto</th>
                                         <th align="center" style=" text-align: center;">Total</th>

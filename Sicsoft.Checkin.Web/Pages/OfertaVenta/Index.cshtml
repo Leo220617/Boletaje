@@ -111,7 +111,7 @@
                             text: 'Ha ocurrido un error al intentar reenviar'
 
                         })
-
+                        $("#divProcesando").modal("hide");
                     } else {
                         Swal.fire({
                             title: "Ha sido reenviado con éxito",
@@ -125,7 +125,7 @@
                             confirmButtonText: 'OK'
                         }).then((result) => {
                             if (result.isConfirmed) {
-
+                                $("#divProcesando").modal("hide");
                             }
                         })
                     }
@@ -187,7 +187,8 @@
                             text: 'Ha ocurrido un error al intentar procesar ' + json
 
                         })
-                        $("#divProcesando").hide();
+                        $("#divProcesando").modal("hide");
+
 
                     }
                 },
@@ -198,6 +199,7 @@
 
                 },
                 complete: function() {
+                    $("#divProcesando").modal("hide");
 
                 },
                 error: function(error) {
@@ -254,7 +256,9 @@
                             text: 'Ha ocurrido un error al intentar procesar ' + json
 
                         })
-                        $("#divProcesando").hide();
+                        $("#divProcesando").modal("hide");
+                        $("#divProcesando").modal("hide");
+
 
                     }
                 },
@@ -265,6 +269,7 @@
 
                 },
                 complete: function () {
+                    $("#divProcesando").modal("hide");
 
                 },
                 error: function (error) {

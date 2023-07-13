@@ -38,6 +38,9 @@
             });
 
             Recuperar();
+            ModificaMoneda();
+
+
         });
         var ProdCadena = [];
 
@@ -157,6 +160,7 @@
 
                     };
                     var Moneda = $("#moneda").val();
+                    ModificaMoneda();
 
                     //if (detalle.Moneda != Moneda) {
                     //    if (Moneda != "COL") {
@@ -264,7 +268,7 @@
                             sOptions += '<option value="0">Seleccione</option>';
                             for (var i = 0; i < Prods.length; i++) {
 
-                                sOptions += ' <option value="' + Prods[i].codigo + '">  ' + Prods[i].nombre + " - Stock: " + Prods[i].stockReal + '</option>';
+                                sOptions += ' <option value="' + Prods[i].codigo + '">  ' + Prods[i].codigo + ' - ' + Prods[i].nombre + " - Stock: " + Prods[i].stockReal + '</option>';
 
                             }
 
@@ -386,8 +390,9 @@
                     sOptions += '<tr>';
 
                     sOptions += '<td align="center" style="padding-top:13px;">    <a style="margin-left: -1%; position: inherit !important;" onclick = "javascript: EliminaProducto(' + i + ')" title="Eliminar" class="btn btn-danger">X</a> ';
-                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:13px;">' + ProdCadena[i].Nombre + '</p></td>';
-                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:13px;">' + formatoDecimal(ProdCadena[i].Cantidad) + '</p></td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:13px;">' + ProdCadena[i].ItemCode + ' - ' + ProdCadena[i].Nombre + '</p></td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">   <input class="form-control" type="number" id="cantidadProd' + i + '" onchange="javascript: onChangePrecio(' + i + ')" value="' +  ProdCadena[i].Cantidad + '"/> </td>';
+                    sOptions += '<td align="center" style="padding-top:15px;">   <input class="form-control" type="number" id="precioProd' + i + '" onchange="javascript: onChangePrecio(' + i + ')" value="' +  ProdCadena[i].PrecioUnitario + '"/></td > ';
                     sOptions += '<td align="right" style="padding-top:15px;">  <p style="font-size:13px;">' + formatoDecimal(ProdCadena[i].PorcentajeDescuento) + '% </p></td>';
                     sOptions += '<td align="center" style="padding-top:13px;">  <p style="font-size:13px;">' + ProdCadena[i].Impuesto + '</p></td>';
                     sOptions += '<td align="right" style="padding-top:15px;">  <p style="font-size:13px;">' + formatoDecimal(ProdCadena[i].Total) + '</p></td>';
@@ -408,6 +413,78 @@
                 })
             }
 
+        }
+
+        function onChangePrecio(campo) {
+            try {
+                var cantidad = parseFloat($("#cantidadProd" + campo).val());
+                var precio = parseFloat($("#precioProd" + campo).val());
+
+                if (!ProdCadena[campo].TaxOnly) {
+
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * (ProdCadena[campo].PorcentajeDescuento / 100));
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+
+                    subtotal -= subtotalL;
+                    descuentos -= descuentosL;
+                    impuestos -= impuestosL;
+
+                } else {
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * ProdCadena[campo].PorcentajeDescuento / 100);
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+
+                    impuestos -= impuestosL;
+
+                }
+
+
+                ProdCadena[campo].Cantidad = cantidad;
+                ProdCadena[campo].PrecioUnitario = precio;
+
+                var Moneda = $("#moneda").val();
+
+
+
+
+                if (!ProdCadena[campo].TaxOnly) {
+
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * (ProdCadena[campo].PorcentajeDescuento / 100));
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+                    ProdCadena[campo].Total = subtotalL - descuentosL + impuestosL;
+
+
+                    subtotal += subtotalL;
+                    descuentos += descuentosL;
+                    impuestos += impuestosL;
+
+                } else {
+                    var subtotalL = ProdCadena[campo].Cantidad * ProdCadena[campo].PrecioUnitario;
+                    var descuentosL = (subtotalL * ProdCadena[campo].PorcentajeDescuento / 100);
+                    var impuestosL = ((subtotalL - descuentosL) * (parseFloat(ProdCadena[campo].Impuesto) / 100));
+
+                    ProdCadena[campo].Total = impuestosL;
+
+                    impuestos += impuestosL;
+
+                }
+
+                ActualizaDatos();
+                RellenaTabla();
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
         }
         function EliminaProducto(campo) {
             try {
@@ -1238,6 +1315,8 @@
                                         <th align="center" style=" text-align: center;">Eliminar</th>
                                         <th align="center" style=" text-align: center;">Item</th>
                                         <th align="center" style=" text-align: center;">Cantidad </th>
+                                        <th align="center" style=" text-align: center;">Precio Uni </th>
+
                                         <th align="center" style=" text-align: center;">Descuento</th>
                                         <th align="center" style=" text-align: center;">Impuesto</th>
                                         <th align="center" style=" text-align: center;">Total</th>
