@@ -198,8 +198,9 @@
                 $(document).ready(function () {
                 });
             });
+            RecuperarProductosGenerales();
+
             onChangeTipoMovimiento();
-            Recuperar();
         });
 
 
@@ -212,6 +213,62 @@
         var RepuestosAprobados = [];
         var ProductoPadre = [];
 
+        function RecuperarProductosGenerales() {
+            try
+            {
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '@Url.Page("Editar", "Productos")',
+                    data: {},
+                    success: function (result) {
+
+                        if (result == null) {
+                            
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Ha ocurrido un error al intentar tomar los productos generales'
+
+                            })
+
+                        } else {
+                            console.log(result);
+                             for(var i = 0; i < result.length; i++)
+                             {
+                                 var detalle = {
+                                     id: result[i].id,
+                                    codSAP: result[i].codSAP,
+                                    Cantidad: result[i].cantidad,
+                                    Costo: result[i].costo,
+                                    Localizacion: result[i].localizacion,
+                                    Nombre: result[i].nombre,
+                                    Precio: result[i].precio,
+                                    Stock: result[i].stock
+                                }
+                                ProductosGenerales.push(detalle);
+                             }
+                            Recuperar();
+
+                        }
+                    },
+                    beforeSend: function () {
+
+                    }
+                })
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+           
+        }
+
+
         function Recuperar() {
             try {
                 ProdCadena = [];
@@ -222,7 +279,7 @@
                 var disponibles = JSON.parse($("#HijosDisponibles").val());
                 var seleccionados = JSON.parse($("#HijosSeleccionados").val());  //Viene de input
                 Errores = JSON.parse($("#Errores").val());
-                ProductosGenerales = JSON.parse($("#ProductosGenerales").val());
+                //ProductosGenerales = JSON.parse($("#ProductosGenerales").val());
                 RepuestosAprobados = JSON.parse($("#RepuestosAprobados").val());
                 ProductoPadre = JSON.parse($("#ProductoPadre").val());
 
@@ -1343,7 +1400,7 @@
                     <input hidden id="HijosSeleccionados" value="@JsonConvert.SerializeObject(Model.Input)" />
                     <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
                     <input hidden id="Control" value="@JsonConvert.SerializeObject(Model.Control)" />
-                    <input hidden id="ProductosGenerales" value="@JsonConvert.SerializeObject(Model.ProductosGenerales)" />
+                    <input hidden id="ProductosGenerales" value="@JsonConvert.SerializeObject(Model.ProductosGenerales.Select(a => new {a.id, a.codSAP, a.Precio, a.Stock, a.Nombre}))" />
                     <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
                     <input id="PrecioProductoPadre" hidden type="number"  class="form-control" onchange="javascript: CalculaSemaforo()" />
 

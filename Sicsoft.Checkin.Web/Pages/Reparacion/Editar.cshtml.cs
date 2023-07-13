@@ -133,12 +133,25 @@ namespace Boletaje.Pages.Reparacion
                 filt.Texto = Encabezado.idProductoArreglar;
                 InputHijos = await service2.ObtenerLista(filt); // Se trae todos los productos hijos dispobibles
                 var i = 0;
-                foreach (var item in Input)
+                if (string.IsNullOrEmpty(Roles1.Where(a => a == "49").FirstOrDefault()))
                 {
-                    Input[i].Stock = InputHijos.Where(a => a.id == item.idProducto).FirstOrDefault().Stock;
-                    InputHijos = InputHijos.Where(a => a.id != item.idProducto).ToArray();
-                    i++;
+                    foreach (var item in Input)
+                    {
+                        Input[i].Stock = InputHijos.Where(a => a.id == item.idProducto).FirstOrDefault().Stock;
+                        InputHijos = InputHijos.Where(a => a.id != item.idProducto).ToArray();
+                        i++;
+                    }
                 }
+                else
+                {
+                    foreach (var item in Input)
+                    {
+                        Input[i].Stock = ProductosGenerales.Where(a => a.id == item.idProducto).FirstOrDefault() == null ? 0 : ProductosGenerales.Where(a => a.id == item.idProducto).FirstOrDefault().Stock;
+                        
+                        i++;
+                    }
+                }
+                   
 
                 Productos = await prods.ObtenerListaEspecial("");
                 Producto = Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemCode + " - " + Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemName;
@@ -181,7 +194,36 @@ namespace Boletaje.Pages.Reparacion
                 return Page();
             }
         }
+        public async Task<IActionResult> OnGetProductos(string codBodega, string codListaPrecios)
+        {
+            try
+            {
 
+
+
+                var Productos = await service2.ObtenerLista("");
+
+                 
+
+
+
+                return new JsonResult(Productos);
+            }
+            catch (ApiException ex)
+            {
+
+
+
+                return new JsonResult(ex.Content.ToString());
+            }
+            catch (Exception ex)
+            {
+
+
+
+                return new JsonResult(ex.Message.ToString());
+            }
+        }
         public async Task<IActionResult> OnPostGenerar(string recibidos)
         {
             try
