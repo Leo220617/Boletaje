@@ -357,7 +357,7 @@
             } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {
                 return false;
 
-            } else if (recibido1.Status == -1 ) {
+            } else if (recibido1.Status == -1) {
                 if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
                     var RolIdentificacion = "@(!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))";
                     if (RolIdentificacion != "False") {
@@ -734,6 +734,13 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
+                                <label>Llamada:</label>
+                                <input class="form-control form-control-lg" placeholder="" readonly asp-for="Input.DocEntry">
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
                                 <label>Fecha SISO:</label>
                                 @{
                                     if (!string.IsNullOrEmpty(Roles.Where(a => a == "33").FirstOrDefault()))
@@ -753,7 +760,7 @@
 
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Estado:</label>
                                 <select id="status" class="form-control" asp-for="Input.Status" required onchange="javascript:onChangeStatus()">
@@ -765,7 +772,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Tipo de Caso:</label>
                                 <select id="tp" class="form-control" asp-for="Input.TipoCaso" required>
@@ -777,7 +784,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Lugar Reparación:</label>
                                 <select id="lReparacion" class="form-control" asp-for="Input.LugarReparacion" required>
@@ -1026,7 +1033,7 @@
 
         </div>
     }
-    
+
 
     <div class="row">
         <div class="col-md-12">

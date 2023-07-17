@@ -78,7 +78,7 @@ namespace Boletaje.Pages.Reparacion
 
                     filtro.FechaInicial = DateTime.Now;
 
-                    filtro.FechaInicial = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
+                    filtro.FechaInicial = DateTime.Now.AddDays(-14); //new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
 
 
                     DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
@@ -86,7 +86,7 @@ namespace Boletaje.Pages.Reparacion
 
                     DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
 
-                    filtro.FechaFinal = ultimoDia;
+                    filtro.FechaFinal = DateTime.Now.AddDays(1); //ultimoDia;
 
                     filtro.Codigo2 = 1;
 

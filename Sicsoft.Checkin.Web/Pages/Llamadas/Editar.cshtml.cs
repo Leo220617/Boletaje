@@ -97,7 +97,7 @@ namespace Boletaje.Pages.Llamadas
                 Input = await service.ObtenerPorId(id);
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault().CardCode + " - " + Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault().CardName;
-                 Productos = await prods.ObtenerListaEspecial("");
+                Productos = await prods.ObtenerListaEspecial("");
                 Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode).FirstOrDefault().itemName;
 
                 TP = await tp.ObtenerLista("");
