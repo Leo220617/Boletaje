@@ -198,6 +198,18 @@
                                     }
 
                                 </li>
+
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "54").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/DiasValidos/Index">Dias Validos</a>
+                                        }
+
+                                    }
+
+                                </li>
                             </ul>
                         </div>
                     </li>

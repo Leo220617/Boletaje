@@ -8,6 +8,9 @@ namespace Boletaje.Models
         public int idCondPago { get; set; }
         public int idGarantia { get; set; }
         public int idTiemposEntregas { get; set; }
+        public int idUsuarioCreador { get; set; }
+
+        public int idDiasValidos { get; set; }
         public int DocEntry { get; set; }
         public int DocNum { get; set; }
         public string CardCode { get; set; }

@@ -1,0 +1,78 @@
+﻿@page
+@model Boletaje.Pages.DiasValidos.NuevoModel
+@{
+    ViewData["Title"] = "Dias Validos";
+}
+@section breadcrumb{
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Dias Validos</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Agregar</a>
+    </li>
+
+}
+@section styles{
+
+
+}
+
+@section scripts{
+
+
+
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Registro de Dias Validos</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/DiasValidos/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" id="nombre" class="form-control form-control-lg" asp-for="Input.Nombre" required placeholder="Nombre">
+                            </div>
+                        </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Dias</label>
+                                    <input type="number" class="form-control form-control-lg" id="dias" placeholder="Dias" asp-for="Input.Dias" required>
+                                </div>
+                            </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

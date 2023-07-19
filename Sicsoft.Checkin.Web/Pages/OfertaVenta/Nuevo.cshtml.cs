@@ -25,6 +25,8 @@ namespace Boletaje.Pages.OfertaVenta
         private readonly ICrudApi<GarantiasViewModel, int> garan;
         private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
         private readonly ICrudApi<PersonasContactoViewModel, int> pContact;
+        private readonly ICrudApi<DiasValidosViewModel, int> dvalid;
+
 
 
 
@@ -47,12 +49,14 @@ namespace Boletaje.Pages.OfertaVenta
 
         [BindProperty]
         public TiemposEntregasViewModel[] Tiempos { get; set; }
+        [BindProperty]
+        public DiasValidosViewModel[] DiasValidos { get; set; }
 
         [BindProperty]
         public PersonasContactoViewModel PContactos { get; set; }
 
         public NuevoModel(ICrudApi<OfertaVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod, ICrudApi<CondicionesPagosViewModel, int> conds,
-            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<PersonasContactoViewModel, int> pContact)
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<PersonasContactoViewModel, int> pContact, ICrudApi<DiasValidosViewModel, int> dvalid)
         {
             this.service = service;
             this.impuestos = impuestos;
@@ -62,6 +66,7 @@ namespace Boletaje.Pages.OfertaVenta
             this.garan = garan;
             this.tiemp = tiemp;
             this.pContact = pContact;
+            this.dvalid = dvalid;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -82,7 +87,7 @@ namespace Boletaje.Pages.OfertaVenta
                 Condiciones = await conds.ObtenerLista("");
                 Garantias = await garan.ObtenerLista("");
                 Tiempos = await tiemp.ObtenerLista("");
-
+                DiasValidos = await dvalid.ObtenerLista("");
 
                 Orden = new OfertaVentaViewModel();
                 Orden.CodVendedor = 1;
@@ -106,6 +111,7 @@ namespace Boletaje.Pages.OfertaVenta
                     Orden.idCondPago = Ofertas.idCondPago;
                     Orden.idGarantia = Ofertas.idGarantia;
                     Orden.idTiemposEntregas = Ofertas.idTiemposEntregas;
+                    Orden.idDiasValidos = Ofertas.idDiasValidos;
                     var Tamaño = Ofertas.Detalle.Count();
                     Orden.Detalle = new List<DetalleOferta>();
 
@@ -195,7 +201,9 @@ namespace Boletaje.Pages.OfertaVenta
                 coleccion.Comentarios = recibido.Comentarios;
                 coleccion.idCondPago = recibido.idCondPago;
                 coleccion.idGarantia = recibido.idGarantia;
+                coleccion.idDiasValidos = recibido.idDiasValidos;
                 coleccion.idTiemposEntregas = recibido.idTiemposEntregas;
+                coleccion.idUsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == ClaimTypes.NameIdentifier).Select(s1 => s1.Value).FirstOrDefault());
                 coleccion.CodVendedor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
 
                 coleccion.ProcesadaSAP = false;

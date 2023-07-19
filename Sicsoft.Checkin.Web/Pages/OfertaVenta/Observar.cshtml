@@ -192,7 +192,21 @@
                         </div>
                     </div>
 
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Dias Valido:</label>
+                            <select id="DiasValidos" class="form-control" required asp-for="Orden.idDiasValidos" readonly disabled>
 
+                                @foreach (var item in Model.DiasValidos)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+
+                            </select>
+
+                        </div>
+                    </div>
 
                 </div>
             </div>

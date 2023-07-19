@@ -805,6 +805,8 @@
                     idCondPago: $("#condPago").val(),
                     idGarantia: $("#tipoGarantia").val(),
                     idTiemposEntregas: $("#tiemposEntrega").val(),
+                    idDiasValidos: $("#DiasValidos").val(),
+
                     BaseEntry: $("#BaseEntry").val(),
                     DocEntry: 0,
                     DocNum: 0,
@@ -1175,7 +1177,21 @@
 
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Dias Valido:</label>
+                            <select id="DiasValidos" class="form-control" required asp-for="Orden.idDiasValidos">
 
+                                @foreach (var item in Model.DiasValidos)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+
+                            </select>
+
+                        </div>
+                    </div>
                 </div>
             </div>
 

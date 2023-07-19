@@ -25,6 +25,7 @@ namespace Boletaje.Pages.OrdenVenta
         private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
         private readonly ICrudApi<GarantiasViewModel, int> garan;
         private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
+        private readonly ICrudApi<DiasValidosViewModel, int> dvalid;
 
         [BindProperty]
         public string Bodega { get; set; }
@@ -45,12 +46,13 @@ namespace Boletaje.Pages.OrdenVenta
 
         [BindProperty]
         public GarantiasViewModel[] Garantias { get; set; }
-
+        [BindProperty]
+        public DiasValidosViewModel[] DiasValidos { get; set; }
         [BindProperty]
         public TiemposEntregasViewModel[] Tiempos { get; set; }
         public ObservarModel(ICrudApi<OrdenVentaViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ClientesPOrdenesViewModel, int> clientes, ICrudApi<ProductosCOrdenesViewModel, int> prod,
              ICrudApi<CondicionesPagosViewModel, int> conds,
-            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp)
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<DiasValidosViewModel, int> dvalid)
         {
             this.service = service;
             this.impuestos = impuestos;
@@ -59,6 +61,8 @@ namespace Boletaje.Pages.OrdenVenta
             this.conds = conds;
             this.garan = garan;
             this.tiemp = tiemp;
+            this.dvalid = dvalid;
+
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -76,6 +80,7 @@ namespace Boletaje.Pages.OrdenVenta
                 Tiempos = await tiemp.ObtenerLista("");
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Impuestos = await impuestos.ObtenerLista("");
+                DiasValidos = await dvalid.ObtenerLista("");
 
 
                 Orden = await service.ObtenerPorId(id);
