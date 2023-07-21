@@ -191,11 +191,11 @@ namespace Boletaje.Pages.Llamadas
                 {
                     var itemCode = idB.Split("/")[0].Replace(" ", "");
                     idB = idB.Split("/")[1];
-                    idB = idB.Replace(" ", "");
+                    idB = idB.TrimEnd().TrimStart();//.Replace(" ", "");
 
 
                     var prod = await prods.ObtenerListaEspecial("");
-                    var prod1 = prod.Productos.Where(a => a.manufSN == idB && a.itemCode == itemCode).ToList();
+                    var prod1 = prod.Productos.Where(a => a.manufSN == idB && a.itemCode == itemCode).ToList(); //
                     var objetos = await clientes.ObtenerListaEspecial("");
 
 
@@ -225,13 +225,16 @@ namespace Boletaje.Pages.Llamadas
 
                     var objeto = new List<cliente>();
 
-                    foreach (var item in prod1)
+                    //foreach (var item in prod1)
+                    //{
+                    //    objeto.Add(objetos.Clientes.Where(a => a.CardCode.ToString().Contains(item.customer)
+                    //).FirstOrDefault());
+                    //}
+
+                    foreach(var item in objetos.Clientes)
                     {
-                        objeto.Add(objetos.Clientes.Where(a => a.CardCode.ToString().Contains(item.customer)
-                    ).FirstOrDefault());
+                        objeto.Add(item);
                     }
-
-
 
 
 
