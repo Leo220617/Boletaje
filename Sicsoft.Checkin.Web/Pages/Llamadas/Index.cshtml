@@ -52,63 +52,74 @@
         });
 
         function enviarSAP(id) {
+            try{
+                var modale = $("#divProcesando");
+                $.ajax({
+                    type: 'GET',
 
-            var modale = $("#divProcesando");
-            $.ajax({
-                type: 'GET',
+                    url: '@Url.Page("Index", "EnviarSAP")',
+                    dataType: 'json',
+                    data: { idB: id },
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (json) {
 
-                url: '@Url.Page("Index", "EnviarSAP")',
-                dataType: 'json',
-                data: { idB: id },
-                headers: {
-                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
-                },
-                success: function(json) {
-
-                    modale.hide();
-                    $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
-                    $('.modal-backdrop').remove();//eliminamos el backdrop del modal
+                        modale.modal("hide");
+                        $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
+                        $('.modal-backdrop').remove();//eliminamos el backdrop del modal
 
 
-                    console.log(json);
-                    if (json.procesadaSAP) {
-                        Swal.fire({
-                            title: "Ha sido enviado con éxito",
+                        console.log(json);
+                        if (json.procesadaSAP) {
+                            Swal.fire({
+                                title: "Ha sido enviado con éxito",
 
-                            icon: 'success',
-                            showCancelButton: false,
-                            customClass: {
-                                confirmButton: 'swalBtnColor',
+                                icon: 'success',
+                                showCancelButton: false,
+                                customClass: {
+                                    confirmButton: 'swalBtnColor',
 
-                            },
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Ha ocurrido un error al intentar enviar a SAP, revisa la bitacora de errores'
+                                },
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Ha ocurrido un error al intentar enviar a SAP, revisa la bitacora de errores'
 
-                        })
+                            })
+                        }
+
+
+                    },
+
+                    beforeSend: function (xhr) {
+                        modale.modal("show");
+                    },
+                    complete: function () {
+                        modale.modal("hide");
+
+                    },
+                    error: function (error) {
+                        modale.modal("hide");
                     }
+                });
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
 
-
-                },
-
-                beforeSend: function(xhr) {
-                    modale.modal("show");
-                },
-                complete: function() {
-
-                },
-                error: function(error) {
-                    modale.hide();
-                }
-            });
+                })
+            }
+           
         }
 
         
@@ -117,33 +128,45 @@
         var ids = 0;
         var correo = '';
         function onClickModal(id, correos) {
-            ids = id;
-            correo = correos;
+            try
+            {
+                ids = id;
+                correo = correos;
 
 
-            Swal.fire({
-                title: "¿Desea reenviar este correo?",
-                input: "text",
-                inputValue: correo,
-                showCancelButton: true,
-                confirmButtonText: "Guardar",
-                cancelButtonText: "Cancelar",
-                inputValidator: nombre => {
-                    // Si el valor es válido, debes regresar undefined. Si no, una cadena
-                    if (!nombre) {
-                        return "Por favor escribe el correo";
-                    } else {
-                        return undefined;
+                Swal.fire({
+                    title: "¿Desea reenviar este correo?",
+                    input: "text",
+                    inputValue: correo,
+                    showCancelButton: true,
+                    confirmButtonText: "Guardar",
+                    cancelButtonText: "Cancelar",
+                    inputValidator: nombre => {
+                        // Si el valor es válido, debes regresar undefined. Si no, una cadena
+                        if (!nombre) {
+                            return "Por favor escribe el correo";
+                        } else {
+                            return undefined;
+                        }
                     }
-                }
-            })
-                .then(resultado => {
-                    if (resultado.value) {
-                        let nombre = resultado.value;
-                        correo = nombre;
-                        Reenviar();
-                    }
-                });
+                })
+                    .then(resultado => {
+                        if (resultado.value) {
+                            let nombre = resultado.value;
+                            correo = nombre;
+                            Reenviar();
+                        }
+                    });
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar cambiar ' + e
+
+                })
+            }
+           
 
 
 
@@ -153,45 +176,60 @@
         }
 
         function Reenviar() {
+            try
+            {
+                var modale = $("#divProcesando");
+                modale.modal("show");
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '@Url.Page("Index", "Reenviar")',
+                    data: { id: ids, correos: correo },
+                    success: function (result) {
+                        console.log(result);
+                        modale.modal("hide");
 
-            $.ajax({
-                type: 'GET',
-                dataType: 'json',
-                url: '@Url.Page("Index", "Reenviar")',
-                data: { id: ids, correos: correo },
-                success: function(result) {
-                    console.log(result);
-                    if (result == false) {
-                        ids = 0;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Ha ocurrido un error al intentar reenviar'
+                        if (result == false) {
+                            ids = 0;
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Ha ocurrido un error al intentar reenviar'
 
-                        })
+                            })
 
-                    } else {
-                        Swal.fire({
-                            title: "Ha sido reenviado con éxito",
+                        } else {
+                            Swal.fire({
+                                title: "Ha sido reenviado con éxito",
 
-                            icon: 'success',
-                            showCancelButton: false,
-                            customClass: {
-                                confirmButton: 'swalBtnColor',
+                                icon: 'success',
+                                showCancelButton: false,
+                                customClass: {
+                                    confirmButton: 'swalBtnColor',
 
-                            },
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
+                                },
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
 
-                            }
-                        })
+                                }
+                            })
+                        }
+                    },
+                    beforeSend: function () {
+
                     }
-                },
-                beforeSend: function() {
+                })
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar cambiar ' + e
 
-                }
-            })
+                })
+            }
+            
         }
     
                             
@@ -359,7 +397,7 @@
                                 <tr> 
                                     <td>@item.DocEntry</td>
 
-                                    <td> @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" :Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName )</td>
+                                    <td> @item.CardCode -  @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" :Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName )</td>
                                     <td>@item.ItemCode - @item.SerieFabricante - @(
                                     Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault().itemName
                                     )</td>

@@ -590,7 +590,14 @@
             } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {
                 return false;
 
-            } else if (recibido1.Status == -1 || recibido1.Status == -3) {
+            } else if (recibido1.TipoCaso == "0")
+            {
+                return false;
+            } else if (recibido1.SucRecibo == "0" || recibido1.SucRetiro == "0") {
+                return false;
+            }
+
+            if (recibido1.Status == -1 || recibido1.Status == -3) {
                 if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
                     var RolIdentificacion = "@(!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))";
                     if (RolIdentificacion != "False") {
@@ -598,6 +605,7 @@
                     }
                 }
             }
+
 
             return true;
 
@@ -845,7 +853,7 @@
                 $("#cardcodes").html('');
                 for (var i = 0; i < lista.length; i++) {
                     if (lista[i] != null) {
-                        sOptions += ' <option selected value="' + lista[i].cardCode + ' / ' + lista[i].cardName + '">' + lista[i].cardCode + ' - ' + lista[i].cardName + '</option>';
+                        sOptions += ' <option selected value="' + lista[i].cardCode + ' / ' + lista[i].cardName + ' / ' + (lista[i].activo == "Y" ? "Activo" : "Inactivo") + '">' + lista[i].cardCode + ' - ' + lista[i].cardName + ' - ' + (lista[i].activo == "Y" ? "Activo" : "Inactivo") + '</option>';
 
                     }
 
@@ -1511,7 +1519,7 @@
 
                                 @foreach (var item in Model.Clientes.Clientes)
                                 {
-                                    <option value="@item.CardCode / @item.CardName"> </option>
+                                    <option value="@item.CardCode / @item.CardName / @(item.Activo == "Y" ? "Activo" : "Inactivo")"> </option>
                                 }
                             </datalist>
 

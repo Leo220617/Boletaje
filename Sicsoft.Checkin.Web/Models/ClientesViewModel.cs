@@ -16,5 +16,6 @@ namespace Boletaje.Models
         public string CardName { get; set; }
         public string Phone1 { get; set; }
         public string E_Mail { get; set; }
+        public string Activo { get; set; }
     }
 }
