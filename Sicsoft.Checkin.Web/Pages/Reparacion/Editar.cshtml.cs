@@ -314,7 +314,7 @@ namespace Boletaje.Pages.Reparacion
                 var obj = new
                 {
                     success = false,
-                    mensaje = "Error en el exception: -> " + ex.Message  
+                    mensaje = "Error en el exception: -> " + ex.ToString()  
                 };
                 return new JsonResult(obj);
             }
