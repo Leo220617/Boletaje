@@ -34,11 +34,15 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
+        private readonly ICrudApi<HistoricoViewModel, int> historico;
 
 
         [BindProperty]
 
         public CotizacionesAprobadasViewModel[] CotizacionesAprobadas { get; set; }
+
+        [BindProperty]
+        public HistoricoViewModel Historico { get; set; }
 
         [BindProperty]
 
@@ -90,7 +94,7 @@ namespace Boletaje.Pages.Reparacion
 
         public EditarModel(ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
-            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre)
+            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico)
         {
             this.service = service;
             this.serviceL = serviceL;
@@ -108,6 +112,8 @@ namespace Boletaje.Pages.Reparacion
             this.cotizaciones = cotizaciones;
             this.tp = tp;
             this.prodsPadre = prodsPadre;
+            this.historico = historico;
+
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -177,6 +183,17 @@ namespace Boletaje.Pages.Reparacion
                 else
                 {
                     ProductoPadre.Precio = Math.Round(ProductoPadre.Precio, 2);
+                }
+
+                try
+                {
+                    ParametrosFiltros filtHist = new ParametrosFiltros();
+                    filtHist.CardCode = InputLlamada.DocEntry.ToString();
+                    Historico = await historico.ObtenerListaEspecial(filtHist);
+                }
+                catch (Exception ex)
+                {
+
                 }
                 return Page();
             }

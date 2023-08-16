@@ -776,6 +776,8 @@
 
         function Generar() {
             try {
+                var btn = document.getElementById('Guardar');
+
                 var idGeneral = $("#idGeneral").val();
                 var tipo = $("#idTraslado").val();
                 var status = $("#status").val();
@@ -856,6 +858,8 @@
                             },
                             success: function (json) {
 
+                                btn.disabled = false;
+
                                 $("#divProcesando").hide();
 
                                 if ($('.modal-backdrop').is(':visible')) {
@@ -899,6 +903,7 @@
                             },
 
                             beforeSend: function (xhr) {
+                                btn.disabled = true;
 
                                 $("#divProcesando").modal("show");
                             },
@@ -906,6 +911,7 @@
 
                             },
                             error: function (error) {
+                                btn.disabled = false;
 
                             }
                         });
@@ -913,6 +919,8 @@
                 }
                 )
             } catch (e) {
+                btn.disabled = false;
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -1538,7 +1546,83 @@
             </div>
         </div>
     </div>
+    @if (!string.IsNullOrEmpty(Roles.Where(a => a == "56").FirstOrDefault()))
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h5 class="title">Histórico de Llamada</h5>
+                            </div>
 
+                            <div class="col-sm-6" style="text-align: right">
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label># Factura de Venta:</label>
+                                    <input type="text" class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Factura" readonly>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Fecha de Venta:</label>
+                                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Fecha_Factura" readonly>
+
+                                </div>
+                            </div>
+                           
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Inversión en Reparaciones:</label>
+                                    <br>
+                                    <label><b>@Model.Historico.Historico.FirstOrDefault().Total_Revisiones.ToString("N", formato)</b></label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Fecha Ult. Revisión:</label>
+                                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().fecha_Ultima_Rev" readonly>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Total de Revisiones:</label>
+                                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Cantidad_Revisiones" readonly>
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Ult. Técnico:</label>
+                                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Observaciones Ult. Reparación:</label>
+                                    <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
     <div class="row">
         <div class="col-md-12">
@@ -2112,7 +2196,7 @@
 
     </div>
 
-    <button type="button" onclick="javascript: Generar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+    <button type="button" onclick="javascript: Generar();" id="Guardar" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
 </form>
 
 

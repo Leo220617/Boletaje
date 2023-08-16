@@ -29,11 +29,14 @@ namespace Boletaje.Pages.Llamadas
 
 
 
+
         [BindProperty]
         public LlamadasViewModel Input { get; set; }
 
         [BindProperty]
         public ClientesViewModel Clientes { get; set; }
+
+      
 
         [BindProperty]
         public ProductosViewModel Productos { get; set; }
@@ -83,6 +86,7 @@ namespace Boletaje.Pages.Llamadas
             this.tp = tp;
             this.asuntos = asuntos;
             this.configuration = configuration;
+            
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -119,6 +123,9 @@ namespace Boletaje.Pages.Llamadas
                     Productos = await prods.ObtenerListaEspecial("");
 
                 }
+
+               
+
                 return Page();
             }
             catch (ApiException ex)

@@ -31,6 +31,7 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<ErroresViewModel, int> serviceError;
         private readonly ICrudApi<ControlProductosViewModel, int> control;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
+        private readonly ICrudApi<HistoricoViewModel, int> historico;
 
 
         [BindProperty]
@@ -64,9 +65,13 @@ namespace Boletaje.Pages.Reparacion
         [BindProperty]
 
         public TiposCasosViewModel[] TP { get; set; }
+
+        [BindProperty]
+        public HistoricoViewModel Historico { get; set; }
+
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD,
             ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<ControlProductosViewModel, int> control , ICrudApi<LlamadasViewModel, int> serviceL
-            , ICrudApi<TiposCasosViewModel, int> tp)
+            , ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<HistoricoViewModel, int> historico)
         {
             this.service = service;
             this.prods = prods;
@@ -79,6 +84,8 @@ namespace Boletaje.Pages.Reparacion
             this.control = control;
             this.serviceL = serviceL;
             this.tp = tp;
+            this.historico = historico;
+
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -111,7 +118,16 @@ namespace Boletaje.Pages.Reparacion
                 Errores = await serviceError.ObtenerLista("");
 
 
+                try
+                {
+                    ParametrosFiltros filtHist = new ParametrosFiltros();
+                    filtHist.CardCode = InputLlamada.DocEntry.ToString();
+                    Historico = await historico.ObtenerListaEspecial(filtHist);
+                }
+                catch (Exception ex)
+                {
 
+                }
 
                 return Page();
             }

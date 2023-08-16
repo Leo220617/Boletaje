@@ -23,6 +23,7 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<ImpuestosViewModel, int> impuestos;
         private readonly ICrudApi<ProductosViewModel, int> prods;
         private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
+        private readonly ICrudApi<HistoricoViewModel, int> historico;
 
 
 
@@ -60,7 +61,10 @@ namespace Boletaje.Pages.Movimientos
 
         public Producto ProductoPadreLlamada { get; set; }
 
-        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods, ICrudApi<ProductosPadresViewModel, int> prodsPadre)
+        [BindProperty]
+        public HistoricoViewModel Historico { get; set; }
+
+        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico)
         {
             this.service = service;
             this.clientes = clientes;
@@ -68,7 +72,9 @@ namespace Boletaje.Pages.Movimientos
             this.service2 = service2;
             this.impuestos = impuestos;
             this.prods = prods; 
-            this.prodsPadre = prodsPadre;   
+            this.prodsPadre = prodsPadre;
+            this.historico = historico;
+
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -124,7 +130,16 @@ namespace Boletaje.Pages.Movimientos
                 {
                     ProductoPadre.Precio = Math.Round(ProductoPadre.Precio, 2);
                 }
+                try
+                {
+                    ParametrosFiltros filtHist = new ParametrosFiltros();
+                    filtHist.CardCode = Llamada.DocEntry.ToString();
+                    Historico = await historico.ObtenerListaEspecial(filtHist);
+                }
+                catch (Exception ex)
+                {
 
+                }
                 return Page();
             }
             catch (Exception ex)

@@ -28,7 +28,7 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<AsuntosViewModel, int> asuntos;
         private readonly ICrudApi<EncReparacionViewModel, int> serviceE;
-
+        private readonly ICrudApi<HistoricoViewModel, int> historico;
 
 
         [BindProperty]
@@ -36,7 +36,8 @@ namespace Boletaje.Pages.Llamadas
 
         [BindProperty]
         public string Producto { get; set; }
-
+        [BindProperty]
+        public HistoricoViewModel Historico { get; set; }
 
         [BindProperty]
         public LlamadasViewModel Input { get; set; }
@@ -70,7 +71,7 @@ namespace Boletaje.Pages.Llamadas
         public AsuntosViewModel[] Asuntos { get; set; }
 
         public EditarModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
-            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE)
+            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<HistoricoViewModel, int> historico)
         {
             this.service = service;
             this.clientes = clientes;
@@ -82,6 +83,7 @@ namespace Boletaje.Pages.Llamadas
             this.tp = tp;
             this.asuntos = asuntos;
             this.serviceE = serviceE;
+            this.historico = historico;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -113,6 +115,16 @@ namespace Boletaje.Pages.Llamadas
                 Input.AdjuntosIdentificacion = Enc.AdjuntosIdentificacion.ToList();
                 Input.Adjuntos = Enc.Adjuntos.ToList();
 
+                try
+                {
+                    ParametrosFiltros filtHist = new ParametrosFiltros();
+                    filtHist.CardCode = Input.DocEntry.ToString();
+                    Historico = await historico.ObtenerListaEspecial(filtHist);
+                }
+                catch (Exception ex)
+                {
+
+                }
 
                 return Page();
             }

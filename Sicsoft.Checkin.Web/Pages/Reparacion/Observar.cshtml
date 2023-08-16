@@ -12,9 +12,24 @@
 
 
 }
-
-    @using System.Globalization;
-    @{
+@using System.Globalization;
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@inject IHttpContextAccessor httpContextAccessor
+@using Newtonsoft.Json;
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
+@{
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
@@ -60,18 +75,18 @@
     </style>
 
 }
-    @section scripts{
+@section scripts{
 
 
     <script>
-        $(document).ready(function() {
-            jQuery(document).ready(function($) {
+        $(document).ready(function () {
+            jQuery(document).ready(function ($) {
 
             });
 
 
 
-            $(document).ready(function() {
+            $(document).ready(function () {
                 $('#tablita').DataTable();
             });
 
@@ -102,138 +117,128 @@
         var span = document.getElementsByClassName("close")[0];
 
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
+        span.onclick = function () {
             modal.style.display = "none";
         }
     </script>
 }
-    @using Microsoft.AspNetCore.Http
-    @using System;
-    @using System.Collections.Generic;
-    @using System.IO;
-    @using System.Linq;
-    @using System.Security.Claims;
-    @using System.Threading.Tasks;
-    @using Microsoft.AspNetCore.Mvc;
-    @using Microsoft.AspNetCore.Mvc.RazorPages;
-    @using Microsoft.Extensions.Configuration;
-    @using Refit;
-    @using Sicsoft.Checkin.Web.Models;
-    @inject IHttpContextAccessor httpContextAccessor
+ 
+@using Sicsoft.Checkin.Web.Models;
+@inject IHttpContextAccessor httpContextAccessor
 
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h5 class="title">Observar Repuestos</h5>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Observar Repuestos</h5>
 
-                        </div>
+                    </div>
 
-                        <div class="col-sm-6" style="text-align: right">
+                    <div class="col-sm-6" style="text-align: right">
 
-                            <a asp-page="./Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                        <a asp-page="./Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
 
-                        </div>
                     </div>
                 </div>
-                <div class="card-body">
+            </div>
+            <div class="card-body">
 
-                    <div class="row">
-                        <div class="col-md-4 pr-1">
+                <div class="row">
+                    <div class="col-md-4 pr-1">
 
-                            <div class="form-group">
-                                <label>Producto</label>
-                                <input type="text" class="form-control form-control-lg" id="desc" asp-for="Producto" readonly>
-
-                            </div>
-
+                        <div class="form-group">
+                            <label>Producto</label>
+                            <input type="text" class="form-control form-control-lg" id="desc" asp-for="Producto" readonly>
 
                         </div>
 
 
-
-
-                        <div class="col-md-4 pr-1">
-
-                            <div class="form-group">
-                                <label>Status</label>
-                                <select id="status" class="form-control" asp-for="Encabezado.Status" readonly disabled="disabled">
-                                    <option value="0" selected>Abierto</option>
-
-
-                                    <option value="1">Cerrado </option>
+                    </div>
 
 
 
-                                </select>
 
-                            </div>
+                    <div class="col-md-4 pr-1">
+
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="status" class="form-control" asp-for="Encabezado.Status" readonly disabled="disabled">
+                                <option value="0" selected>Abierto</option>
 
 
-                        </div>
+                                <option value="1">Cerrado </option>
 
-                        <div class="col-md-4 pr-1">
 
-                            <div class="form-group">
-                                <label>Fecha Creación</label>
-                                <input type="date" class="form-control form-control-lg" id="desc" asp-for="Encabezado.FechaCreacion" readonly>
 
-                            </div>
-
+                            </select>
 
                         </div>
 
-                        <div class="col-md-4 pr-1">
 
-                            <div class="form-group">
-                                <label>Ultima Actualización</label>
-                                <input type="datetime" class="form-control form-control-lg" id="desc" asp-for="Encabezado.FechaModificacion" readonly>
+                    </div>
 
-                            </div>
+                    <div class="col-md-4 pr-1">
 
-
-                        </div>
-                        <div class="col-md-4 pr-1">
-
-                            <div class="form-group">
-                                <label>Técnico</label>
-                                <input type="text" class="form-control form-control-lg" id="desc" asp-for="Tecnico" readonly>
-
-                            </div>
-
+                        <div class="form-group">
+                            <label>Fecha Creación</label>
+                            <input type="date" class="form-control form-control-lg" id="desc" asp-for="Encabezado.FechaCreacion" readonly>
 
                         </div>
-                        <div class="col-md-4 pr-1">
-
-                            <div class="form-group">
-                                <label>Llamada</label>
-                                <input type="text" class="form-control form-control-lg" id="idLlamada" asp-for="Encabezado.idLlamada" readonly>
-
-                            </div>
 
 
-                        </div>
-                        <div class="col-md-4 pr-1">
+                    </div>
 
-                            <div class="form-group">
-                                <label>Cliente</label>
-                                <input type="text" class="form-control form-control-lg" id="desc" asp-for="Cliente" readonly>
+                    <div class="col-md-4 pr-1">
 
-                            </div>
-
+                        <div class="form-group">
+                            <label>Ultima Actualización</label>
+                            <input type="datetime" class="form-control form-control-lg" id="desc" asp-for="Encabezado.FechaModificacion" readonly>
 
                         </div>
-                        <div class="col-md-4 pl-1">
 
-                            <div class="form-group">
-                                <label>Diagnóstico</label>
-                                <select id="idDiag" class="form-control" asp-for="Encabezado.idDiagnostico" disabled="disabled" readonly>
-                                    <option value="0" selected>Seleccione</option>
 
-                                    @foreach (var item in Model.Diagnosticos)
+                    </div>
+                    <div class="col-md-4 pr-1">
+
+                        <div class="form-group">
+                            <label>Técnico</label>
+                            <input type="text" class="form-control form-control-lg" id="desc" asp-for="Tecnico" readonly>
+
+                        </div>
+
+
+                    </div>
+                    <div class="col-md-4 pr-1">
+
+                        <div class="form-group">
+                            <label>Llamada</label>
+                            <input type="text" class="form-control form-control-lg" id="idLlamada" asp-for="Encabezado.idLlamada" readonly>
+
+                        </div>
+
+
+                    </div>
+                    <div class="col-md-4 pr-1">
+
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <input type="text" class="form-control form-control-lg" id="desc" asp-for="Cliente" readonly>
+
+                        </div>
+
+
+                    </div>
+                    <div class="col-md-4 pl-1">
+
+                        <div class="form-group">
+                            <label>Diagnóstico</label>
+                            <select id="idDiag" class="form-control" asp-for="Encabezado.idDiagnostico" disabled="disabled" readonly>
+                                <option value="0" selected>Seleccione</option>
+
+                                @foreach (var item in Model.Diagnosticos)
                                 {
 
                                     <option value="@item.id"> @item.id - @item.Descripcion </option>
@@ -284,7 +289,83 @@
         </div>
     </div>
 </div>
+@if (!string.IsNullOrEmpty(Roles.Where(a => a == "56").FirstOrDefault()))
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Histórico de Llamada</h5>
+                        </div>
 
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label># Factura de Venta:</label>
+                                <input type="text" class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Factura" readonly>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Fecha de Venta:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Fecha_Factura" readonly>
+
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Inversión en Reparaciones:</label>
+                                <br>
+                                <label><b>@Model.Historico.Historico.FirstOrDefault().Total_Revisiones.ToString("N", formato)</b></label>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Fecha Ult. Revisión:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().fecha_Ultima_Rev" readonly>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Total de Revisiones:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Cantidad_Revisiones" readonly>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Ult. Técnico:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Observaciones Ult. Reparación:</label>
+                                <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <div class="row">
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
