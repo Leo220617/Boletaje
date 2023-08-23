@@ -209,7 +209,10 @@ namespace Boletaje.Pages.Llamadas
                     }
                 }
 
-
+                if(coleccion.Status == -1 && coleccion.FechaSISO == null)
+                {
+                    throw new Exception("No se puede cerrar una llamada sin Fecha SISO");
+                }
 
                 await service.Editar(coleccion);
 
@@ -241,7 +244,7 @@ namespace Boletaje.Pages.Llamadas
                 var obj = new
                 {
                     success = false,
-                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString()
+                    mensaje = "Error en el exception: -> " + ex.Message //+ " -> " + ex.StackTrace.ToString()
                 };
                 return new JsonResult(obj);
             }

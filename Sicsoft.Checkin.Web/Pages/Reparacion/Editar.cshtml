@@ -199,7 +199,7 @@
                 });
             });
             RecuperarProductosGenerales();
-
+            $("#idTraslado").val("1");
             onChangeTipoMovimiento();
         });
 
@@ -934,9 +934,32 @@
 
         }
 
+        function onChangeFinal(){
+            try{
+                var status = $("#status").val();
+
+                if(status == "2" && (parseInt($("#idTraslado").val()) == 4 || parseInt($("#idTraslado").val()) == 1) )
+                {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'No se puede cotizar y cerrar al mismo tiempo ' 
+                    });
+                    $("#status").val("0");
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
 
         function onChangeTipoMovimiento() {
             try {
+                onChangeFinal();
                 if (parseInt($("#idTraslado").val()) == 0) {
                     $("#rowRepUti").hide();
                     $("#rowRepUtilizados").hide();
@@ -959,7 +982,7 @@
 
 
                 } else {
-                    Recuperar();
+                    //Recuperar();
                     $("#rowRepAprobados").hide();
                     if ("@string.IsNullOrEmpty(Roles.Where(a => a == "49").FirstOrDefault())" == "True")//$("#RolSolicitudNuevo").val() != "value")
                     {
@@ -1431,38 +1454,7 @@
 
 
 
-                        <div class="col-md-4 pr-1">
-
-                            <div class="form-group">
-                                <label>Estado de la Reparación</label>
-                                <select id="status" class="form-control" asp-for="Encabezado.Status">
-                                    <option value="0" selected>Abierto</option>
-
-
-                                   @* <option value="1">Cerrado </option>*@
-                                    <option value="2">Cerrado y Reparado </option>
-
-
-
-                                </select>
-
-                            </div>
-
-
-                        </div>
-                        <div class="col-md-4 pl-1">
-                            <div class="form-group">
-                                <label>Estado de la Llamada:</label>
-                                <input asp-for="InputLlamada.id" id="idLlamada" hidden />
-                                <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
-                                    <option value="0">Seleccione</option>
-                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48"))
-                                    {
-                                        <option value="@item.idSAP">@item.Nombre</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
+                        
                         <div class="col-md-4 pr-1">
 
                             <div class="form-group">
@@ -1629,13 +1621,13 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-md-4">
                             <h5 class="title">Generar Movimiento</h5>
 
                         </div>
 
-                        <div class="col-sm-6" style="text-align: right">
-                        </div>
+                        
+                        
                     </div>
                 </div>
                 <div class="card-body">
@@ -1665,7 +1657,38 @@
 
 
                         </div>
+                        <div class="col-md-4 pr-1">
 
+                            <div class="form-group">
+                                <label>Estado de la Reparación</label>
+                                <select id="status" class="form-control" asp-for="Encabezado.Status" onchange="javascript: onChangeFinal()">
+                                    <option value="0" selected>Abierto</option>
+
+
+                                    @* <option value="1">Cerrado </option>*@
+                                    <option value="2">Cerrado y Reparado </option>
+
+
+
+                                </select>
+
+                            </div>
+
+
+                        </div>
+                        <div class="col-md-4 pl-1">
+                            <div class="form-group">
+                                <label>Estado de la Llamada:</label>
+                                <input asp-for="InputLlamada.id" id="idLlamada" hidden />
+                                <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48"))
+                                    {
+                                        <option value="@item.idSAP">@item.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
 
 
                         <div class="col-md-4 pr-1" hidden>
