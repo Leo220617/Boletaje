@@ -70,31 +70,31 @@
             return [year, month, day].join('-');
         }
         function TipodeCambio() {
-            $.ajax({
-                type: 'GET',
-                dataType: 'json',
-                url: 'https://tipodecambio.paginasweb.cr/api//' + formatDate(Date(Date.now())).split('-')[2] + '/' + formatDate(Date(Date.now())).split('-')[1] + '/' + formatDate(Date(Date.now())).split('-')[0],
-                data: {},
-                success: function (result) {
+            
 
-                    if (result == null) {
-                        ids = 0;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Ha ocurrido un error al intentar tomar el tipo de cambio'
-
-                        })
-
-                    } else {
-                        TipoCambio = result.venta;
-                        $("#TipoCambioBCCR").val(TipoCambio);
+            fetch('https://apis.gometa.org/tdc/tdc.json?fbclid=IwAR1Wfr6SFwV8_0-x9n5JrjMmNTkOcUIWdekp1Sc6sFpTnIuP29ok-aVuQWI')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                },
-                beforeSend: function () {
+                    return response.json(); // Parsea la respuesta como JSON
+                })
+                .then(data => {
+                    // Maneja los datos obtenidos
+                    console.log(data);
+                    TipoCambio = parseFloat(data.venta);
+                    $("#TipoCambioBCCR").val(TipoCambio); 
+                })
+                .catch(error => {
+                    // Maneja errores
+                    console.error('Fetch error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Ha ocurrido un error  ' + error
 
-                }
-            })
+                    })
+                });
         }
         function Recuperar() {
             try {
@@ -989,7 +989,16 @@
 
                     var id2 = id.split("/")[0].trimEnd().trim();
 
-                    window.location.href = window.location.href.toString().replace("OfertaVenta/Nuevo/" + window.location.href.split("/")[window.location.href.split("/").length - 1], "Client/Actualizar/" + id2);
+                    if (window.location.toString().includes("OfertaVenta/Nuevo/"))
+                    {
+                        window.location.href = window.location.href.toString().replace("OfertaVenta/Nuevo/" + window.location.href.split("/")[window.location.href.split("/").length - 1], "Client/Actualizar/" + id2);
+
+                    }else
+                    {
+                        window.location.href = window.location.href.toString().replace("OfertaVenta/Nuevo" + window.location.href.split("/")[window.location.href.split("/").length - 1], "Client/Actualizar/" + id2);
+
+                    }
+
                 }
 
             } catch (e) {
