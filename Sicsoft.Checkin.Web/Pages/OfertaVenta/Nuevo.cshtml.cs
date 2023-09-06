@@ -222,7 +222,17 @@ namespace Boletaje.Pages.OfertaVenta
                     detalle.ItemName = item.ItemName;
                     detalle.Bodega = item.Bodega;
                     detalle.PorcentajeDescuento = item.PorcentajeDescuento;
-                    detalle.Cantidad = item.Cantidad;
+                    try
+                    {
+                        detalle.Cantidad = Decimal.Parse(item.CantidadDecimal);
+
+                    }
+                    catch (Exception)
+                    {
+                        detalle.Cantidad = Decimal.Parse(item.CantidadDecimal.Replace(".", ","));
+
+
+                    }
                     detalle.Impuesto = item.Impuesto;
                     detalle.TaxOnly = item.TaxOnly;
                     try

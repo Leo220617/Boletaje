@@ -43,6 +43,7 @@ namespace Boletaje.Models
         public string ItemName { get; set; }
         public string Bodega { get; set; }
         public decimal PorcentajeDescuento { get; set; }
+        public string CantidadDecimal { get; set; }
         public decimal Cantidad { get; set; }
         public string Impuesto { get; set; }
         public bool TaxOnly { get; set; }

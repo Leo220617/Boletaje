@@ -147,6 +147,7 @@
                         ItemCode: Documento.Detalle[i].ItemCode,
                         Bodega: Documento.Detalle[i].Bodega,
                         PorcentajeDescuento: Documento.Detalle[i].PorcentajeDescuento,
+                        CantidadDecimal:  Documento.Detalle[i].Cantidad.toString(), 
                         Cantidad: Documento.Detalle[i].Cantidad,
                         Impuesto: parseFloat(Documento.Detalle[i].Impuesto),
                         TaxOnly: Documento.Detalle[i].TaxOnly,
@@ -441,6 +442,8 @@
 
 
                 ProdCadena[campo].Cantidad = cantidad;
+                ProdCadena[campo].CantidadDecimal = cantidad.toString();
+
                 ProdCadena[campo].PrecioUnitario = precio;
 
                 var Moneda = $("#moneda").val();
@@ -542,6 +545,7 @@
                         ItemCode: $("#ProductoSeleccionado").val(),
                         Bodega: Prod.idBodega,
                         PorcentajeDescuento: $("#descuento").val(),
+                        CantidadDecimal: $("#cantidad").val().toString(),
                         Cantidad: $("#cantidad").val(),
                         Impuesto: parseFloat($("#impuesto").val()),
                         TaxOnly: document.getElementById("taxonly").checked,

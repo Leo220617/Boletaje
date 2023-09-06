@@ -454,6 +454,8 @@
 
 
                 ProdCadena[campo].Cantidad = cantidad;
+                ProdCadena[campo].CantidadDecimal = cantidad.toString();
+
                 ProdCadena[campo].PrecioUnitario = precio;
 
                 var Moneda = $("#moneda").val();
@@ -557,7 +559,8 @@
                         ItemName: $("#nombreArea").val(),
                         Bodega: Prod.idBodega,
                         PorcentajeDescuento: $("#descuento").val(),
-                        Cantidad: $("#cantidad").val(),
+                        CantidadDecimal: $("#cantidad").val().toString(),
+                        Cantidad: parseFloat($("#cantidad").val()),
                         Impuesto: parseFloat($("#impuesto").val()),
                         TaxOnly: document.getElementById("taxonly").checked,
                         PrecioUnitario: parseFloat($("#inputPrecio").val()),
