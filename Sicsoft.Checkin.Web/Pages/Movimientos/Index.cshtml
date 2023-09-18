@@ -91,54 +91,54 @@
 
         }
 
-        function  Reenviar() {
+        function Reenviar() {
 
-         $.ajax({
-                        type: 'GET',
-                        dataType: 'json',
-             url: '@Url.Page("Index", "Reenviar")',
-             data: { id: ids, correos: correo },
-             success: function (result) {
-                 console.log(result);
-                             if (result == false) {
-                                 ids = 0;
-                                 Swal.fire({
-                                     icon: 'error',
-                                     title: 'Oops...',
-                                     text: 'Ha ocurrido un error al intentar reenviar'
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Page("Index", "Reenviar")',
+                data: { id: ids, correos: correo },
+                success: function (result) {
+                    console.log(result);
+                    if (result == false) {
+                        ids = 0;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Ha ocurrido un error al intentar reenviar'
 
-                                 })
+                        })
 
-                             } else {
-                                 Swal.fire({
-                                     title: "Ha sido reenviado con éxito",
+                    } else {
+                        Swal.fire({
+                            title: "Ha sido reenviado con éxito",
 
-                                     icon: 'success',
-                                     showCancelButton: false,
-                                     customClass: {
-                                         confirmButton: 'swalBtnColor',
+                            icon: 'success',
+                            showCancelButton: false,
+                            customClass: {
+                                confirmButton: 'swalBtnColor',
 
-                                     },
-                                     confirmButtonText: 'OK'
-                                 }).then((result) => {
-                                     if (result.isConfirmed) {
+                            },
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
 
-                                     }
-                                 })
-                             }
-             },
-             beforeSend: function () {
+                            }
+                        })
+                    }
+                },
+                beforeSend: function () {
 
-             }
-                     })
+                }
+            })
         }
 
 
 
-        
+
         function onClickModalEliminar(id) {
 
-        ids = id;
+            ids = id;
 
 
             Swal.fire({
@@ -161,94 +161,94 @@
             })
 
 
-    }
-        function  Eliminar() {
+        }
+        function Eliminar() {
 
 
-         $.ajax({
-                        type: 'GET',
-                        dataType: 'json',
-                        url: '@Url.Page("Index", "Eliminar")',
-                        data: { id: ids },
-             success: function (result) {
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Page("Index", "Eliminar")',
+                data: { id: ids },
+                success: function (result) {
 
-                             if (result == false) {
-                                 ids = 0;
-                              
-                                 Swal.fire({
-                                     icon: 'error',
-                                     title: 'Oops...',
-                                     text: 'Ha ocurrido un error al intentar eliminar'
+                    if (result == false) {
+                        ids = 0;
 
-                                 })
-                             } else {
-                                 Swal.fire({
-                                     title: "Ha sido eliminado con éxito",
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Ha ocurrido un error al intentar eliminar'
 
-                                     icon: 'success',
-                                     showCancelButton: false,
-                                     customClass: {
-                                         confirmButton: 'swalBtnColor',
+                        })
+                    } else {
+                        Swal.fire({
+                            title: "Ha sido eliminado con éxito",
 
-                                     },
-                                     confirmButtonText: 'OK'
-                                 }).then((result) => {
-                                     if (result.isConfirmed) {
-                                         location.reload();
-                                     }
-                                 })
-                             }
-             },
-             beforeSend: function () {
+                            icon: 'success',
+                            showCancelButton: false,
+                            customClass: {
+                                confirmButton: 'swalBtnColor',
 
-             },
-             complete: function () {
+                            },
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        })
+                    }
+                },
+                beforeSend: function () {
 
-             }
-                     })
+                },
+                complete: function () {
+
+                }
+            })
         }
 
 
-        function  Aprobar(id) {
+        function Aprobar(id) {
             var idEnviar = id;
-         $.ajax({
-                        type: 'GET',
-                        dataType: 'json',
-             url: '@Url.Page("Index", "Aprobar")',
-             data: { id: idEnviar },
-             success: function (result) {
-                 console.log(result);
-                             if (result == false) {
-                                 ids = 0;
-                                 Swal.fire({
-                                     icon: 'error',
-                                     title: 'Oops...',
-                                     text: 'Ha ocurrido un error al intentar Aprobar'
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Page("Index", "Aprobar")',
+                data: { id: idEnviar },
+                success: function (result) {
+                    console.log(result);
+                    if (result == false) {
+                        ids = 0;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Ha ocurrido un error al intentar Aprobar'
 
-                                 })
+                        })
 
-                             } else {
-                                 Swal.fire({
-                                     title: "Ha sido Aprobado con éxito",
+                    } else {
+                        Swal.fire({
+                            title: "Ha sido Aprobado con éxito",
 
-                                     icon: 'success',
-                                     showCancelButton: false,
-                                     customClass: {
-                                         confirmButton: 'swalBtnColor',
+                            icon: 'success',
+                            showCancelButton: false,
+                            customClass: {
+                                confirmButton: 'swalBtnColor',
 
-                                     },
-                                     confirmButtonText: 'OK'
-                                 }).then((result) => {
-                                     if (result.isConfirmed) {
+                            },
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
 
-                                     }
-                                 })
-                             }
-             },
-             beforeSend: function () {
+                            }
+                        })
+                    }
+                },
+                beforeSend: function () {
 
-             }
-                     })
+                }
+            })
         }
     </script>
 
@@ -295,41 +295,41 @@
                         </div>
 
                         <div class="col-md-4 pl-1">
-                             <div class="form-group">
+                            <div class="form-group">
                                 <label>Estado de la Llamada</label>
                                 <select id="estadoLlamada" class="form-control" asp-for="filtro.Codigo2">
-                                      <option value="0">Seleccione</option>
-                                    @foreach(var item in Model.Status)
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var item in Model.Status)
                                     {
-                                         <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
                                     }
 
                                 </select>
                             </div>
 
 
-                         
+
                         </div>
-                         <div class="col-md-4 pr-1">
-                             <div class="form-group">
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group">
                                 <label>Tipo Movimiento</label>
                                 <select id="tMovimiento" class="form-control" asp-for="filtro.Codigo1">
-                                      <option value="0">Seleccione</option>
-                                     
-                                         <option value="1">Oferta de Venta</option>
-                                         <option value="2">Entrega</option>
-                                         <option value="3">Cotización BackOffice</option>
+                                    <option value="0">Seleccione</option>
 
-                                   
+                                    <option value="1">Oferta de Venta</option>
+                                    <option value="2">Entrega</option>
+                                    <option value="3">Cotización BackOffice</option>
+
+
 
                                 </select>
                             </div>
 
 
-                         
+
                         </div>
 
-                        
+
                         <div class="col-sm-12">
                             <br />
                         </div>
@@ -361,8 +361,6 @@
                         <h5>BackOffice</h5>
                     </div>
                     <div class="col-md-4">
-
-
                     </div>
                 </div>
             </div>
@@ -375,6 +373,7 @@
                                 <th>ID</th>
                                 <th>Llamada</th>
                                 <th>Estado Llamada</th>
+                                <th>Tipo Caso</th>
 
                                 <th>Cliente</th>
                                 <th>Fecha</th>
@@ -393,74 +392,79 @@
                         <tbody>
                             @foreach (var item in Model.Objeto)
                             {
-                            <tr>
-                                <td>@item.id</td>
-                                <td>@item.NumLlamada</td>
-                                @{var DocEntry = Convert.ToInt32(item.NumLlamada);}
-                                <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault().Nombre  ) </td>
+                                <tr>
+                                    <td>@item.id</td>
+                                    <td>@item.NumLlamada</td>
+                                    @{
+                                        var DocEntry = Convert.ToInt32(item.NumLlamada);
+                                    }
+                                    <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault().Nombre) </td>
+                                    <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault().Nombre) </td>
 
 
-                                <td>@item.CardCode - @item.CardName</td>
-                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
-                                @{switch (item.TipoMovimiento)
-                                {
-                                    case 1:
+
+                                    <td>@item.CardCode - @item.CardName</td>
+                                    <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                                    @{
+                                        switch (item.TipoMovimiento)
                                         {
-                                            <td>Oferta de Venta</td>
-                                            break;
-                                        }
-                                    case 2:
-                                        {
+                                            case 1:
+                                                {
+                                                    <td>Oferta de Venta</td>
+                                                    break;
+                                                }
+                                            case 2:
+                                                {
                                                     <td>Entrega</td>
-                                             break;
+                                                    break;
+                                                }
+                                            case 3:
+                                                {
+                                                    <td>Cotización BackOffice</td>
+                                                    break;
+                                                }
+
                                         }
-                                    case 3:
+                                    }
+                                    <td align="right">@decimal.Round(item.Subtotal, 2).ToString("N", formato)</td>
+                                    <td align="right">@decimal.Round(item.Impuestos, 2).ToString("N", formato)</td>
+
+                                    <td align="right">@decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
+                                    <td align="right">@decimal.Round(item.TotalComprobante, 2).ToString("N", formato)</td>
+
+                                    <td>
+                                        @if (item.DocEntry == 0)
                                         {
-                                                     <td>Cotización BackOffice</td>
-                                              break;
+
+                                            <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
                                         }
-                                        
-                                }
-                                }
-                                <td align="right">@decimal.Round(item.Subtotal, 2).ToString("N", formato)</td>
-                                <td align="right">@decimal.Round(item.Impuestos, 2).ToString("N", formato)</td>
+                                        else
+                                        {
 
-                                <td align="right">@decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
-                                <td align="right">@decimal.Round(item.TotalComprobante, 2).ToString("N", formato)</td>
+                                            <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
+                                            @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                            {
+                                                <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
 
-                                <td>
-                                    @if (item.DocEntry == 0)
-                                    {
+                                            }
+                                        }
+                                        &nbsp;
+                                        <a asp-page="./Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
+                                        &nbsp;
+                                        @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                        {
+                                            <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
 
-                                        <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
-                                    }
-                                    else
-                                    {
-                                        
-                                        <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a> 
-                                        @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3 )
-                                       {
-                                         <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
-                                           
-                                       }
-                                    }
-                                    &nbsp;
-                                    <a asp-page="./Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
-                                    &nbsp;
-                                    @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3 )
-                                    {
-                                        <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
+                                        }
 
-                                    }
+                                        &nbsp;
+                                        @if (item.TipoMovimiento == 3)
+                                        {
+                                            <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
 
-                                    &nbsp;
-                                    @if (item.TipoMovimiento == 3)
-                                    {
-                                        <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
-
-                                    }
-                                </td>
-                            </tr>
+                                        }
+                                    </td>
+                                </tr>
                             }
 
 
@@ -470,6 +474,7 @@
                                 <th>ID</th>
                                 <th>Llamada</th>
                                 <th>Estado Llamada</th>
+                                <th>Tipo Caso</th>
 
                                 <th>Cliente</th>
                                 <th>Fecha</th>

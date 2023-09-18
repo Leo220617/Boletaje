@@ -22,6 +22,7 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion;
         private readonly ICrudApi<LlamadasViewModel, int> serviceL;
         private readonly ICrudApi<StatusViewModel, int> status;
+        private readonly ICrudApi<ProductosViewModel, int> prods;
 
 
         [BindProperty]
@@ -41,13 +42,17 @@ namespace Boletaje.Pages.Reparacion
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
 
-        public IndexModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<StatusViewModel, int> status)
+        [BindProperty]
+        public ProductosViewModel Productos { get; set; }
+
+        public IndexModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<StatusViewModel, int> status, ICrudApi<ProductosViewModel, int> prods)
         {
             this.service = service;
             this.serviceT = serviceT;
             this.serviceColeccion = serviceColeccion;
             this.serviceL = serviceL;
             this.status = status;
+            this.prods = prods;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -101,6 +106,7 @@ namespace Boletaje.Pages.Reparacion
                 InputLlamada = await serviceL.ObtenerLista(filtro2);
                 Objeto = await service.ObtenerLista(filtro);
                 Tecnicos = await serviceT.ObtenerLista("");
+                Productos = await prods.ObtenerListaEspecial("");
 
                 return Page();
             }

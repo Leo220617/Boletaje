@@ -386,6 +386,8 @@
                                 <th>Sucursal</th>
 
                                 <th>Status</th>
+                                <th>Lugar Reparación</th>
+
 
                                 <th width="150">Acción</th>
 
@@ -408,7 +410,7 @@
                                     <td>@(Model.Sucursales.Where(a => a.id == item.SucRetiro).FirstOrDefault() == null ? "" : Model.Sucursales.Where(a => a.id == item.SucRetiro).FirstOrDefault().Nombre) </td>
 
                                     <td>@(Model.Status.Where(a => a.idSAP == status).FirstOrDefault() == null ? "" : Model.Status.Where(a => a.idSAP == status).FirstOrDefault().Nombre) </td>
-
+                                    <td>@(item.LugarReparacion == 1 ? "Taller" : "Visita")</td>
                                     <td>
 
                                         <a asp-page="./Editar" asp-route-id="@item.id" title="Editar" class="btn btn-rounded btn-outline-warning"> Editar</a> &nbsp;
@@ -420,6 +422,8 @@
                                         <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta('@item.DocEntry', '@item.CardCode - @Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName')">PDF</button>
                                         &nbsp;
                                         <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
+                                       &nbsp;
+                                        <a asp-page="./Actividades" asp-route-id="@item.id" title="Actividades" class="btn btn-rounded btn-outline-info"> Actividades</a> &nbsp;
 
                                     </td>
                                 </tr>
@@ -435,8 +439,10 @@
                                 <th>Cliente</th>
                                 <th>Item</th>
                                 <th>Asunto</th>
-                                <th>Status</th>
+
                                 <th>Sucursal</th>
+                                <th>Status</th>
+                                <th>Lugar Reparación</th>
 
                                 <th>Acción</th>
 

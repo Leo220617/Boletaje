@@ -13,8 +13,8 @@
 
 }
 
-    @using System.Globalization;
-    @{
+@using System.Globalization;
+@{
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
@@ -36,18 +36,18 @@
 }
 
 
-    @section scripts{
+@section scripts{
 
 
     <script>
-        $(document).ready(function() {
-            jQuery(document).ready(function($) {
+        $(document).ready(function () {
+            jQuery(document).ready(function ($) {
 
             });
 
 
 
-            $(document).ready(function() {
+            $(document).ready(function () {
                 // $('#tablita').DataTable();
             });
 
@@ -90,7 +90,7 @@
                 dataType: 'json',
                 url: '@Url.Page("Index", "Estado")',
                 data: { id: ids },
-                success: function(result) {
+                success: function (result) {
                     console.log(result);
                     if (result == false) {
                         ids = 0;
@@ -119,7 +119,7 @@
                         })
                     }
                 },
-                beforeSend: function() {
+                beforeSend: function () {
 
                 }
             })
@@ -130,49 +130,49 @@
     </script>
 
 }
-    @using Microsoft.AspNetCore.Http
-    @using System;
-    @using System.Collections.Generic;
-    @using System.IO;
-    @using System.Linq;
-    @using System.Security.Claims;
-    @using System.Threading.Tasks;
-    @using Microsoft.AspNetCore.Mvc;
-    @using Microsoft.AspNetCore.Mvc.RazorPages;
-    @using Microsoft.Extensions.Configuration;
-    @using Refit;
-    @using Sicsoft.Checkin.Web.Models;
-    @inject IHttpContextAccessor httpContextAccessor
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@inject IHttpContextAccessor httpContextAccessor
 
 
-    <div class="row">
-        <div class="col-md-12   ">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">Filtro</h4>
+<div class="row">
+    <div class="col-md-12   ">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Filtro</h4>
 
-                </div>
-                <div class="card-body">
-                    <form method="get">
-                        <div class="row">
-                            <div class="col-sm-4 pr-1">
-                                <div class="form-group">
-                                    <label>Fecha Inicial</label>
-                                    <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
-                                </div>
-
-
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-sm-4 pr-1">
+                            <div class="form-group">
+                                <label>Fecha Inicial</label>
+                                <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
                             </div>
 
-                            <div class="col-sm-4 pr-1">
-                                <div class="form-group">
-                                    <label>Fecha Final</label>
-                                    <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
-                                </div>
-                            </div>
 
-                            <div class="col-md-4 pl-1">
-                                @if (Model.bandera)
+                        </div>
+
+                        <div class="col-sm-4 pr-1">
+                            <div class="form-group">
+                                <label>Fecha Final</label>
+                                <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 pl-1">
+                            @if (Model.bandera)
                             {
                                 <div class="form-group">
                                     <label>Técnico</label>
@@ -259,7 +259,7 @@
                                 <th>ID Llamada</th>
                                 <th>Tecnico</th>
                                 <th>Fecha Creación</th>
-                                <th>Actualización Ult.</th>
+                                <th>Fecha SISO</th>
                                 <th>Producto</th>
                                 <th>Status</th>
 
@@ -277,11 +277,15 @@
                                     @{
                                         var id = item.idTecnico.ToString();
                                     }
-                                    <td>@(Model.Tecnicos.Where(a => a.idSAP == id).FirstOrDefault() == null ?  "": Model.Tecnicos.Where(a => a.idSAP == id).FirstOrDefault().Nombre)</td>
+                                    <td>@(Model.Tecnicos.Where(a => a.idSAP == id).FirstOrDefault() == null ? "" : Model.Tecnicos.Where(a => a.idSAP == id).FirstOrDefault().Nombre)</td>
 
                                     <td>@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
-                                    <td>@item.FechaModificacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
-                                    <td>@item.idProductoArreglar - @(Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().SerieFabricante )</td>
+                                    <td>@(Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().FechaSISO.Value.ToString("dd/MM/yyyy"))</td>
+                                    <td>
+                                        @(
+                                            Model.Productos.Productos.Where(a => a.itemCode == Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().ItemCode).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().ItemCode).FirstOrDefault().itemName
+                                            ) - @(Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().SerieFabricante)
+                                    </td>
                                     <td>
                                         @switch (item.Status)
                                         {
@@ -309,7 +313,7 @@
 
 
                                         }
-                                        @(Model.Status.Where(a => a.idSAP == LLamada).FirstOrDefault() == null ? "" :Model.Status.Where(a => a.idSAP == LLamada).FirstOrDefault().Nombre)
+                                        @(Model.Status.Where(a => a.idSAP == LLamada).FirstOrDefault() == null ? "" : Model.Status.Where(a => a.idSAP == LLamada).FirstOrDefault().Nombre)
                                     </td>
                                     <td>
                                         @if (item.Status == 0)
@@ -336,7 +340,8 @@
                                 <th>ID Llamada</th>
                                 <th>Tecnico</th>
                                 <th>Fecha Creación</th>
-                                <th>Actualización Ult.</th>
+                                <th>Fecha SISO</th>
+
                                 <th>Producto</th>
                                 <th>Status</th>
                                 <th>Estado Llamada</th>

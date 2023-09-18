@@ -24,6 +24,11 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<ProductosViewModel, int> prods;
         private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
         private readonly ICrudApi<HistoricoViewModel, int> historico;
+        private readonly ICrudApi<ActividadesViewModel, int> actividades;
+        private readonly ICrudApi<TiposCasosViewModel, int> tp;
+        private readonly ICrudApi<StatusViewModel, int> status;
+        private readonly ICrudApi<UsuariosViewModel, int> login;
+
 
 
 
@@ -63,8 +68,19 @@ namespace Boletaje.Pages.Movimientos
 
         [BindProperty]
         public HistoricoViewModel Historico { get; set; }
+        [BindProperty]
+        public ActividadesViewModel[] Actividades { get; set; }
 
-        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico)
+        [BindProperty]
+
+        public StatusViewModel[] Status { get; set; }
+
+        [BindProperty]
+
+        public TiposCasosViewModel[] TP { get; set; }
+        [BindProperty]
+        public UsuariosViewModel[] Usuarios { get; set; }
+        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login)
         {
             this.service = service;
             this.clientes = clientes;
@@ -74,7 +90,10 @@ namespace Boletaje.Pages.Movimientos
             this.prods = prods; 
             this.prodsPadre = prodsPadre;
             this.historico = historico;
-
+            this.actividades = actividades;
+            this.status = status;
+            this.tp = tp;
+            this.login = login;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -86,7 +105,8 @@ namespace Boletaje.Pages.Movimientos
                 {
                     return RedirectToPage("/NoPermiso");
                 }
-
+                Status = await status.ObtenerLista("");
+                TP = await tp.ObtenerLista("");
                 Imp = await impuestos.ObtenerLista("");
 
 
@@ -140,6 +160,12 @@ namespace Boletaje.Pages.Movimientos
                 {
 
                 }
+
+                ParametrosFiltros filtro2 = new ParametrosFiltros();
+                filtro2.Codigo1 = Llamada.id;
+                Actividades = await actividades.ObtenerLista(filtro2);
+                Usuarios = await login.ObtenerLista("");
+
                 return Page();
             }
             catch (Exception ex)
@@ -233,6 +259,80 @@ namespace Boletaje.Pages.Movimientos
                     mensaje = "Error en el exception: -> " + ex.Message
                 };
                 return new JsonResult(obj);
+            }
+        }
+
+        public async Task<IActionResult> OnPostGenerarActividad(ActividadesViewModel recibido)
+        {
+            try
+            {
+
+
+                ActividadesViewModel coleccion = new ActividadesViewModel();
+                coleccion.id = 0;
+                coleccion.idLlamada = recibido.idLlamada;
+                coleccion.TipoActividad = recibido.TipoActividad;
+                coleccion.Detalle = recibido.Detalle;
+                coleccion.UsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+
+
+
+                await actividades.Agregar(coleccion);
+
+                var obj = new
+                {
+                    success = true,
+                    mensaje = ""
+                };
+
+                return new JsonResult(obj);
+
+            }
+            catch (ApiException ex)
+            {
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
+            }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString()
+                };
+                return new JsonResult(obj);
+            }
+        }
+
+        public async Task<IActionResult> OnGetEnviarActividadSAP(string idB)
+        {
+            try
+            {
+
+                var Actividad = new ActividadesViewModel();
+                Actividad.id = Convert.ToInt32(idB);
+                var objetos = await actividades.EnviarSAP(Actividad);
+
+
+
+
+                return new JsonResult(objetos);
+            }
+            catch (ApiException ex)
+            {
+                Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
+
+
+                return new JsonResult(error);
             }
         }
 

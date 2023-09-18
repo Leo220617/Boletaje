@@ -34,8 +34,9 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
-        private readonly ICrudApi<HistoricoViewModel, int> historico;
-
+        private readonly ICrudApi<HistoricoViewModel, int> historico; 
+        private readonly ICrudApi<ActividadesViewModel, int> actividades;
+        private readonly ICrudApi<UsuariosViewModel, int> login;
 
         [BindProperty]
 
@@ -92,9 +93,13 @@ namespace Boletaje.Pages.Reparacion
 
         public Producto ProductoPadreLlamada { get; set; }
 
+        [BindProperty]
+        public ActividadesViewModel[] Actividades { get; set; }
+        [BindProperty]
+        public UsuariosViewModel[] Usuarios { get; set; }
         public EditarModel(ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
-            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico)
+            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login)
         {
             this.service = service;
             this.serviceL = serviceL;
@@ -113,7 +118,8 @@ namespace Boletaje.Pages.Reparacion
             this.tp = tp;
             this.prodsPadre = prodsPadre;
             this.historico = historico;
-
+            this.actividades = actividades;
+            this.login = login;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -195,6 +201,12 @@ namespace Boletaje.Pages.Reparacion
                 {
 
                 }
+
+                ParametrosFiltros filtro2 = new ParametrosFiltros();
+                filtro2.Codigo1 = InputLlamada.id;
+                Actividades = await actividades.ObtenerLista(filtro2);
+                Usuarios = await login.ObtenerLista("");
+
                 return Page();
             }
             catch (ApiException ex)
@@ -334,6 +346,80 @@ namespace Boletaje.Pages.Reparacion
                     mensaje = "Error en el exception: -> " + ex.ToString()  
                 };
                 return new JsonResult(obj);
+            }
+        }
+
+        public async Task<IActionResult> OnPostGenerarActividad(ActividadesViewModel recibido)
+        {
+            try
+            {
+
+
+                ActividadesViewModel coleccion = new ActividadesViewModel();
+                coleccion.id = 0;
+                coleccion.idLlamada = recibido.idLlamada;
+                coleccion.TipoActividad = recibido.TipoActividad;
+                coleccion.Detalle = recibido.Detalle;
+                coleccion.UsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+
+
+
+                await actividades.Agregar(coleccion);
+
+                var obj = new
+                {
+                    success = true,
+                    mensaje = ""
+                };
+
+                return new JsonResult(obj);
+
+            }
+            catch (ApiException ex)
+            {
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
+            }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString()
+                };
+                return new JsonResult(obj);
+            }
+        }
+
+        public async Task<IActionResult> OnGetEnviarActividadSAP(string idB)
+        {
+            try
+            {
+
+                var Actividad = new ActividadesViewModel();
+                Actividad.id = Convert.ToInt32(idB);
+                var objetos = await actividades.EnviarSAP(Actividad);
+
+
+
+
+                return new JsonResult(objetos);
+            }
+            catch (ApiException ex)
+            {
+                Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
+
+
+                return new JsonResult(error);
             }
         }
     }

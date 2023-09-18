@@ -32,6 +32,8 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<ControlProductosViewModel, int> control;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<HistoricoViewModel, int> historico;
+        private readonly ICrudApi<ActividadesViewModel, int> actividades;
+        private readonly ICrudApi<UsuariosViewModel, int> login;
 
 
         [BindProperty]
@@ -69,9 +71,13 @@ namespace Boletaje.Pages.Reparacion
         [BindProperty]
         public HistoricoViewModel Historico { get; set; }
 
+        [BindProperty]
+        public ActividadesViewModel[] Actividades { get; set; }
+        [BindProperty]
+        public UsuariosViewModel[] Usuarios { get; set; }
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD,
             ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<ControlProductosViewModel, int> control , ICrudApi<LlamadasViewModel, int> serviceL
-            , ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<HistoricoViewModel, int> historico)
+            , ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login)
         {
             this.service = service;
             this.prods = prods;
@@ -85,7 +91,8 @@ namespace Boletaje.Pages.Reparacion
             this.serviceL = serviceL;
             this.tp = tp;
             this.historico = historico;
-
+            this.actividades = actividades;
+            this.login = login;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -128,6 +135,11 @@ namespace Boletaje.Pages.Reparacion
                 {
 
                 }
+
+                ParametrosFiltros filtro2 = new ParametrosFiltros();
+                filtro2.Codigo1 = InputLlamada.id;
+                Actividades = await actividades.ObtenerLista(filtro2);
+                Usuarios = await login.ObtenerLista("");
 
                 return Page();
             }

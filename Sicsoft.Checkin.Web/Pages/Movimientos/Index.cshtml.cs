@@ -21,12 +21,17 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<StatusViewModel, int> status;
         private readonly ICrudApi<LlamadasViewModel, int> serviceL;
+        private readonly ICrudApi<TiposCasosViewModel, int> tp;
 
         [BindProperty]
         public LlamadasViewModel[] InputLlamada { get; set; }
         [BindProperty]
 
         public StatusViewModel[] Status { get; set; }
+
+        [BindProperty]
+
+        public TiposCasosViewModel[] TP { get; set; }
 
         [BindProperty]
         public EncMovimientoViewModel[] Objeto { get; set; }
@@ -36,12 +41,13 @@ namespace Boletaje.Pages.Movimientos
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
 
-        public IndexModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> status, ICrudApi<LlamadasViewModel, int> serviceL)
+        public IndexModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> status, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<TiposCasosViewModel, int> tp)
         {
             this.service = service;
             this.clientes = clientes;
             this.status = status;
             this.serviceL = serviceL;
+            this.tp = tp;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -55,6 +61,8 @@ namespace Boletaje.Pages.Movimientos
 
                 DateTime time = new DateTime();
                 Status = await status.ObtenerLista("");
+                TP = await tp.ObtenerLista("");
+
 
                 if (time == filtro.FechaInicial)
                 {
