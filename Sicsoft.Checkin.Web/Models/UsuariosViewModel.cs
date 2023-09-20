@@ -27,5 +27,9 @@ namespace InversionGloblalWeb.Models
         public string Bodega { get; set; }
         public string CorreoVentas { get; set; }
         public string Telefono { get; set; }
+
+        public int NumeroDimension { get; set; }
+
+        public string NormaReparto { get; set; }
     }
 }

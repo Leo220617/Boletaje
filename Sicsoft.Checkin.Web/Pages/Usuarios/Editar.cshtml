@@ -332,6 +332,35 @@
                     </div>
 
                     <div class="row">
+                   
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group">
+                                <label for="nom">Dimensión:</label>
+                                <select class="form-control" asp-for="Input.NumeroDimension" required>
+
+                                    <option value=1 selected>1</option>
+                                    <option value=2>2</option>
+                                    <option value=3>3</option>
+                                    <option value=4>4</option>
+                                    <option value=5>5</option>
+
+
+
+
+
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4 pl-1">
+                            <div class="form-group">
+                                <label for="Norma">Norma de Reparto</label>
+                                <input type="text" id="Norma" class="form-control form-control-lg" asp-for="Input.NormaReparto" required placeholder="Norma de Reparto">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
