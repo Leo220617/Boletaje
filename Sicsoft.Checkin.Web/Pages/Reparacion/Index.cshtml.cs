@@ -83,7 +83,7 @@ namespace Boletaje.Pages.Reparacion
 
                     filtro.FechaInicial = DateTime.Now;
 
-                    filtro.FechaInicial = DateTime.Now.AddDays(-14); //new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
+                    filtro.FechaInicial = DateTime.Now.AddDays(-7); //new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
 
 
                     DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
