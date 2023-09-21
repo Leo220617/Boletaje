@@ -30,5 +30,9 @@ namespace Sicsoft.CostaRica.Checkin.Web.Models
         public string CorreoVentas { get; set; }
         public string Telefono { get; set; }
 
+        public int NumeroDimension { get; set; }
+
+        public string NormaReparto { get; set; }
+
     }
 }
