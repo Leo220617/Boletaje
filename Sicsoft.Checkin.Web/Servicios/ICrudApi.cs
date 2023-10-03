@@ -102,6 +102,9 @@ namespace Sicsoft.Checkin.Web.Servicios
         [Post("/Eliminar")]
         Task Eliminar(int id);
 
+        [Post("/AprobarSuperior")]
+        Task AprobarSuperior(int id);
+
         [Post("/EliminarOferta")]
         Task EliminarOferta(int id);
 

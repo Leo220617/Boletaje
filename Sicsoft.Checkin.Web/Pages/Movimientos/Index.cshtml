@@ -9,6 +9,7 @@
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
 
+    var Roles1 = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
 
 }
 @section breadcrumb{
@@ -162,6 +163,33 @@
 
 
         }
+
+        function onClickModalAprobarSuperior(id) {
+
+            ids = id;
+
+
+            Swal.fire({
+                title: '¿Desea validar esta cotización?',
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: `Aceptar`,
+                denyButtonText: `Cancelar`,
+                customClass: {
+                    confirmButton: 'swalBtnColor',
+                    denyButton: 'swalDeny'
+                },
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+
+                    AprobarSuperior(id);
+
+                }
+            })
+
+
+        }
         function Eliminar() {
 
 
@@ -240,7 +268,51 @@
                             confirmButtonText: 'OK'
                         }).then((result) => {
                             if (result.isConfirmed) {
+                                location.reload();
 
+                            }
+                        })
+                    }
+                },
+                beforeSend: function () {
+
+                }
+            })
+        }
+
+
+        function AprobarSuperior(id) {
+            var idEnviar = id;
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Page("Index", "AprobarSuperior")',
+                data: { id: idEnviar },
+                success: function (result) {
+                    console.log(result);
+                    if (result == false) {
+                        ids = 0;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Ha ocurrido un error al intentar Aprobar'
+
+                        })
+
+                    } else {
+                        Swal.fire({
+                            title: "Ha sido Validado con éxito",
+
+                            icon: 'success',
+                            showCancelButton: false,
+                            customClass: {
+                                confirmButton: 'swalBtnColor',
+
+                            },
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
                             }
                         })
                     }
@@ -392,7 +464,12 @@
                         <tbody>
                             @foreach (var item in Model.Objeto)
                             {
-                                <tr>
+
+
+                                <tr style="@( !string.IsNullOrEmpty(Roles1.Where(a => a == "59").FirstOrDefault()) ? (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)  && item.DocEntry == 0 ? item.AprobadaSuperior == true  ? "background-color: #c3f9ea" : "background-color: #ffdfd0" : "": "")">
+
+
+
                                     <td>@item.id</td>
                                     <td>@item.NumLlamada</td>
                                     @{
@@ -435,8 +512,21 @@
                                     <td>
                                         @if (item.DocEntry == 0)
                                         {
+                                            @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                            {
+                                                @if (item.AprobadaSuperior)
+                                                {
+                                                    <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
+                                            }
 
-                                            <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
+
+
+
                                         }
                                         else
                                         {
@@ -463,8 +553,24 @@
                                             <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
 
                                         }
+                                        &nbsp;
+                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "58").FirstOrDefault()))
+                                        {
+                                            @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 )&& item.DocEntry == 0)
+                                            {
+                                                @if (item.AprobadaSuperior == false)
+                                                {
+                                                    <a onclick="javascript: onClickModalAprobarSuperior('@item.id')" title="Aprobar Superior" class="btn btn-rounded btn-outline-secondary">Validado</a>
+                                                }
+                                            }
+                                        }
+
+
                                     </td>
                                 </tr>
+
+
+
                             }
 
 

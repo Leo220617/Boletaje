@@ -135,6 +135,20 @@ namespace Boletaje.Pages.Movimientos
                 return new JsonResult(false);
             }
         }
+
+        public async Task<IActionResult> OnGetAprobarSuperior(int id)
+        {
+            try
+            {
+
+                await service.AprobarSuperior(id);
+                return new JsonResult(true);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(false);
+            }
+        }
         public async Task<IActionResult> OnGetEliminar(int id)
         {
             try

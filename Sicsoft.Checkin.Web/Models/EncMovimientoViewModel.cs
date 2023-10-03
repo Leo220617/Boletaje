@@ -26,6 +26,7 @@ namespace Boletaje.Models
         public bool Regenerar { get; set; }
 
         public string Moneda { get; set; }
+        public bool AprobadaSuperior { get; set; }
         public DetMovimientoViewModel[] Detalle { get; set; }
     }
 }
