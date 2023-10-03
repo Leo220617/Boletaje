@@ -85,8 +85,9 @@ namespace Boletaje.Pages.Boletas
                 Input.NoSerieFabricante = Producto.manufSN;
                 //Input.ItemCode = ItemCode2;
                 Input.CardCode = Producto.customer.Split("/")[0].TrimStart().TrimEnd();
-
-                Clientes = await serviceClientes.ObtenerListaEspecial("");
+                ParametrosFiltros filtro = new ParametrosFiltros();
+                filtro.Codigo1 = 1;
+                Clientes = await serviceClientes.ObtenerListaEspecial(filtro);
                 var Existe = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault();
                 if (Existe == null)
                 {

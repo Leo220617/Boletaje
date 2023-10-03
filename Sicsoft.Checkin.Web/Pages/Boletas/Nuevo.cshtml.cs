@@ -70,8 +70,9 @@ namespace Boletaje.Pages.Boletas
                 Input.ItemCode = Input.ItemCode.Split("/")[0];
 
 
-
-                Clientes = await serviceClientes.ObtenerListaEspecial("");
+                ParametrosFiltros filtro = new ParametrosFiltros();
+                filtro.Codigo1 = 1;
+                Clientes = await serviceClientes.ObtenerListaEspecial(filtro);
                 var Existe = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault();
                 if (Existe == null)
                 {
