@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Boletaje.Models;
 using Castle.Core.Configuration;
+using Castle.DynamicProxy.Generators;
 using InversionGloblalWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -123,6 +124,11 @@ namespace Boletaje.Pages.Llamadas
                 }
                 catch (Exception ex)
                 {
+                    Historico = new HistoricoViewModel();
+                    Historico.Historico = new HistoricoViewModel.historico[1];
+                    Historico.Historico[0] = new HistoricoViewModel.historico();
+                    Historico.Historico[0].Total_Revisiones = 0;
+                    Historico.Historico[0].Cantidad_Revisiones = 0;
 
                 }
 
