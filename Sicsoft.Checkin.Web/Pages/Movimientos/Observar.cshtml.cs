@@ -18,8 +18,8 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<LlamadasViewModel, int> serviceLlamada;
         private readonly ICrudApi<ErroresViewModel, int> serviceErrores;
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
-        private readonly ICrudApi<UsuariosViewModel, int> login;
-
+        private readonly ICrudApi<UsuariosViewModel, int> login; 
+        private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
 
         [BindProperty]
         public LlamadasViewModel Llamada { get; set; }
@@ -36,7 +36,9 @@ namespace Boletaje.Pages.Movimientos
         public ActividadesViewModel[] Actividades { get; set; }
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
-        public ObservarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ErroresViewModel, int> serviceErrores, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login)
+        [BindProperty]
+        public ProductosPadresViewModel ProductoPadre { get; set; }
+        public ObservarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ErroresViewModel, int> serviceErrores, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<ProductosPadresViewModel, int> prodsPadre)
         {
             this.service = service;
             this.clientes = clientes;
@@ -44,6 +46,7 @@ namespace Boletaje.Pages.Movimientos
             this.serviceErrores = serviceErrores;
             this.actividades = actividades;
             this.login = login;
+            this.prodsPadre = prodsPadre;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -61,7 +64,19 @@ namespace Boletaje.Pages.Movimientos
                 filtro2.Codigo1 = Llamada.id;
                 Actividades = await actividades.ObtenerLista(filtro2);
                 Usuarios = await login.ObtenerLista("");
-
+                var ProductosPadres = await prodsPadre.ObtenerLista("");
+                ProductoPadre = ProductosPadres.Where(a => a.codSAP == Llamada.ItemCode).FirstOrDefault();
+                if (ProductoPadre == null)
+                {
+                    ProductoPadre = new ProductosPadresViewModel();
+                    ProductoPadre.codSAP = Llamada.ItemCode;
+                    ProductoPadre.Nombre = Llamada.ItemCode;
+                    ProductoPadre.Precio = 0;
+                }
+                else
+                {
+                    ProductoPadre.Precio = Math.Round(ProductoPadre.Precio, 2);
+                }
                 return Page();
             }
             catch (Exception ex)
