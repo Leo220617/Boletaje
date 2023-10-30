@@ -1010,9 +1010,12 @@
                         Opcional: false
                     };
                     Detalles.push(detalle);
-
+                   
                     RellenaTabla();
                     LimpiarDatos();
+
+                    var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
+                    ModificaLinea(posicion, "false");
                 }
             } catch (e) {
                 Swal.fire({
