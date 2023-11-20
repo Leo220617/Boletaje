@@ -161,6 +161,7 @@
 
                         // sOptions += '<td align="center"> <p id="' + i + 'Cantidad">' + Detalles[i].Cantidad + '</p></td>';
                     }
+                    sOptions += '<td align="center"><b>' + producto.Stock + '</b></td>';
 
                     sOptions += '<td align="center"> <select class=" form-control " id="' + i + 'impSelector" onchange="javascript: ModificaLinea(' + i + ', false)"> <option value="0"> Seleccione </option>';
                     for (var z = 0; z < ImpuestosS.length; z++) {
@@ -1560,6 +1561,8 @@
                         <div>Descripción: @Model.ProductoPadre.Nombre</div>
 
                         <div># Serie: @Model.Llamada.SerieFabricante</div>
+                        <div>Ubicación: @Model.UbicacionProd</div>
+
                         <br />
                         <button id="agregaManoObra" class="btn btn-rounded btn-outline-danger" style="margin-top: 27%;" onclick="javascript: MeterManoObra()"> <i class="fas fa-plus "></i> Mano De Obra</button>
                     </div>
@@ -1647,6 +1650,7 @@
                                 <th>Producto</th>
                                 <th class="center">Precio Unitario</th>
                                 <th class="center">Cantidad</th>
+                                <th class="center">Stock</th>
                                 <th class="center">Imp</th>
 
                                 <th class="center">Impuestos</th>

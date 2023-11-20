@@ -13,8 +13,8 @@
     </li>
 
 }
-    @using Newtonsoft.Json;
-    @section styles{
+@using Newtonsoft.Json;
+@section styles{
     <style>
         .input {
             width: 40%;
@@ -26,16 +26,16 @@
     </style>
 
 }
-    @section scripts{
+@section scripts{
 
 
     <script>
         var Detalles = [];
         var Errores = [];
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            jQuery(document).ready(function($) {
-                $(document).ready(function() {
+            jQuery(document).ready(function ($) {
+                $(document).ready(function () {
 
                     var detalles = JSON.parse($("#Detalle").val());
                     Errores = JSON.parse($("#Errores").val());
@@ -76,7 +76,7 @@
         }
 
         function ImprimeEtiqueta(boleta, cliente) {
-            
+
             var Diagnostico = "";
 
             var html = htmlOferta;
@@ -87,9 +87,9 @@
 
 
             Diagnostico += "@Model.Llamada.Comentarios \n";
-            
-           
-            
+
+
+
 
 
             if ($("#Moneda").val() == "COL") {
@@ -127,7 +127,7 @@
                     Diagnostico += Errores.find(a => a.id == Detalles[0].idError).Diagnostico + " ";
                 }
             }
-            html = html.replace("Diagnosticos",Diagnostico);
+            html = html.replace("Diagnosticos", Diagnostico);
             html = html.replace("INYECTADO", inyectado);
 
 
@@ -168,8 +168,8 @@
         }
     </script>
 }
-    @using System.Globalization;
-    @{
+@using System.Globalization;
+@{
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
@@ -203,17 +203,17 @@
                             {
                                 case 1:
                                     {
-                                                        <h3 class="text-dark mb-1">Oferta de Venta</h3>
+                                        <h3 class="text-dark mb-1">Oferta de Venta</h3>
                                         break;
                                     }
                                 case 2:
                                     {
-                                                        <h3 class="text-dark mb-1">Entrega</h3>
+                                        <h3 class="text-dark mb-1">Entrega</h3>
                                         break;
                                     }
                                 case 3:
                                     {
-                                                        <h3 class="text-dark mb-1">Cotización BackOffice</h3>
+                                        <h3 class="text-dark mb-1">Cotización BackOffice</h3>
                                         break;
                                     }
                             }
@@ -244,7 +244,9 @@
                         <div>Descripción: @Model.ProductoPadre.Nombre</div>
 
                         <div># Serie: @Model.Llamada.SerieFabricante</div>
-                         
+                        <div>Ubicación: @Model.UbicacionProd</div>
+
+
                     </div>
                 </div>
                 <div class="table-responsive-sm">
@@ -252,8 +254,8 @@
                         <thead>
                             <tr>
                                 <th class="center">#</th>
-                                <th>Código SAP</th>
-                                <th>Nombre</th>
+                                <th>Producto</th> 
+                                <th>Stock</th>
                                 <th class="center">Precio Unitario</th>
                                 <th class="center">Cantidad</th>
                                 <th class="center">Impuestos</th>
@@ -272,36 +274,36 @@
                             @{
                                 foreach (var item in Model.Input.Detalle)
                                 {
-                                                    <tr>
+                                    <tr>
 
-                                                        <td align="center">@i</td>
-                                                        <td align="left" class="strong">@item.ItemCode </td>
-                                                        <td align="left"> @item.ItemName</td>
-                                                        <td align="right"> @decimal.Round(item.PrecioUnitario, 2).ToString("N", formato)</td>
-                                                        <td align="center"> @decimal.Round(item.Cantidad, 2).ToString("N", formato)</td>
-                                                        <td align="right"> @decimal.Round(item.Impuestos, 2).ToString("N", formato)</td>
-                                                        <td align="center"> @decimal.Round(item.PorDescuento, 2).ToString("N", formato) %</td>
-                                                        <td align="right"> @decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
-                                                        <td align="right"> @decimal.Round(item.TotalLinea, 2).ToString("N", formato)</td>
-                                                        <td align="center">
-                                                            @if (item.Garantia)
+                                        <td align="center">@i</td>
+                                        <td align="left" class="strong">@item.ItemCode -  @item.ItemName </td>
+                                        <td align="left"><b> @(Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault() == null ? "0" : Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault().Stock.ToString("N",formato)) </b></td>
+                                        <td align="right"> @decimal.Round(item.PrecioUnitario, 2).ToString("N", formato)</td>
+                                        <td align="center"> @decimal.Round(item.Cantidad, 2).ToString("N", formato)</td>
+                                        <td align="right"> @decimal.Round(item.Impuestos, 2).ToString("N", formato)</td>
+                                        <td align="center"> @decimal.Round(item.PorDescuento, 2).ToString("N", formato) %</td>
+                                        <td align="right"> @decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
+                                        <td align="right"> @decimal.Round(item.TotalLinea, 2).ToString("N", formato)</td>
+                                        <td align="center">
+                                            @if (item.Garantia)
                                             {
 
 
-                                                                <input class="form-check-input" disabled checked type="checkbox" style="position: unset;" />
+                                                <input class="form-check-input" disabled checked type="checkbox" style="position: unset;" />
 
-                                                                <span class="form-check-sign"></span>
+                                                <span class="form-check-sign"></span>
                                             }
                                             else
                                             {
-                                                                <input class="form-check-input" disabled type="checkbox" style="position: unset;" />
+                                                <input class="form-check-input" disabled type="checkbox" style="position: unset;" />
 
-                                                                <span class="form-check-sign"></span>
+                                                <span class="form-check-sign"></span>
                                             }
 
-                                                        </td>
+                                        </td>
 
-                                                    </tr>
+                                    </tr>
                                     i++;
                                 }
 

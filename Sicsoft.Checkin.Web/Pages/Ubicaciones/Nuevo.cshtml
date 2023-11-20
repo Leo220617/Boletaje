@@ -1,0 +1,87 @@
+﻿@page
+@model Boletaje.Pages.Ubicaciones.NuevoModel
+@{
+    ViewData["Title"] = "Ubicaciones";
+}
+@section breadcrumb{
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Ubicaciones</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Agregar</a>
+    </li>
+
+}
+@section styles{
+
+
+}
+
+@section scripts{
+
+
+
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Registro de Ubicaciones</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/Ubicaciones/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Código</label> 
+                                <input type="text" list="productos" class="form-control form-control-lg"   placeholder="Producto" asp-for="Input.Codigo"  autocomplete="off">
+
+                                <datalist id="productos">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var item in Model.Productos.Productos.Select(a => new {a.itemCode, a.itemName}).Distinct())
+                                    {
+                                        <option value="@item.itemCode"> @item.itemCode  -  @item.itemName</option>
+                                    }
+
+                                </datalist>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nombre">Ubicacion</label>
+                                <input type="text" id="nombre" class="form-control form-control-lg" asp-for="Input.Ubicacion" required placeholder="Nombre">
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

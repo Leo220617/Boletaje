@@ -37,7 +37,11 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<HistoricoViewModel, int> historico; 
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login;
+        private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
 
+
+        [BindProperty]
+        public string UbicacionProd { get; set; }
         [BindProperty]
 
         public CotizacionesAprobadasViewModel[] CotizacionesAprobadas { get; set; }
@@ -97,9 +101,13 @@ namespace Boletaje.Pages.Reparacion
         public ActividadesViewModel[] Actividades { get; set; }
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
+
+        [BindProperty]
+        public UbicacionesViewModel[] Ubicaciones { get; set; }
+
         public EditarModel(ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
-            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login)
+            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones)
         {
             this.service = service;
             this.serviceL = serviceL;
@@ -120,6 +128,7 @@ namespace Boletaje.Pages.Reparacion
             this.historico = historico;
             this.actividades = actividades;
             this.login = login;
+            this.ubicaciones = ubicaciones;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -167,6 +176,11 @@ namespace Boletaje.Pages.Reparacion
 
                 Productos = await prods.ObtenerListaEspecial("");
                 Producto = Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemCode + " - " + Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemName;
+
+                ParametrosFiltros filtUbi = new ParametrosFiltros();
+                filtUbi.Texto = Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemCode;
+                Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
+                UbicacionProd = Ubicaciones.FirstOrDefault() == null ? "" : Ubicaciones.FirstOrDefault().Ubicacion;
                 Diagnosticos = await serviceD.ObtenerLista("");
                 Errores = await serviceError.ObtenerLista("");
 

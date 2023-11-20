@@ -712,6 +712,16 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
+                                <label>Llamada:</label>
+                                <input class="form-control form-control-lg" placeholder="" readonly asp-for="Input.DocEntry">
+
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                             
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
                                 <label>Cliente:</label>
                                 <input type="text" class="form-control form-control-lg" id="cardcode1" placeholder="Nombre Cliente" asp-for="Cliente" readonly>
 
@@ -734,11 +744,15 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Llamada:</label>
-                                <input class="form-control form-control-lg" placeholder="" readonly asp-for="Input.DocEntry">
+                                <label>Ubicación del Producto:</label>
+                                <input type="text" class="form-control form-control-lg" id="prod" placeholder="" asp-for="UbicacionProd" readonly>
+
+                                
+
 
                             </div>
                         </div>
+                       
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Fecha SISO:</label>

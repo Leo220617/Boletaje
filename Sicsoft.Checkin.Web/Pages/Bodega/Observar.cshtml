@@ -310,6 +310,7 @@
                                     <th>ID</th>
                                     <th>Producto</th>
                                     <th>Cantidad</th>
+                                    <th>Stock</th>
                                     <th>Ubicación</th>
 
 
@@ -329,6 +330,8 @@
                                         @{
                                             var itemCode = item.ItemCode.Trim().Split('|')[0].ToString().Trim();
                                         }
+                                        <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "0" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Stock.ToString("N", formato))</td>
+
                                         <td>@( Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion )</td>
 
 
@@ -342,6 +345,8 @@
                                     <th>ID</th>
                                     <th>Producto</th>
                                     <th>Cantidad</th>
+                                    <th>Stock</th>
+
                                     <th>Ubicación</th>
 
                                 </tr>

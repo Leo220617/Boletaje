@@ -28,6 +28,7 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<StatusViewModel, int> status;
         private readonly ICrudApi<UsuariosViewModel, int> login;
+        private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
 
 
 
@@ -80,7 +81,17 @@ namespace Boletaje.Pages.Movimientos
         public TiposCasosViewModel[] TP { get; set; }
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
-        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login)
+
+        [BindProperty]
+        public UbicacionesViewModel[] Ubicaciones { get; set; }
+
+        [BindProperty]
+        public string UbicacionProd { get; set; }
+
+
+        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods,
+            ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, 
+            ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones)
         {
             this.service = service;
             this.clientes = clientes;
@@ -94,6 +105,7 @@ namespace Boletaje.Pages.Movimientos
             this.status = status;
             this.tp = tp;
             this.login = login;
+            this.ubicaciones = ubicaciones;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -149,6 +161,11 @@ namespace Boletaje.Pages.Movimientos
                 else
                 {
                     ProductoPadre.Precio = Math.Round(ProductoPadre.Precio, 2);
+                    ParametrosFiltros filtUbi = new ParametrosFiltros();
+                    filtUbi.Texto = ProductoPadre.codSAP;
+                    Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
+                    UbicacionProd = (Ubicaciones.FirstOrDefault() != null ? Ubicaciones.FirstOrDefault().Ubicacion : " ");
+
                 }
                 try
                 {

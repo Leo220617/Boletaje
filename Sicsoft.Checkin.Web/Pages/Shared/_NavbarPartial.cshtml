@@ -210,6 +210,17 @@
                                     }
 
                                 </li>
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "60").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/Ubicaciones/Index">Ubicaciones</a>
+                                        }
+
+                                    }
+
+                                </li>
                             </ul>
                         </div>
                     </li>

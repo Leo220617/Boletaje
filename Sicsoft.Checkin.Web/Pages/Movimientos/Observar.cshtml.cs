@@ -14,12 +14,14 @@ namespace Boletaje.Pages.Movimientos
     public class ObservarModel : PageModel
     {
         private readonly ICrudApi<EncMovimientoViewModel, int> service;
+        private readonly ICrudApi<ProductosHijosViewModel, int> service2;
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<LlamadasViewModel, int> serviceLlamada;
         private readonly ICrudApi<ErroresViewModel, int> serviceErrores;
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login; 
         private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
+        private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
 
         [BindProperty]
         public LlamadasViewModel Llamada { get; set; }
@@ -38,7 +40,17 @@ namespace Boletaje.Pages.Movimientos
         public UsuariosViewModel[] Usuarios { get; set; }
         [BindProperty]
         public ProductosPadresViewModel ProductoPadre { get; set; }
-        public ObservarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ErroresViewModel, int> serviceErrores, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<ProductosPadresViewModel, int> prodsPadre)
+
+        [BindProperty]
+        public ProductosHijosViewModel[] Productos { get; set; }
+
+        [BindProperty]
+        public UbicacionesViewModel[] Ubicaciones { get; set; }
+
+        [BindProperty]
+        public string UbicacionProd { get; set; }
+        public ObservarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ErroresViewModel, int> serviceErrores, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, 
+            ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<UbicacionesViewModel, int> ubicaciones)
         {
             this.service = service;
             this.clientes = clientes;
@@ -47,6 +59,8 @@ namespace Boletaje.Pages.Movimientos
             this.actividades = actividades;
             this.login = login;
             this.prodsPadre = prodsPadre;
+            this.service2 = service2;
+            this.ubicaciones = ubicaciones;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -76,7 +90,13 @@ namespace Boletaje.Pages.Movimientos
                 else
                 {
                     ProductoPadre.Precio = Math.Round(ProductoPadre.Precio, 2);
+                    ParametrosFiltros filtUbi = new ParametrosFiltros();
+                    filtUbi.Texto = ProductoPadre.codSAP;
+                    Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
+                    UbicacionProd = (Ubicaciones.FirstOrDefault() != null ? Ubicaciones.FirstOrDefault().Ubicacion : " ");
                 }
+
+                Productos = await service2.ObtenerLista("");
                 return Page();
             }
             catch (Exception ex)

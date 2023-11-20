@@ -34,6 +34,7 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<HistoricoViewModel, int> historico;
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login;
+        private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
 
 
         [BindProperty]
@@ -75,9 +76,16 @@ namespace Boletaje.Pages.Reparacion
         public ActividadesViewModel[] Actividades { get; set; }
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
+
+        [BindProperty]
+        public UbicacionesViewModel[] Ubicaciones { get; set; }
+
+        [BindProperty]
+        public string UbicacionProd { get; set; }
+
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD,
             ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<ControlProductosViewModel, int> control , ICrudApi<LlamadasViewModel, int> serviceL
-            , ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login)
+            , ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones)
         {
             this.service = service;
             this.prods = prods;
@@ -93,6 +101,7 @@ namespace Boletaje.Pages.Reparacion
             this.historico = historico;
             this.actividades = actividades;
             this.login = login;
+            this.ubicaciones = ubicaciones;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -112,6 +121,10 @@ namespace Boletaje.Pages.Reparacion
                 Encabezado = await service.ObtenerPorId(id);
                 Productos = await prods.ObtenerListaEspecial("");
                 Producto = Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemCode + " - " + Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemName;
+                ParametrosFiltros filtUbi = new ParametrosFiltros();
+                filtUbi.Texto = Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemCode;
+                Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
+                UbicacionProd = Ubicaciones.FirstOrDefault() == null ? "" : Ubicaciones.FirstOrDefault().Ubicacion;
 
                 Clientes = await clientes.ObtenerListaEspecial("");
                 var Llamada = await llamada.ObtenerPorDocEntry(Encabezado.idLlamada);

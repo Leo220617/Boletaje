@@ -30,6 +30,7 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<AsuntosViewModel, int> asuntos;
         private readonly ICrudApi<EncReparacionViewModel, int> serviceE;
         private readonly ICrudApi<HistoricoViewModel, int> historico;
+        private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
 
 
         [BindProperty]
@@ -37,6 +38,9 @@ namespace Boletaje.Pages.Llamadas
 
         [BindProperty]
         public string Producto { get; set; }
+
+        [BindProperty]
+        public string UbicacionProd { get; set; } 
         [BindProperty]
         public HistoricoViewModel Historico { get; set; }
 
@@ -71,8 +75,12 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public AsuntosViewModel[] Asuntos { get; set; }
 
+        [BindProperty]
+        public UbicacionesViewModel[] Ubicaciones { get; set; }
+
         public EditarModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
-            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<HistoricoViewModel, int> historico)
+            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE,
+            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<UbicacionesViewModel, int> ubicaciones)
         {
             this.service = service;
             this.clientes = clientes;
@@ -85,6 +93,7 @@ namespace Boletaje.Pages.Llamadas
             this.asuntos = asuntos;
             this.serviceE = serviceE;
             this.historico = historico;
+            this.ubicaciones = ubicaciones;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -100,9 +109,12 @@ namespace Boletaje.Pages.Llamadas
                 Input = await service.ObtenerPorId(id);
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault().CardCode + " - " + Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault().CardName;
+                ParametrosFiltros filtUbi = new ParametrosFiltros();
+                filtUbi.Texto = Input.ItemCode;
+                Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
                 Productos = await prods.ObtenerListaEspecial("");
-                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode).FirstOrDefault().itemName;
-
+                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode).FirstOrDefault().itemName  ;
+                UbicacionProd = (Ubicaciones.FirstOrDefault() != null ? Ubicaciones.FirstOrDefault().Ubicacion : " ");
                 TP = await tp.ObtenerLista("");
                 Garantias = await garantias.ObtenerLista("");
                 Sucursales = await sucursales.ObtenerLista("");

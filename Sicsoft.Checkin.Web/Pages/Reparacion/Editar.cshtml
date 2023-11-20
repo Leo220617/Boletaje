@@ -1060,23 +1060,37 @@
             try {
                 var valorDigitado = $("#codigoSAPProducto").val();
                 var Prod = ProductosGenerales.find(a => a.codSAP == valorDigitado);
-                var detalle =
+
+                if ($("#idTraslado").val() == "1" && Prod.Stock == 0)
                 {
-                    id: 0,
-                    idEncabezado: "",
-                    idProducto: Prod.id,
-                    ItemCode: Prod.codSAP + " | " + Prod.Nombre,
-                    Cantidad: $("#cantidad").val(),
-                    Stock: Prod.Stock,
-                    idError: 0,
-                    Opcional: false
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Producto sin stock disponible, debe pasar a cotizacion para poder añadirlo'
+
+                    })
+                }else
+                {
+                    var detalle =
+                    {
+                        id: 0,
+                        idEncabezado: "",
+                        idProducto: Prod.id,
+                        ItemCode: Prod.codSAP + " | " + Prod.Nombre,
+                        Cantidad: $("#cantidad").val(),
+                        Stock: Prod.Stock,
+                        idError: 0,
+                        Opcional: false
 
 
 
+                    }
+                    ProdCadenaM.push(detalle);
+                    RellenaTablaMia2();
+                    LimpiarDatosPH();
                 }
-                ProdCadenaM.push(detalle);
-                RellenaTablaMia2();
-                LimpiarDatosPH();
+
+               
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -1665,6 +1679,19 @@
                         <div class="col-md-4 pr-1">
 
                             <div class="form-group">
+                                <label>Llamada</label>
+                                <input type="text" class="form-control form-control-lg" id="idLlamada" asp-for="Encabezado.idLlamada" readonly>
+
+                            </div>
+
+
+                        </div>
+                        <div class="col-md-8 pl-1">
+
+                        </div>
+                        <div class="col-md-4 pr-1">
+
+                            <div class="form-group">
                                 <label>Producto</label>
                                 <input type="text" class="form-control form-control-lg" id="desc" asp-for="Producto" readonly>
                                 <input id="idGeneral" asp-for="Encabezado.id" hidden />
@@ -1673,21 +1700,21 @@
 
                         </div>
 
-
-
-
-                        
                         <div class="col-md-4 pr-1">
 
                             <div class="form-group">
-                                <label>Llamada</label>
-                                <input type="text" class="form-control form-control-lg" id="idLlamada" asp-for="Encabezado.idLlamada" readonly>
-
+                                <label>Ubicación Producto</label>
+                                <input type="text" class="form-control form-control-lg" id="desc" asp-for="UbicacionProd" readonly> 
                             </div>
 
 
                         </div>
-                        <div class="col-md-4 pr-1">
+
+
+
+                        
+                       
+                        <div class="col-md-4 pl-1">
 
                             <div class="form-group">
                                 <label>Cliente</label>
@@ -1697,7 +1724,7 @@
 
 
                         </div>
-                        <div class="col-md-3 pl-1">
+                        <div class="col-md-3 pr-1">
 
                             <div class="form-group">
                                 <label>Diagnóstico</label>
