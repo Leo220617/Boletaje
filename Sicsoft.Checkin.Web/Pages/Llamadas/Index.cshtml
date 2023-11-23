@@ -13,8 +13,8 @@
 
 }
 
-    @using System.Globalization;
-    @{
+@using System.Globalization;
+@{
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
@@ -38,12 +38,12 @@
 }
 
 
-    @section scripts{
+@section scripts{
 
 
     <script>
-        $(document).ready(function() {
-            jQuery(document).ready(function($) {
+        $(document).ready(function () {
+            jQuery(document).ready(function ($) {
 
             });
 
@@ -52,7 +52,7 @@
         });
 
         function enviarSAP(id) {
-            try{
+            try {
                 var modale = $("#divProcesando");
                 $.ajax({
                     type: 'GET',
@@ -110,8 +110,7 @@
                         modale.modal("hide");
                     }
                 });
-            }catch(e)
-            {
+            } catch (e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -119,17 +118,16 @@
 
                 })
             }
-           
+
         }
 
-        
+
 
 
         var ids = 0;
         var correo = '';
         function onClickModal(id, correos) {
-            try
-            {
+            try {
                 ids = id;
                 correo = correos;
 
@@ -157,8 +155,7 @@
                             Reenviar();
                         }
                     });
-            }catch(e)
-            {
+            } catch (e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -166,7 +163,7 @@
 
                 })
             }
-           
+
 
 
 
@@ -176,8 +173,7 @@
         }
 
         function Reenviar() {
-            try
-            {
+            try {
                 var modale = $("#divProcesando");
                 modale.modal("show");
                 $.ajax({
@@ -220,8 +216,7 @@
 
                     }
                 })
-            }catch(e)
-            {
+            } catch (e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -229,12 +224,12 @@
 
                 })
             }
-            
+
         }
-    
-                            
-                            
-                                
+
+
+
+
         function ImprimeEtiqueta(boleta, cliente) {
             var html = '<html> <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">';
             html += '<body>';
@@ -272,61 +267,61 @@
                 .from(item)
                 .save("Boleta" + boleta + ".pdf");
 
-        }                            
-                            
+        }
+
     </script>
 
 }
-    @using Microsoft.AspNetCore.Http
-    @using System;
-    @using System.Collections.Generic;
-    @using System.IO;
-    @using System.Linq;
-    @using System.Security.Claims;
-    @using System.Threading.Tasks;
-    @using Microsoft.AspNetCore.Mvc;
-    @using Microsoft.AspNetCore.Mvc.RazorPages;
-    @using Microsoft.Extensions.Configuration;
-    @using Refit;
-    @using Sicsoft.Checkin.Web.Models;
-    @inject IHttpContextAccessor httpContextAccessor
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@inject IHttpContextAccessor httpContextAccessor
 
-    <div class="row">
-        <div class="col-md-12   ">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">Filtro</h4>
+<div class="row">
+    <div class="col-md-12   ">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Filtro</h4>
 
-                </div>
-                <div class="card-body">
-                    <form method="get">
-                        <div class="row">
-                            <div class="col-sm-4 pr-1">
-                                <div class="form-group">
-                                    <label>Fecha Inicial</label>
-                                    <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
-                                </div>
-
-
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-sm-4 pr-1">
+                            <div class="form-group">
+                                <label>Fecha Inicial</label>
+                                <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
                             </div>
 
-                            <div class="col-sm-4 pr-1">
-                                <div class="form-group">
-                                    <label>Fecha Final</label>
-                                    <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
-                                </div>
+
+                        </div>
+
+                        <div class="col-sm-4 pr-1">
+                            <div class="form-group">
+                                <label>Fecha Final</label>
+                                <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
                             </div>
+                        </div>
 
-                            <div class="col-md-4 pl-1">
+                        <div class="col-md-4 pl-1">
 
 
 
-                                <div class="form-group">
-                                    <label>Status</label>
+                            <div class="form-group">
+                                <label>Status</label>
 
-                                    <select id="heard" class="form-control" asp-for="filtro.Codigo2">
-                                        <option value="0"> Seleccione </option>
-                                        @foreach (var item in Model.Status)
+                                <select id="heard" class="form-control" asp-for="filtro.Codigo2">
+                                    <option value="0"> Seleccione </option>
+                                    @foreach (var item in Model.Status)
                                     {
                                         <option value="@item.idSAP"> @item.Nombre </option>
                                     }
@@ -377,7 +372,7 @@
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered first">
                         <thead>
-                            <tr> 
+                            <tr>
                                 <th>No. Llamada</th>
 
                                 <th>Cliente</th>
@@ -396,13 +391,15 @@
                         <tbody>
                             @foreach (var item in Model.Objeto)
                             {
-                                <tr> 
+                                <tr>
                                     <td>@item.DocEntry</td>
 
-                                    <td> @item.CardCode -  @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" :Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName )</td>
-                                    <td>@item.ItemCode - @item.SerieFabricante - @(
+                                    <td> @item.CardCode -  @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" : Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName)</td>
+                                    <td>
+                                        @item.ItemCode - @item.SerieFabricante - @(
                                     Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault().itemName
-                                    )</td>
+                                    )
+                                    </td>
                                     <td>@item.Asunto </td>
                                     @{
                                         var status = item.Status.ToString();
@@ -414,7 +411,7 @@
                                     <td>
 
                                         <a asp-page="./Editar" asp-route-id="@item.id" title="Editar" class="btn btn-rounded btn-outline-warning"> Editar</a> &nbsp;
-                                        @if (string.IsNullOrEmpty(item.DocEntry.ToString()))
+                                        @if (string.IsNullOrEmpty(item.DocEntry.ToString()) || item.DocEntry == 0)
                                         {
 
                                             <a onclick="javascript: enviarSAP('@item.id')" title="Enviar a SAP"> <img src="~/sap.png" style="width: 40%;height: 50%;border-radius: 30%; cursor: pointer;" /></a>
@@ -422,7 +419,7 @@
                                         <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta('@item.DocEntry', '@item.CardCode - @Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName')">PDF</button>
                                         &nbsp;
                                         <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
-                                       &nbsp;
+                                        &nbsp;
                                         <a asp-page="./Actividades" asp-route-id="@item.id" title="Actividades" class="btn btn-rounded btn-outline-info"> Actividades</a> &nbsp;
 
                                     </td>
@@ -432,7 +429,7 @@
 
                         </tbody>
                         <tfoot>
-                            <tr> 
+                            <tr>
                                 <th>No. Llamada</th>
 
 
