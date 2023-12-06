@@ -53,6 +53,21 @@
         var banderaConversion = false;
         var regenerar = false;
         var ProductoPadre = [];
+
+        function onAbrirModalDetallado() {
+            try {
+                $("#exampleModal").modal("show");
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar abrir el modal ' + e
+
+                })
+            }
+        }
         function Recuperar() {
             try
             {
@@ -1429,7 +1444,7 @@
 
 
                         }
-                        <div class="col-md-4">
+                      @*  <div class="col-md-4">
                             <div class="form-group">
                                 <label>Inversión en Reparaciones:</label>
                                 <br>
@@ -1458,15 +1473,184 @@
                                 <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
 
                             </div>
-                        </div>
+                        </div>*@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Observaciones Ult. Reparación:</label>
                                 <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
 
                             </div>
+                            <a href="#" onclick="javascript: onAbrirModalDetallado() ">Ver más detallado</a>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Histórico Llamada Detallado</h5>
+
+                </div>
+                <div class="modal-body">
+                    @{
+                        var i = 0;
+                    }
+                    <div style=" overflow-y:scroll;    z-index: 5; height: 500px;">
+                        <div class="panel-group" id="accordion">
+                            @foreach (var item in Model.HistoricoDetallado.Historico.GroupBy(a => a.Boleta))
+                            {
+                                i++;
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#collapse@(i)">Boleta # @item.Key</a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse@(i)" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+
+                                            @foreach (var item3 in item.GroupBy(a => a.DocEntryEntrega))
+                                            {
+                                                <table style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th align="center">Orden</th>
+                                                            <th align="center">Fecha</th>
+                                                            <th align="center">Artículos</th>
+                                                            <th align="center">Descripción</th>
+                                                            <th align="center">Garantía</th>
+                                                            <th align="center">Facturado</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr id="contenido(@i)">
+                                                            <td align="center">
+                                                                @item3.Key
+                                                            </td>
+                                                            <td align="center">@item3.FirstOrDefault().Fecha.ToString("dd/MM/yyyy")</td>
+                                                            <td>
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="left">@item2.Articulo</td>
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+                                                            <td>
+
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="left">@item2.Descripcion</td>
+
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+
+                                                            <td>
+
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="right">@item2.Garantia.ToString("N",formato)</td>
+
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+
+                                                            <td>
+
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="right">@item2.Facturado.ToString("N",formato)</td>
+
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="4" align="center"><b>Total Boleta</b></td>
+                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N",formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N",formato)</td>
+
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            }
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse0">Gran Total</a>
+                                </h4>
+                            </div>
+                            <div id="collapse0" class="panel-collapse collapse in show">
+                                <div class="panel-body">
+                                    <table style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th align="center"></th>
+                                                <th align="center"></th>
+                                                <th align="center"></th>
+                                                <th align="center"></th>
+                                                <th align="center">Garantía</th>
+                                                <th align="center">Facturado</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4" style="text-align: center;"><b>Gran Total</b></td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N",formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N",formato)</td>
+
+                                            </tr>
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+
                 </div>
             </div>
         </div>

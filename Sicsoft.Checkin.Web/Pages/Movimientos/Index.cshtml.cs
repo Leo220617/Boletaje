@@ -4,11 +4,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Boletaje.Models;
-using Castle.Core.Configuration;
-using ConectorEcommerce.Models;
 using InversionGloblalWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
@@ -17,6 +16,7 @@ namespace Boletaje.Pages.Movimientos
 {
     public class IndexModel : PageModel
     {
+        private readonly IConfiguration configuration;
         private readonly ICrudApi<EncMovimientoViewModel, int> service;
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<StatusViewModel, int> status;
@@ -40,14 +40,17 @@ namespace Boletaje.Pages.Movimientos
 
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
-
-        public IndexModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> status, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<TiposCasosViewModel, int> tp)
+        [BindProperty]
+        public int RequiereAprobacion { get; set; }
+        public IndexModel(IConfiguration configuration, ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> status, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<TiposCasosViewModel, int> tp)
         {
             this.service = service;
             this.clientes = clientes;
             this.status = status;
             this.serviceL = serviceL;
             this.tp = tp;
+            this.configuration = configuration;
+
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -58,7 +61,7 @@ namespace Boletaje.Pages.Movimientos
                 {
                     return RedirectToPage("/NoPermiso");
                 }
-
+                RequiereAprobacion = Convert.ToInt32(configuration["AceptarCotizaciones"].ToString());
                 DateTime time = new DateTime();
                 Status = await status.ObtenerLista("");
                 TP = await tp.ObtenerLista("");

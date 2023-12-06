@@ -466,7 +466,7 @@
                             {
 
 
-                                <tr style="@( !string.IsNullOrEmpty(Roles1.Where(a => a == "59").FirstOrDefault()) ? (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)  && item.DocEntry == 0 ? item.AprobadaSuperior == true  ? "background-color: #c3f9ea" : "background-color: #ffdfd0" : "": "")">
+                                <tr style="@( !string.IsNullOrEmpty(Roles1.Where(a => a == "59").FirstOrDefault()) ? ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2 ) && Model.RequiereAprobacion == 1)  && item.DocEntry == 0 ? item.AprobadaSuperior == true  ? "background-color: #c3f9ea" : "background-color: #ffdfd0" : "": "")">
 
 
 
@@ -512,7 +512,7 @@
                                     <td>
                                         @if (item.DocEntry == 0)
                                         {
-                                            @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                            @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2) && Model.RequiereAprobacion == 1)
                                             {
                                                 @if (item.AprobadaSuperior)
                                                 {
@@ -556,7 +556,7 @@
                                         &nbsp;
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "58").FirstOrDefault()))
                                         {
-                                            @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 )&& item.DocEntry == 0)
+                                            @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2 )&& item.DocEntry == 0)
                                             {
                                                 @if (item.AprobadaSuperior == false)
                                                 {

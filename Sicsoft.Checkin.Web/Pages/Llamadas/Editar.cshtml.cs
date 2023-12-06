@@ -30,6 +30,8 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<AsuntosViewModel, int> asuntos;
         private readonly ICrudApi<EncReparacionViewModel, int> serviceE;
         private readonly ICrudApi<HistoricoViewModel, int> historico;
+        private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
+
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
 
 
@@ -44,6 +46,8 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public HistoricoViewModel Historico { get; set; }
 
+        [BindProperty]
+        public HistoricoDetalladoViewModel HistoricoDetallado { get; set; }
         [BindProperty]
         public LlamadasViewModel Input { get; set; }
 
@@ -80,7 +84,7 @@ namespace Boletaje.Pages.Llamadas
 
         public EditarModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
             ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE,
-            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<UbicacionesViewModel, int> ubicaciones)
+            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado)
         {
             this.service = service;
             this.clientes = clientes;
@@ -94,6 +98,7 @@ namespace Boletaje.Pages.Llamadas
             this.serviceE = serviceE;
             this.historico = historico;
             this.ubicaciones = ubicaciones;
+            this.historicoDetallado = historicoDetallado;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -141,6 +146,28 @@ namespace Boletaje.Pages.Llamadas
                     Historico.Historico[0] = new HistoricoViewModel.historico();
                     Historico.Historico[0].Total_Revisiones = 0;
                     Historico.Historico[0].Cantidad_Revisiones = 0;
+
+                }
+                try
+                {
+                    ParametrosFiltros filtHistDet = new ParametrosFiltros();
+                    filtHistDet.CardCode = Input.SerieFabricante.ToString();
+                    filtHistDet.CardName = Input.ItemCode.ToString();
+                    HistoricoDetallado = await historicoDetallado.ObtenerListaEspecial(filtHistDet);
+                }
+                catch (Exception ex)
+                {
+                    HistoricoDetallado = new HistoricoDetalladoViewModel();
+                    HistoricoDetallado.Historico = new HistoricoDetalladoViewModel.historicoDet[1];
+                    HistoricoDetallado.Historico[0] = new HistoricoDetalladoViewModel.historicoDet();
+                    HistoricoDetallado.Historico[0].Boleta = "";
+                    HistoricoDetallado.Historico[0].Fecha = DateTime.Now;
+                    HistoricoDetallado.Historico[0].Tecnico = "";
+                    HistoricoDetallado.Historico[0].DocEntryEntrega = "";
+                    HistoricoDetallado.Historico[0].Articulo = "";
+                    HistoricoDetallado.Historico[0].Descripcion = "";
+                    HistoricoDetallado.Historico[0].Garantia = 0;
+                    HistoricoDetallado.Historico[0].Facturado = 0; 
 
                 }
 

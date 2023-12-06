@@ -38,6 +38,7 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login;
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
+        private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
 
 
         [BindProperty]
@@ -104,10 +105,12 @@ namespace Boletaje.Pages.Reparacion
 
         [BindProperty]
         public UbicacionesViewModel[] Ubicaciones { get; set; }
-
+        [BindProperty]
+        public HistoricoDetalladoViewModel HistoricoDetallado { get; set; }
         public EditarModel(ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
-            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones)
+            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico,
+           ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado)
         {
             this.service = service;
             this.serviceL = serviceL;
@@ -129,6 +132,7 @@ namespace Boletaje.Pages.Reparacion
             this.actividades = actividades;
             this.login = login;
             this.ubicaciones = ubicaciones;
+            this.historicoDetallado = historicoDetallado;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -215,7 +219,28 @@ namespace Boletaje.Pages.Reparacion
                 {
 
                 }
+                try
+                {
+                    ParametrosFiltros filtHistDet = new ParametrosFiltros();
+                    filtHistDet.CardCode = InputLlamada.SerieFabricante.ToString();
+                    filtHistDet.CardName = InputLlamada.ItemCode.ToString();
+                    HistoricoDetallado = await historicoDetallado.ObtenerListaEspecial(filtHistDet);
+                }
+                catch (Exception ex)
+                {
+                    HistoricoDetallado = new HistoricoDetalladoViewModel();
+                    HistoricoDetallado.Historico = new HistoricoDetalladoViewModel.historicoDet[1];
+                    HistoricoDetallado.Historico[0] = new HistoricoDetalladoViewModel.historicoDet();
+                    HistoricoDetallado.Historico[0].Boleta = "";
+                    HistoricoDetallado.Historico[0].Fecha = DateTime.Now;
+                    HistoricoDetallado.Historico[0].Tecnico = "";
+                    HistoricoDetallado.Historico[0].DocEntryEntrega = "";
+                    HistoricoDetallado.Historico[0].Articulo = "";
+                    HistoricoDetallado.Historico[0].Descripcion = "";
+                    HistoricoDetallado.Historico[0].Garantia = 0;
+                    HistoricoDetallado.Historico[0].Facturado = 0;
 
+                }
                 ParametrosFiltros filtro2 = new ParametrosFiltros();
                 filtro2.Codigo1 = InputLlamada.id;
                 Actividades = await actividades.ObtenerLista(filtro2);
