@@ -402,7 +402,7 @@
                     }
                     <div style=" overflow-y:scroll;    z-index: 5; height: 500px;">
                         <div class="panel-group" id="accordion">
-                            @foreach (var item in Model.HistoricoDetallado.Historico.GroupBy(a => a.Boleta))
+                            @foreach (var item in Model.HistoricoDetallado.Historico.OrderBy(a => a.Fecha).GroupBy(a => a.Boleta))
                             {
                                 i++;
                                 <div class="panel panel-default">

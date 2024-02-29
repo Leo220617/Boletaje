@@ -659,7 +659,19 @@
                 })
             }
         }
+        function GuardarCantidadDevolucion(i) {
+            try {
+                ProdCadenaM[i].Cantidad = $("#cantidadDevuelta-" + i).val();
+                CalculaSemaforo();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
 
+                })
+            }
+        }
         function ModificaOpcional(i) {
             try {
                 var checkbox1 = document.getElementById(i + "check");
@@ -757,7 +769,7 @@
                         sOptions += '<td align="center" style="padding-top:15px;">  <p style="font-size:15px;">N/A</p></td>';
 
                     } else {
-                        sOptions += '<td align="center" style="padding-top:15px;">  <input id="cantidad-' + i + '" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '"  type="number" /> </td>';
+                        sOptions += '<td align="center" style="padding-top:15px;">  <input id="cantidadDevuelta-' + i + '" onchange="javascript: GuardarCantidadDevolucion(' + i + ')" value="' + formatoDecimal(ProdCadenaM[i].Cantidad) + '"  type="number" /> </td>';
 
                     }
 
@@ -1903,7 +1915,7 @@
                         }
                         <div style=" overflow-y:scroll;    z-index: 5; height: 500px;">
                             <div class="panel-group" id="accordion">
-                                @foreach (var item in Model.HistoricoDetallado.Historico.GroupBy(a => a.Boleta))
+                                @foreach (var item in Model.HistoricoDetallado.Historico.OrderBy(a => a.Fecha).GroupBy(a => a.Boleta))
                                 {
                                     i++;
                                     <div class="panel panel-default">

@@ -68,7 +68,10 @@ namespace Boletaje.Pages.Boletas
 
                 Input.CardCode = Input.CardCode.Split("/")[0].TrimStart().TrimEnd();
                 Input.ItemCode = Input.ItemCode.Split("/")[0];
-
+                if(Input.NoSerieFabricante.Contains(" "))
+                {
+                    throw new Exception("Serie es invalido, no dejar campos en blanco");
+                }
 
                 ParametrosFiltros filtro = new ParametrosFiltros();
                 filtro.Codigo1 = 1;
