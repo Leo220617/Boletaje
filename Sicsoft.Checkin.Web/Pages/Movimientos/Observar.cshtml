@@ -124,7 +124,7 @@
                 }
 
                 if (Errores.find(a => a.id == Detalles[i].idError) != undefined) {
-                    Diagnostico += Errores.find(a => a.id == Detalles[0].idError).Diagnostico + " ";
+                    Diagnostico += Errores.find(a => a.id == Detalles[i].idError).Diagnostico + " ";
                 }
             }
             html = html.replace("Diagnosticos", Diagnostico);
