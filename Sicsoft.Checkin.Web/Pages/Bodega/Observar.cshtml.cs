@@ -139,5 +139,56 @@ namespace Boletaje.Pages.Bodega
                 return Page();
             }
         }
+        public async Task<IActionResult> OnPostAgregarBTS(BitacoraMovimientosViewModel recibidos)
+        {
+            string error = "";
+
+
+            try
+            {
+
+
+                var resp = await bt.Agregar(recibidos);
+
+                var resp2 = new
+                {
+                    success = true,
+                    Exon = resp
+                };
+                return new JsonResult(resp2);
+            }
+            catch (ApiException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Content.ToString());
+                ParametrosFiltros filt = new ParametrosFiltros();
+                filt.Codigo1 = BTS.id;
+
+                Tecnicos = await serviceT.ObtenerLista("");
+                BTS = await bt.ObtenerPorId(BTS.id);
+
+                Encabezado = await service.ObtenerPorId(BTS.idEncabezado);
+
+                Productos = await prods.ObtenerListaEspecial("");
+                Producto = Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemCode + " - " + Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemName;
+
+                var ids = Encabezado.idTecnico.ToString();
+                Tecnico = Tecnicos.Where(a => a.idSAP == ids).FirstOrDefault().Nombre;
+
+                ProductosHijos = await prodHijos.ObtenerLista("");
+
+                Clientes = await clientes.ObtenerListaEspecial("");
+                var Llamada = await llamada.ObtenerPorDocEntry(Encabezado.idLlamada);
+                Cliente = Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault() == null ? "" : Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault().CardCode + " - " + Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault().CardName;
+
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                return Page();
+            }
+        }
+
     }
 }

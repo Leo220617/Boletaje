@@ -7,7 +7,7 @@
     ViewData["Title"] = "Observar Movimiento";
 }
 
-@section breadcrumb{
+@section breadcrumb {
 
     <li class="breadcrumb-item">
         <a asp-page="./Index">Bodega</a>
@@ -17,7 +17,7 @@
 }
 
     @using System.Globalization;
-    @{
+@{
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
@@ -26,7 +26,7 @@
 }
 
 
-@section styles{
+@section styles {
 
     <style>
         .tableFixHead th {
@@ -41,8 +41,8 @@
     </style>
 
 }
-    @section scripts{
-    <script>
+@section scripts {
+    @*    <script>
         var btn = document.getElementById('Guardar');
         function onGuardar() {
             btn.disabled = true;
@@ -50,66 +50,10 @@
             btn.disabled = false;
 
         }
-    </script>
-
-    <script>
-        var html = '';
-        var specialElementHandlers = null;
-        $(document).ready(function() {
-            jQuery(document).ready(function($) {
-                specialElementHandlers = {
-                    "#editor": function(element, render) {
-                        return true;
-                    }
-                }
-            });
+    </script> *@
 
 
-
-            $(document).ready(function() {
-                $('#tablita').DataTable();
-            });
-
-
-        });
-
-        function ImprimirPantalla() {
-            try {
-                // window.print();
-                var margins = {
-                    top: 10,
-                    bottom: 10,
-                    left: 10,
-                    width: 595
-                };
-
-
-                html = $(".html").html();
-                html2pdf(html, {
-                    margin: 1,
-                    padding: 0,
-                    filename: 'Movimientos.pdf',
-                    image: { type: 'jpeg', quality: 1 },
-                    html2canvas: { scale: 2, logging: true },
-                    jsPDF: { unit: 'in', format: 'A2', orientation: 'P' },
-                    class: ImprimirPantalla
-                });
-
-            } catch (e) {
-                console.log(e);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Ha ocurrido un error al intentar imprimir ' + e
-
-                })
-            }
-        }
-
-
-
-
-    </script>
+    <script type ="text/javascript" src="/js/Bodega/ObservarBodega.js"> </script>
 
 }
     @using Microsoft.AspNetCore.Http
@@ -122,52 +66,55 @@
     @using Microsoft.AspNetCore.Mvc;
     @using Microsoft.AspNetCore.Mvc.RazorPages;
     @using Microsoft.Extensions.Configuration;
+@using Newtonsoft.Json
     @using Refit;
     @using Sicsoft.Checkin.Web.Models;
     @inject IHttpContextAccessor httpContextAccessor
 <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="text" class="form-control form-control-lg" id="id" asp-for="BTS.id" hidden>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="text" class="form-control form-control-lg" id="id" asp-for="BTS.id" hidden>
+    <input hidden id="Detalle" value="@JsonConvert.SerializeObject(Model.BTS.Detalle)" />
+    <input hidden id="BTS" value="@JsonConvert.SerializeObject(Model.BTS)" />
 
-        <div class="row ">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <h5 class="title">Observar Movimiento</h5>
+    <div class="row ">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Observar Movimiento</h5>
 
-                            </div>
+                        </div>
 
-                            <div class="col-sm-6" style="text-align: right">
+                        <div class="col-sm-6" style="text-align: right">
 
-                                <a asp-page="./Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                            <a asp-page="./Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
 
-                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
+                </div>
+                <div class="card-body">
 
-                        <div class="row">
-                            <div class="col-md-4 pr-1">
+                    <div class="row">
+                        <div class="col-md-4 pr-1">
 
-                                <div class="form-group">
-                                    <label>Producto</label>
-                                    <input type="text" class="form-control form-control-lg" id="desc" asp-for="Producto" readonly>
-
-                                </div>
-
+                            <div class="form-group">
+                                <label>Producto</label>
+                                <input type="text" class="form-control form-control-lg" id="desc" asp-for="Producto" readonly>
 
                             </div>
 
 
+                        </div>
 
 
-                            <div class="col-md-4 pr-1">
 
-                                <div class="form-group">
-                                    <label>Aceptar / Rechazar</label>
-                                    @if (Model.BTS.ProcesadaSAP)
+
+                        <div class="col-md-4 pr-1">
+
+                            <div class="form-group">
+                                <label>Aceptar / Rechazar</label>
+                                @if (Model.BTS.ProcesadaSAP)
                                 {
                                     <select id="status" class="form-control" asp-for="BTS.Status" disabled="disabled" readonly>
                                         <option value="0" selected>Sin Acción</option>
@@ -205,7 +152,7 @@
 
                             <div class="form-group">
                                 <label>Fecha Creación</label>
-                                <input type="date" class="form-control form-control-lg" id="desc" asp-for="BTS.Fecha" readonly>
+                                <input type="date" class="form-control form-control-lg" id="Fecha" asp-for="BTS.Fecha" readonly>
 
 
                             </div>
@@ -312,6 +259,8 @@
                                     <th>Cantidad</th>
                                     <th>Stock</th>
                                     <th>Ubicación</th>
+                                    <th>Revisado</th>
+
 
 
 
@@ -319,6 +268,10 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @{
+                                    var i = 0;
+
+                                }
                                 @foreach (var item in Model.BTS.Detalle)
                                 {
                                     <tr>
@@ -326,16 +279,22 @@
                                         <td>@(item.ItemCode)</td>
 
 
-                                        <td>@item.Cantidad.ToString("N",formato)</td>
+                                        <td>@item.Cantidad.ToString("N", formato)</td>
                                         @{
                                             var itemCode = item.ItemCode.Trim().Split('|')[0].ToString().Trim();
                                         }
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "0" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Stock.ToString("N", formato))</td>
 
-                                        <td>@( Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion )</td>
+                                        <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion)</td>
 
 
+                                        <td style="text-align: center">
+                                            <input type="checkbox" id="md_checkbox_@i" class="chk-col-green" onchange="javascript: onChangeRevisado('@i', false)">
+                                            <label for="md_checkbox_@i"></label>
+
+                                        </td>
                                     </tr>
+                                    i++;
                                 }
 
 
@@ -348,6 +307,7 @@
                                     <th>Stock</th>
 
                                     <th>Ubicación</th>
+                                    <th>Revisado</th>
 
                                 </tr>
                             </tfoot>
@@ -359,7 +319,8 @@
 
     </div>
     <button type="button" onclick="javascript: ImprimirPantalla()" class="btn btn-rounded btn-outline-brand"> Imprimir</button> &nbsp;
-    <button type="button" id="Guardar" onclick="javascript: onGuardar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+
+    <button type="button" id="Guardar" onclick="javascript: Generar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
 </form>
 
 
@@ -526,7 +487,7 @@
                                         @{
                                             var itemCode = item.ItemCode.Trim().Split('|')[0].ToString().Trim();
                                         }
-                                        <td>@( Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion )</td>
+                                        <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion)</td>
 
 
                                     </tr>
