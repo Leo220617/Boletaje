@@ -804,9 +804,9 @@
                                         @item.FechaCreacion
                                     </td>
                                     @{
-                                        var cardCode = item.UsuarioCreador.ToString();
+                                        var cardCode = item.idLogin;
                                     }
-                                    <td>@(Model.Usuarios.Where(a => a.CardCode == cardCode).FirstOrDefault() == null ? "" : Model.Usuarios.Where(a => a.CardCode == cardCode).FirstOrDefault().Nombre) </td>
+                                    <td>@(Model.Usuarios.Where(a => a.id == cardCode).FirstOrDefault() == null ? "" : Model.Usuarios.Where(a => a.id == cardCode).FirstOrDefault().Nombre) </td>
 
                                     <td>@item.Detalle </td>
                                  

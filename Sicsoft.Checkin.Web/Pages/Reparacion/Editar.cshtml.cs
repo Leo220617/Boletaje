@@ -400,6 +400,7 @@ namespace Boletaje.Pages.Reparacion
                 coleccion.TipoActividad = recibido.TipoActividad;
                 coleccion.Detalle = recibido.Detalle;
                 coleccion.UsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+                coleccion.idLogin = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == ClaimTypes.NameIdentifier).Select(s1 => s1.Value).FirstOrDefault());
 
 
 
