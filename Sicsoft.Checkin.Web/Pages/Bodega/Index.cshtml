@@ -252,7 +252,7 @@
                                     <option value="-1">Seleccione</option>
 
                                     <option value="0">En espera</option>
-                                    <option value="1">Aceptados</option>
+                                    <option value="1">Apartado y Entregado</option>
                                     <option value="2">Rechazados</option>
 
 
@@ -330,7 +330,7 @@
                                 <td>@((item.TipoMovimiento == 1 ? "Solicitud" : "Devolución"))</td>
                                 <td>@item.BodegaInicial</td>
                                 <td>@item.BodegaFinal</td>
-                                <td>@((item.Status == "0" ? "En espera" : item.Status == "1" ? "Aceptado" : "Rechazado"))</td>
+                                <td>@((item.Status == "0" ? "En espera" : item.Status == "1" ? "Apartado y Entregado" : "Rechazado"))</td>
 
 
 
