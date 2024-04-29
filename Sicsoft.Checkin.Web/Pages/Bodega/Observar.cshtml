@@ -185,7 +185,7 @@
                     DocEntry: Encabezado.DocEntry,
                     Fecha: $("#Fecha").val(),
 
-                    Status: Encabezado.Status,
+                    Status: $("#status").val(),
                     TipoMovimiento: $("#idTraslado").val(),
                     id: Encabezado.id,
                     idLlamada: $("#idLlamada").val(),
@@ -363,11 +363,13 @@
                                 else
                                 {
                                     <select id="status" class="form-control" asp-for="BTS.Status">
-                             
+
+
 
 
                                         <option value="0">Abierta </option>
-                                        <option value="1">Cerrada </option>
+                                        <option value="1">Apartado y Entregado </option>
+                                        <option value="2">Rechazado </option>
 
 
 
@@ -552,8 +554,11 @@
 
     </div>
     <button type="button" onclick="javascript: ImprimirPantalla()" class="btn btn-rounded btn-outline-brand"> Imprimir</button> &nbsp;
+    @if (!Model.BTS.ProcesadaSAP)
+    {
+        <button type="button" id="Guardar" onclick="javascript: Generar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
 
-    <button type="button" id="Guardar" onclick="javascript: Generar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+    }
 </form>
 
 
