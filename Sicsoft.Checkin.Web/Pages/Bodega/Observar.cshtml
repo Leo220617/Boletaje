@@ -198,7 +198,7 @@
                 } else {
                     $("#cantidadEnviado_" + i).val(0);
                     Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
-                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
+                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
 
                     $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
                     Swal.fire({
@@ -266,7 +266,7 @@
                                 RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                             },
                             success: function (json) {
-
+                                $("#divProcesando").hide();
 
 
                                 if (json.success == true) {
@@ -304,15 +304,15 @@
                             },
 
                             beforeSend: function (xhr) {
-
+                                $("#divProcesando").modal("show");
 
                             },
                             complete: function () {
-
+                                $("#divProcesando").hide();
                             },
                             error: function (error) {
 
-
+                                $("#divProcesando").hide();
                             }
                         });
                     }
