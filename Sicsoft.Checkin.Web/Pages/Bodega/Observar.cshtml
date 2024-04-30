@@ -162,15 +162,17 @@
                     Detalle[i].Enviar = valorCheck;
                     if (valorCheck == true) {
                         Detalle[i].CantidadEnviar = parseFloat(Detalle[i].Cantidad);
-                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
+                       // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
                         $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
-                        $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+
+                        $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
 
                     } else {
                         Detalle[i].CantidadEnviar = 0;
-                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
+                       // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
                         $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
-                        $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+
+                        $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
                     }
                 }
 
@@ -192,15 +194,17 @@
 
                 if (Detalle[i].CantidadFaltante >= parseFloat($("#cantidadEnviado_" + i).val())) {
                     Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
-                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
+                  //  Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
 
-                    $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+                    $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
                 } else {
+                    var cantidad = parseFloat($("#cantidadEnviado_" + i).val());
                     $("#cantidadEnviado_" + i).val(0);
                     Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
-                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                   // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
 
-                    $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+
+                    $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
