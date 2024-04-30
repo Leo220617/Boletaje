@@ -53,7 +53,7 @@
     </script> *@
 
 
- @*    <script type ="text/javascript" src="/js/Bodega/ObservarBodega.js"> </script> *@
+    @*    <script type ="text/javascript" src="/js/Bodega/ObservarBodega.js"> </script> *@
     <script>
 
         var html = '';
@@ -101,6 +101,7 @@
                     }
                     Detalle.push(detalle);
                     onChangeRevisado(i, true);
+                    $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
                 }
 
 
@@ -154,20 +155,20 @@
 
 
                 if (inicio) {
-                  //  $("#md_checkbox_" + i).prop('checked', Detalle[i].Enviar);
+                    //  $("#md_checkbox_" + i).prop('checked', Detalle[i].Enviar);
 
                 } else {
                     var valorCheck = $("#md_checkbox_" + i).prop('checked');
                     Detalle[i].Enviar = valorCheck;
                     if (valorCheck == true) {
                         Detalle[i].CantidadEnviar = parseFloat(Detalle[i].Cantidad);
-                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
                         $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
                         $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
 
                     } else {
                         Detalle[i].CantidadEnviar = 0;
-                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
                         $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
                         $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
                     }
@@ -191,13 +192,13 @@
 
                 if (Detalle[i].CantidadFaltante >= parseFloat($("#cantidadEnviado_" + i).val())) {
                     Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
-                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
 
                     $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
                 } else {
                     $("#cantidadEnviado_" + i).val(0);
                     Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
-                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
 
                     $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
                     Swal.fire({
@@ -207,7 +208,7 @@
 
                     });
                 }
-               
+
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -389,40 +390,24 @@
 
                             <div class="form-group">
                                 <label>Status</label>
-                                @if (Model.BTS.ProcesadaSAP)
-                                {
-                                    <select id="status" class="form-control" asp-for="BTS.Status" disabled="disabled" readonly>
-                                      
 
 
-                                        <option value="0">Abierta </option>
-                                        <option value="3">Apartado y Trasladado </option>
-
-                                        <option value="1"> Entregadal tecnico </option>
-                                        <option value="2">Rechazado </option>
-
-
-
-                                    </select>
-                                }
-                                else
-                                {
-                                    <select id="status" class="form-control" asp-for="BTS.Status">
+                                <select id="status" class="form-control" asp-for="BTS.Status">
 
 
 
 
-                                        <option value="0">Abierta </option>
-                                        <option value="3">Apartado y Trasladado </option>
+                                    <option value="0">Abierta </option>
+                                    <option value="3">Apartado y Trasladado </option>
 
-                                        <option value="1"> Entregadal tecnico </option>
-                                        <option value="2">Rechazado </option>
+                                    <option value="1"> Entregadal tecnico </option>
+                                    <option value="2">Rechazado </option>
 
 
 
-                                    </select>
+                                </select>
 
-                                }
+
 
 
                             </div>
@@ -566,7 +551,7 @@
 
                                         <td>@item.Cantidad.ToString("N", formato)</td>
                                         @{
-                           
+
                                             var itemCode = item.ItemCode.Trim().Split('|')[0].ToString().Trim();
                                         }
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "0" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Stock.ToString("N", formato))</td>
@@ -577,7 +562,7 @@
                                             <input class="form-control form-control-lg" type="number" id="cantidadEnviado_@i" onchange="javascript: onChangeCantidadEnviar('@i')" />
                                         </td>
                                         <td>
-                                            <input class="form-control form-control-lg" type="number" value="@item.CantidadFaltante"  id="cantidadFaltante_@i"  readonly disabled/>
+                                            <input class="form-control form-control-lg" type="number" value="@item.CantidadFaltante" id="cantidadFaltante_@i" readonly disabled />
                                         </td>
                                         <td style="text-align: center">
                                             <input type="checkbox" id="md_checkbox_@i" class="chk-col-green" onchange="javascript: onChangeRevisado('@i', false)">
@@ -613,11 +598,10 @@
 
     </div>
     <button type="button" onclick="javascript: ImprimirPantalla()" class="btn btn-rounded btn-outline-brand"> Imprimir</button> &nbsp;
-    @if (!Model.BTS.ProcesadaSAP)
-    {
+    
         <button type="button" id="Guardar" onclick="javascript: Generar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
 
-    }
+  
 </form>
 
 
@@ -767,7 +751,7 @@
                                     <th>Cantidad</th>
                                     <th>Ubicación</th>
 
-
+                                    <th>Cantidad Faltante</th>
 
 
                                 </tr>
@@ -786,7 +770,7 @@
                                         }
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion)</td>
 
-
+                                        <td>@item.CantidadFaltante.ToString("N",formato)</td>
                                     </tr>
                                 }
 
@@ -798,6 +782,7 @@
                                     <th>Producto</th>
                                     <th>Cantidad</th>
                                     <th>Ubicación</th>
+                                    <th>Cantidad Faltante</th>
 
                                 </tr>
                             </tfoot>
