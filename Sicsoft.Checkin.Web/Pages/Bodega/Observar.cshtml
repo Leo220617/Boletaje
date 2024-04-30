@@ -161,7 +161,7 @@
                     var valorCheck = $("#md_checkbox_" + i).prop('checked');
                     Detalle[i].Enviar = valorCheck;
                     if (valorCheck == true) {
-                        Detalle[i].CantidadEnviar = parseFloat(Detalle[i].Cantidad);
+                        Detalle[i].CantidadEnviar = parseFloat(Detalle[i].CantidadFaltante);
                        // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
                         $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
 
@@ -404,7 +404,7 @@
                                     <option value="0">Abierta </option>
                                     <option value="3">Apartado y Trasladado </option>
 
-                                    <option value="1"> Entregadal tecnico </option>
+                                    <option value="1"> Entregado al tecnico </option>
                                     <option value="2">Rechazado </option>
 
 

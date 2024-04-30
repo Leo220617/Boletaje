@@ -254,7 +254,7 @@
                                     <option value="0">Abierta </option>
                                     <option value="3">Apartado y Trasladado </option>
 
-                                    <option value="1"> Entregadal tecnico </option>
+                                    <option value="1"> Entregado al tecnico </option>
                                     <option value="2">Rechazado </option>
 
                                 </select>
@@ -331,7 +331,7 @@
                                 <td>@((item.TipoMovimiento == 1 ? "Solicitud" : "Devolución"))</td>
                                 <td>@item.BodegaInicial</td>
                                 <td>@item.BodegaFinal</td>
-                                <td>@((item.Status == "0" ? "En espera" : item.Status == "1" ? "Apartado y Entregado" : "Rechazado"))</td>
+                                    <td>@((item.Status == "0" ? "En espera" : item.Status == "1" ? "Entregado al tecnico" : item.Status == "3" ? "Apartado y Trasladado" : "Rechazado"))</td>
 
 
 
