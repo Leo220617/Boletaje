@@ -94,7 +94,8 @@
                         idError: det[i].idError,
                         Cantidad: det[i].Cantidad,
                         ItemCode: det[i].ItemCode,
-                        Enviar: det[i].Enviar
+                        CantidadEnviar: det[i].CantidadEnviar,
+                        CantidadFaltante: det[i].CantidadFaltante
 
 
                     }
@@ -153,11 +154,23 @@
 
 
                 if (inicio) {
-                    $("#md_checkbox_" + i).prop('checked', Detalle[i].Enviar);
+                  //  $("#md_checkbox_" + i).prop('checked', Detalle[i].Enviar);
 
                 } else {
                     var valorCheck = $("#md_checkbox_" + i).prop('checked');
                     Detalle[i].Enviar = valorCheck;
+                    if (valorCheck == true) {
+                        Detalle[i].CantidadEnviar = parseFloat(Detalle[i].Cantidad);
+                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                        $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
+                        $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+
+                    } else {
+                        Detalle[i].CantidadEnviar = 0;
+                        Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                        $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
+                        $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+                    }
                 }
 
 
@@ -173,7 +186,37 @@
             }
 
         }
+        function onChangeCantidadEnviar(i) {
+            try {
 
+                if (Detalle[i].CantidadFaltante >= parseFloat($("#cantidadEnviado_" + i).val())) {
+                    Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
+                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+
+                    $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+                } else {
+                    $("#cantidadEnviado_" + i).val(0);
+                    Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
+                    Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+
+                    $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: "No se puede enviar mas de lo acordado"
+
+                    });
+                }
+               
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: e
+
+                });
+            }
+        }
         function Generar() {
             try {
                 var btn = document.getElementById('Guardar');
@@ -494,7 +537,10 @@
                                     <th>Cantidad</th>
                                     <th>Stock</th>
                                     <th>Ubicación</th>
-                                    <th>Enviado</th>
+                                    <th>Cantidad Enviar</th>
+                                    <th>Cantidad Faltante</th>
+
+                                    <th>Enviar Todo</th>
 
 
 
@@ -516,13 +562,19 @@
 
                                         <td>@item.Cantidad.ToString("N", formato)</td>
                                         @{
+                           
                                             var itemCode = item.ItemCode.Trim().Split('|')[0].ToString().Trim();
                                         }
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "0" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Stock.ToString("N", formato))</td>
 
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion)</td>
 
-
+                                        <td>
+                                            <input class="form-control form-control-lg" type="number" id="cantidadEnviado_@i" onchange="javascript: onChangeCantidadEnviar('@i')" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control form-control-lg" type="number" value="@item.CantidadFaltante"  id="cantidadFaltante_@i"  readonly disabled/>
+                                        </td>
                                         <td style="text-align: center">
                                             <input type="checkbox" id="md_checkbox_@i" class="chk-col-green" onchange="javascript: onChangeRevisado('@i', false)">
                                             <label for="md_checkbox_@i"></label>
@@ -542,7 +594,10 @@
                                     <th>Stock</th>
 
                                     <th>Ubicación</th>
-                                    <th>Enviado</th>
+                                    <th>Cantidad Enviar</th>
+                                    <th>Cantidad Faltante</th>
+
+                                    <th>Enviar Todo</th>
 
                                 </tr>
                             </tfoot>
