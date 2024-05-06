@@ -33,6 +33,7 @@ namespace Sicsoft.CostaRica.Checkin.Web.Models
         public int NumeroDimension { get; set; }
 
         public string NormaReparto { get; set; }
+        public int EmpleadoSAP { get; set; }
 
     }
 }
