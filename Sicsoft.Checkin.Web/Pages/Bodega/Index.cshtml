@@ -262,6 +262,19 @@
 
 
                         </div>
+                        <div class="col-sm-4 pr-1">
+                            <div class="form-group">
+                                <label>Estado de la Llamada</label>
+                                <select id="estadoLlamada" class="form-control" asp-for="filtro.Codigo4">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="col-sm-12">
                             <br />
@@ -313,7 +326,7 @@
                                 <th>Bodega Inicial</th>
                                 <th>Bodega Final</th>
                                 <th>Status</th>
-
+                                <th>Estado Llamada</th>
 
                                 <th width="150">Acción</th>
 
@@ -333,14 +346,23 @@
                                 <td>@item.BodegaFinal</td>
                                     <td>@((item.Status == "0" ? "En espera" : item.Status == "1" ? "Entregado al tecnico" : item.Status == "3" ? "Apartado y Trasladado" : "Rechazado"))</td>
 
+                                    <td>
+                                        @{
+                                            string LLamada = Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "0" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().Status.Value.ToString();
 
+
+                                        }
+                                        @(Model.Status.Where(a => a.idSAP == LLamada).FirstOrDefault() == null ? "" : Model.Status.Where(a => a.idSAP == LLamada).FirstOrDefault().Nombre)
+                                    </td>
 
                                 <td>
-                                    @if (item.ProcesadaSAP == false && item.Status == "1")
+                                   @if (item.ProcesadaSAP == false && item.Status == "1")
                                     {
 
-                                        <a onclick="javascript: enviarSAP('@item.id')" title="Enviar a SAP"> <img src="~/sap.png" style="width: 40%;height: 50%;border-radius: 30%; cursor: pointer;" /></a>
-                                    }&nbsp;
+                                     @*    <a onclick="javascript: enviarSAP('@item.id')" title="Enviar a SAP"> <img src="~/sap.png" style="width: 40%;height: 50%;border-radius: 30%; cursor: pointer;" /></a>
+                                 *@    }
+                                    
+                                    &nbsp;  
                                     <a asp-page="./Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
 
 
@@ -361,6 +383,7 @@
                                 <th>Bodega Inicial</th>
                                 <th>Bodega Final</th>
                                 <th>Status</th>
+                                <th>Estado Llamada</th>
 
 
 

@@ -19,7 +19,7 @@ namespace Boletaje.Models
         public string BodegaFinal { get; set; }
         public string Status { get; set; }
         public bool ProcesadaSAP { get; set; }
-        
+        public int StatusLlamada { get; set; }
         public DetBitacoraMovimientosViewModel[] Detalle { get; set; }
     }
 }

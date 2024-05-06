@@ -494,6 +494,10 @@
                     Impuestos: $("#ImpGeneral").text(),
                     TotalComprobante: $("#TotalGeneral").text(),
                     Moneda: $("#Moneda").val(),
+                    idCondPago: $("#condPago").val(),
+                    idGarantia: $("#tipoGarantia").val(),
+                    idTiemposEntregas: $("#tiemposEntrega").val(),
+                    idDiasValidos: $("#DiasValidos").val(),
                     Generar: generar,
                     Regenerar: regenerar,
 
@@ -1444,6 +1448,8 @@
 
 
                         }
+
+
                       @*  <div class="col-md-4">
                             <div class="form-group">
                                 <label>Inversión en Reparaciones:</label>
@@ -1651,6 +1657,110 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
 
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Roles.Where(a => a == "62").FirstOrDefault()) )
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Condiciones de Venta</h5>
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Condiciones de Pago:</label>
+                                <select id="condPago" class="form-control" required asp-for="Input.idCondPago">
+                                    <option value="0">Seleccione</option>
+
+                                    @foreach (var item in Model.Condiciones)
+                                    {
+                                        <option value="@item.id">@item.Nombre</option>
+                                    }
+
+                                </select>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo de Garantia:</label>
+                                <select id="tipoGarantia" class="form-control" required asp-for="Input.idGarantia">
+                                    <option value="0">Seleccione</option>
+
+
+                                    @foreach (var item in Model.Garantias)
+                                    {
+                                        <option value="@item.id">@item.Nombre</option>
+                                    }
+
+
+                                </select>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tiempos de Entrega:</label>
+                                <select id="tiemposEntrega" class="form-control" required asp-for="Input.idTiemposEntregas">
+                                    <option value="0">Seleccione</option>
+
+                                    @foreach (var item in Model.Tiempos)
+                                    {
+                                        <option value="@item.id">@item.Nombre</option>
+                                    }
+
+
+                                </select>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Dias Valido:</label>
+                                <select id="DiasValidos" class="form-control" required asp-for="Input.idDiasValidos">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var item in Model.DiasValidos)
+                                    {
+                                        <option value="@item.id">@item.Nombre</option>
+                                    }
+
+
+                                </select>
+
+                            </div>
+                        </div>
+                    @using System.Globalization;
+                        @{
+                            NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+                            formato.CurrencyGroupSeparator = ",";
+                            formato.NumberDecimalSeparator = ".";
+
+
+                        }
+
+
+
+
+                    </div>
                 </div>
             </div>
         </div>

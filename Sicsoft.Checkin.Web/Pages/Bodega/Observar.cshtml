@@ -225,14 +225,14 @@
         function Generar() {
             try {
                 var btn = document.getElementById('Guardar');
-
+                var status = $("#status").val();
 
                 var BTS = {
                     BodegaFinal: $("#bodF").val(),
                     BodegaInicial: $("#bodI").val(),
                     DocEntry: Encabezado.DocEntry,
                     Fecha: $("#Fecha").val(),
-
+                    StatusLlamada: $("#statusLlamada").val(),
                     Status: $("#status").val(),
                     TipoMovimiento: $("#idTraslado").val(),
                     id: Encabezado.id,
@@ -395,21 +395,40 @@
                             <div class="form-group">
                                 <label>Status</label>
 
-
-                                <select id="status" class="form-control" asp-for="BTS.Status">
-
-
-
-
-                                    <option value="0">Abierta </option>
-                                    <option value="3">Apartado y Trasladado </option>
-
-                                    <option value="1"> Entregado al tecnico </option>
-                                    <option value="2">Rechazado </option>
+                                @if(Model.BTS.Status != "1")
+                                {
+                                    <select id="status" class="form-control" asp-for="BTS.Status">
 
 
 
-                                </select>
+
+                                        <option value="0">Abierta </option>
+                                        <option value="3">Apartado y Trasladado </option>
+
+                                        <option value="1"> Entregado al tecnico </option>
+                                        <option value="2">Rechazado </option>
+
+
+
+                                    </select>
+                                }else
+                                {
+                                    <select id="status" class="form-control" asp-for="BTS.Status" readonly disabled>
+
+
+
+
+                                        <option value="0">Abierta </option>
+                                        <option value="3">Apartado y Trasladado </option>
+
+                                        <option value="1"> Entregado al tecnico </option>
+                                        <option value="2">Rechazado </option>
+
+
+
+                                    </select>
+                                }
+                                
 
 
 
@@ -498,6 +517,18 @@
                             </div>
 
 
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group">
+                                <label>Estado de la Llamada:</label>
+                                <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48" || a.idSAP == "56"))
+                                    {
+                                        <option value="@item.idSAP">@item.Nombre</option>
+                                    }
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -694,6 +725,7 @@
 
 
                         </div>
+                      
                         <div class="col-md-4 pr-1">
 
                             <div class="form-group">

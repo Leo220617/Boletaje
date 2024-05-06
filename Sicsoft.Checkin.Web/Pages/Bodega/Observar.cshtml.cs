@@ -24,8 +24,12 @@ namespace Boletaje.Pages.Bodega
         private readonly ICrudApi<ProductosHijosViewModel, int> prodHijos;
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<LlamadasViewModel, int> llamada;
+        private readonly ICrudApi<StatusViewModel, int> status;
 
 
+        [BindProperty]
+
+        public StatusViewModel[] Status { get; set; }
         [BindProperty]
         public BitacoraMovimientosViewModel BTS { get; set; }
         [BindProperty]
@@ -47,8 +51,11 @@ namespace Boletaje.Pages.Bodega
 
         [BindProperty]
         public string Cliente { get; set; }
+
+        [BindProperty]
+        public LlamadasViewModel InputLlamada { get; set; }
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<ProductosHijosViewModel, int> prodHijos,
-            ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada)
+            ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<StatusViewModel, int> status )
         {
             this.service = service;
             this.prods = prods;
@@ -57,6 +64,7 @@ namespace Boletaje.Pages.Bodega
             this.prodHijos = prodHijos;
             this.clientes = clientes;
             this.llamada = llamada;
+            this.status = status; 
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -87,8 +95,9 @@ namespace Boletaje.Pages.Bodega
                 Clientes = await clientes.ObtenerListaEspecial("");
                 var Llamada = await llamada.ObtenerPorDocEntry(Encabezado.idLlamada);
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault() == null ? "" : Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault().CardCode + " - " + Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault().CardName;
+                Status = await status.ObtenerLista("");
 
-
+                InputLlamada = Llamada;
 
                 return Page();
             }
@@ -103,6 +112,9 @@ namespace Boletaje.Pages.Bodega
             try
             {
                 await bt.Agregar(BTS);
+
+
+
                 return RedirectToPage("./Index");
             }
             catch (ApiException ex)
@@ -149,7 +161,18 @@ namespace Boletaje.Pages.Bodega
 
 
                 var resp = await bt.Agregar(recibidos);
+                try
+                {
+                    var Status = recibidos.StatusLlamada;
+                    InputLlamada = await llamada.ObtenerPorId(recibidos.idLlamada);
+                    InputLlamada.Status = Status;
 
+                    await llamada.Editar(InputLlamada);
+                }
+                catch (Exception ex)
+                {
+
+                }
                 var resp2 = new
                 {
                     success = true,

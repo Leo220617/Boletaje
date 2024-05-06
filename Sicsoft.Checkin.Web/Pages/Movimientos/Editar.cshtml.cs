@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -30,8 +31,10 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<UsuariosViewModel, int> login;
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
         private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
-
-
+        private readonly ICrudApi<DiasValidosViewModel, int> dvalid;
+        private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
+        private readonly ICrudApi<GarantiasViewModel, int> garan;
+        private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
 
 
 
@@ -92,9 +95,21 @@ namespace Boletaje.Pages.Movimientos
         [BindProperty]
         public HistoricoDetalladoViewModel HistoricoDetallado { get; set; }
 
+        [BindProperty]
+        public CondicionesPagosViewModel[] Condiciones { get; set; }
+
+        [BindProperty]
+        public GarantiasViewModel[] Garantias { get; set; }
+
+        [BindProperty]
+        public TiemposEntregasViewModel[] Tiempos { get; set; }
+        [BindProperty]
+        public DiasValidosViewModel[] DiasValidos { get; set; }
+
         public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods,
             ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, 
-            ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado)
+            ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<CondicionesPagosViewModel, int> conds,
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<DiasValidosViewModel, int> dvalid)
         {
             this.service = service;
             this.clientes = clientes;
@@ -110,6 +125,10 @@ namespace Boletaje.Pages.Movimientos
             this.login = login;
             this.ubicaciones = ubicaciones;
             this.historicoDetallado = historicoDetallado;
+            this.conds = conds;
+            this.garan = garan;
+            this.tiemp = tiemp; 
+            this.dvalid = dvalid;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -124,6 +143,11 @@ namespace Boletaje.Pages.Movimientos
                 Status = await status.ObtenerLista("");
                 TP = await tp.ObtenerLista("");
                 Imp = await impuestos.ObtenerLista("");
+
+                Condiciones = await conds.ObtenerLista("");
+                Garantias = await garan.ObtenerLista("");
+                Tiempos = await tiemp.ObtenerLista("");
+                DiasValidos = await dvalid.ObtenerLista("");
 
 
                 RolAceptacion = Roles1.Where(a => a == "36").FirstOrDefault() != null;
@@ -238,10 +262,13 @@ namespace Boletaje.Pages.Movimientos
                 coleccion.Subtotal = recibido.Subtotal;
                 coleccion.PorDescuento = recibido.PorDescuento;
                 coleccion.Generar = recibido.Generar;
-                coleccion.Regenerar = recibido.Regenerar;
-
+                coleccion.Regenerar = recibido.Regenerar; 
                 coleccion.TotalComprobante = recibido.TotalComprobante;
                 coleccion.Moneda = recibido.Moneda;
+                coleccion.idCondPago = recibido.idCondPago;
+                coleccion.idGarantia = recibido.idGarantia;
+                coleccion.idTiemposEntregas = recibido.idTiemposEntregas;
+                coleccion.idDiasValidos = recibido.idDiasValidos;
 
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)

@@ -21,6 +21,8 @@ namespace Boletaje.Pages.Bodega
       //  private readonly ICrudApi<EncReparacionViewModel, int> serviceEnc;
         private readonly ICrudApi<BitacoraMovimientosViewModel, int> serviceMov;
         private readonly ICrudApi<TecnicosViewModel, int> serviceT;
+        private readonly ICrudApi<StatusViewModel, int> status;
+        private readonly ICrudApi<LlamadasViewModel, int> serviceL;
 
 
         [BindProperty]
@@ -30,11 +32,18 @@ namespace Boletaje.Pages.Bodega
 
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
+        [BindProperty]
 
-        public IndexModel(ICrudApi<BitacoraMovimientosViewModel, int> serviceMov,  ICrudApi<TecnicosViewModel, int> serviceT)
+        public StatusViewModel[] Status { get; set; }
+
+        [BindProperty]
+        public LlamadasViewModel[] InputLlamada { get; set; }
+        public IndexModel(ICrudApi<BitacoraMovimientosViewModel, int> serviceMov,  ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<StatusViewModel, int> status, ICrudApi<LlamadasViewModel, int> serviceL)
         {
             this.serviceMov = serviceMov;
             this.serviceT = serviceT;
+            this.status = status;
+            this.serviceL = serviceL;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -66,9 +75,13 @@ namespace Boletaje.Pages.Bodega
                     filtro.FechaFinal = ultimoDia;
 
                     filtro.Codigo3 = 0;
-
+                    filtro.Codigo4 = 0;
                 }
-             
+                ParametrosFiltros filtro2 = new ParametrosFiltros();
+                filtro2.FechaInicial = filtro.FechaInicial.AddMonths(-1);
+                filtro2.FechaFinal = filtro.FechaFinal.AddMonths(1);
+                InputLlamada = await serviceL.ObtenerLista(filtro2);
+                Status = await status.ObtenerLista("");
 
                 Objeto = await serviceMov.ObtenerLista(filtro);
                 Tecnicos = await serviceT.ObtenerLista("");
