@@ -24,6 +24,9 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
         private readonly ICrudApi<HistoricoViewModel, int> historico;
         private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
+        private readonly ICrudApi<DiagnosticosViewModel, int> serviceD;
+       
+
 
         [BindProperty]
         public LlamadasViewModel Llamada { get; set; }
@@ -56,9 +59,12 @@ namespace Boletaje.Pages.Movimientos
 
         [BindProperty]
         public HistoricoDetalladoViewModel HistoricoDetallado { get; set; }
+    
 
+        [BindProperty]
+        public DiagnosticosViewModel[] Diagnosticos { get; set; }
         public ObservarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ErroresViewModel, int> serviceErrores, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, 
-            ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado)
+            ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<DiagnosticosViewModel, int> serviceD)
         {
             this.service = service;
             this.clientes = clientes;
@@ -71,6 +77,7 @@ namespace Boletaje.Pages.Movimientos
             this.ubicaciones = ubicaciones;
             this.historico = historico;
             this.historicoDetallado = historicoDetallado;
+            this.serviceD = serviceD;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -84,6 +91,8 @@ namespace Boletaje.Pages.Movimientos
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault();
                 Errores = await serviceErrores.ObtenerLista("");
+                Diagnosticos = await serviceD.ObtenerLista("");
+
                 ParametrosFiltros filtro2 = new ParametrosFiltros();
                 filtro2.Codigo1 = Llamada.id;
                 Actividades = await actividades.ObtenerLista(filtro2);

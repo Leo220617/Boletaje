@@ -564,7 +564,22 @@
                                                 }
                                             }
                                         }
-
+                                        &nbsp;
+                                        @{
+                                            var NumLlamada = 0;
+                                            try
+                                            {
+                                                NumLlamada = Convert.ToInt32(item.NumLlamada);
+                                                                }
+                                            catch (Exception)
+                                            {
+                                                
+                                                
+                                            }
+                                            
+                                            var idLlamada = Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault() == null ? 0 : Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault().id;
+                                        }
+                                        <a asp-page="/Llamadas/Actividades" asp-route-id="@idLlamada" title="Actividades" class="btn btn-rounded btn-outline-info"> Actividades</a> &nbsp;
 
                                     </td>
                                 </tr>

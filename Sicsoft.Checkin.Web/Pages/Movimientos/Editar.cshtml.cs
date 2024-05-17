@@ -35,7 +35,8 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
         private readonly ICrudApi<GarantiasViewModel, int> garan;
         private readonly ICrudApi<TiemposEntregasViewModel, int> tiemp;
-
+        private readonly ICrudApi<DiagnosticosViewModel, int> serviceD;
+        private readonly ICrudApi<ErroresViewModel, int> serviceError;
 
 
         [BindProperty]
@@ -106,10 +107,18 @@ namespace Boletaje.Pages.Movimientos
         [BindProperty]
         public DiasValidosViewModel[] DiasValidos { get; set; }
 
+        [BindProperty]
+        public ErroresViewModel[] Errores { get; set; }
+
+        [BindProperty]
+        public DiagnosticosViewModel[] Diagnosticos { get; set; }
+        [BindProperty]
+        public LlamadasViewModel InputLlamada { get; set; }
         public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods,
             ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, 
             ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<CondicionesPagosViewModel, int> conds,
-            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<DiasValidosViewModel, int> dvalid)
+            ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<DiasValidosViewModel, int> dvalid, ICrudApi<DiagnosticosViewModel, int> serviceD
+            , ICrudApi<ErroresViewModel, int> serviceError)
         {
             this.service = service;
             this.clientes = clientes;
@@ -129,6 +138,10 @@ namespace Boletaje.Pages.Movimientos
             this.garan = garan;
             this.tiemp = tiemp; 
             this.dvalid = dvalid;
+            this.serviceError = serviceError;
+            this.serviceD = serviceD;
+
+
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -140,6 +153,8 @@ namespace Boletaje.Pages.Movimientos
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                Diagnosticos = await serviceD.ObtenerLista("");
+                Errores = await serviceError.ObtenerLista("");
                 Status = await status.ObtenerLista("");
                 TP = await tp.ObtenerLista("");
                 Imp = await impuestos.ObtenerLista("");
@@ -297,6 +312,19 @@ namespace Boletaje.Pages.Movimientos
 
                 await service.Editar(coleccion);
 
+                try
+                {
+                    var Status = recibido.StatusLlamada;
+                    InputLlamada = await serviceLlamada.ObtenerPorId(recibido.idLlamada);
+                    InputLlamada.Status = Status;
+                    InputLlamada.TipoCaso = recibido.TipoCaso;
+
+                    await serviceLlamada.Editar(InputLlamada);
+                }
+                catch (Exception ex)
+                {
+
+                }
 
                 var obj = new
                 {

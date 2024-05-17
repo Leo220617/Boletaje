@@ -2143,7 +2143,7 @@
                                 <input asp-for="InputLlamada.id" id="idLlamada" hidden />
                                 <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
                                     <option value="0">Seleccione</option>
-                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48" || a.idSAP == "56"))
+                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48" ))
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
                                     }

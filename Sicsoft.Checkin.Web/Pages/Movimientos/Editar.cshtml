@@ -26,6 +26,14 @@
     </style>
 
 }
+ @using System.Globalization;
+@{
+    NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+    formato.CurrencyGroupSeparator = ",";
+    formato.NumberDecimalSeparator = ".";
+
+
+}
 @section scripts
     {
 
@@ -53,7 +61,7 @@
         var banderaConversion = false;
         var regenerar = false;
         var ProductoPadre = [];
-
+        var Errores = [];
         function onAbrirModalDetallado() {
             try {
                 $("#exampleModal").modal("show");
@@ -77,6 +85,7 @@
                 ProductosHijos = JSON.parse($("#ProductosHijos").val());
                 ProductosHijosInsertar = JSON.parse($("#ProductosHijosInsertar").val());
                 ProductoPadre = JSON.parse($("#ProductoPadre").val());
+                Errores = JSON.parse($("#Errores").val());
 
                 for (var i = 0; i < ProductosHijos.length; i++) {
                     ProductosHijosInsertar.splice(ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)), 1);
@@ -101,6 +110,7 @@
                 for (var i = 0; i < detalles.length; i++) {
                     var detalle = {
                         id: detalles[i].id,
+                        idError: detalles[i].idError,
                         NumLinea: i + 1,
                         idEncabezado: 0,
                         idImpuesto: detalles[i].idImpuesto,
@@ -221,6 +231,13 @@
 
                     sOptions += '</tr>'
 
+                    if (Errores.filter(a => a.id == Detalles[i].idError)[0] != undefined)
+                    {
+                        sOptions += '<tr> <td colspan="13"><b>Diagnóstico:</b> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Descripcion + ' -> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Diagnostico + ' </td></tr>';
+
+                    }else{
+                        sOptions += '<tr> <td colspan="13"><b>Diagnóstico:</b> </td></tr';
+                    }
 
                 }
                 $("#tbody").html(sOptions);
@@ -500,7 +517,9 @@
                     idDiasValidos: $("#DiasValidos").val(),
                     Generar: generar,
                     Regenerar: regenerar,
-
+                    idLlamada: $("#idLlamada").val(),
+                    StatusLlamada: $("#statusLlamada").val(),
+                    TipoCaso: $("#tipoCaso").val(),
                     Detalle: Detalles
 
                 }
@@ -934,6 +953,7 @@
                 }
                 var detalle = {
                     id: ManoObra.id,
+                    idError: 0,
                     NumLinea: Detalles.length + 1,
                     idEncabezado: 0,
                     ItemCode: ManoObra.codSAP,
@@ -1015,6 +1035,7 @@
 
                     var detalle = {
                         id: 0,
+                        idError: 0,
                         NumLinea: Detalles.length + 1,
                         idEncabezado: 0,
                         idImpuesto: 0,
@@ -1440,14 +1461,7 @@
 
                             </div>
                         </div>
-                        @using System.Globalization;
-                        @{
-                            NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
-                            formato.CurrencyGroupSeparator = ",";
-                            formato.NumberDecimalSeparator = ".";
-
-
-                        }
+                       
 
 
                       @*  <div class="col-md-4">
@@ -1748,14 +1762,7 @@
 
                             </div>
                         </div>
-                    @using System.Globalization;
-                        @{
-                            NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
-                            formato.CurrencyGroupSeparator = ",";
-                            formato.NumberDecimalSeparator = ".";
-
-
-                        }
+                   
 
 
 
@@ -1766,7 +1773,64 @@
         </div>
     </div>
 }
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Llamada Servicio</h5>
+                    </div>
 
+                    <div class="col-sm-6" style="text-align: right">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Estado de la Llamada:</label>
+                            <select id="statusLlamada" class="form-control" asp-for="Llamada.Status" required>
+                                <option value="0">Seleccione</option>
+                                @foreach (var item in Model.Status)
+                                {
+                                    <option value="@item.idSAP">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tipo de Caso:</label>
+                            <select id="tipoCaso" class="form-control" required asp-for="Llamada.TipoCaso">
+                                <option value="0">Seleccione</option>
+
+
+                                @foreach (var item in Model.TP)
+                                {
+                                    <option value="@item.id">@item.Nombre</option>
+                                }
+
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                   
+                   
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class=" col-md-12 col-sm-12 col-12">
@@ -1779,6 +1843,8 @@
                 <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Imp)" />
                 <input hidden id="ProductosHijosInsertar" value="@JsonConvert.SerializeObject(Model.ProductosHijosInsertar)" />
                 <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
+                <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" /> 
+                <input hidden id="idLlamada" value="@Model.Llamada.id" />
 
 
 
