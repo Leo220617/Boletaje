@@ -586,13 +586,13 @@
                                     if(Model.Errores.Where(a => a.id == item.idError).FirstOrDefault() != null)
                                     {
                                         <tr>
-                                            <td colspan="13"><b>Diagnóstico:</b> @Model.Errores.Where(a => a.id == item.idError).FirstOrDefault().Descripcion -> @Model.Errores.Where(a => a.id == item.idError).FirstOrDefault().Diagnostico</td>
+                                            <td colspan="14"><b>Diagnóstico:</b> @Model.Errores.Where(a => a.id == item.idError).FirstOrDefault().Descripcion -> @Model.Errores.Where(a => a.id == item.idError).FirstOrDefault().Diagnostico</td>
                                         </tr>
                                     }else
 
                                     {
                                         <tr>
-                                            <td colspan="13"><b>Diagnóstico:</b> </td>
+                                            <td colspan="14"><b>Diagnóstico:</b> </td>
                                         </tr>
                                     }
                                     i++;

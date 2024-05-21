@@ -936,33 +936,25 @@
 
                 $.ajax({
                     type: 'GET',
-
                     url: '@Url.Page("Nuevo", "Productos")',
                     dataType: 'json',
                     data: { idB: "0" },
                     headers: {
                         RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                     },
-                    success: function (json) {
-
-                        console.log(json);
-                        $("#divProcesando").modal("hide");
-                        rellenaProductos(json);
-                        $("#divProcesando").modal("hide");
-
-                        $("#divProcesando").modal("hide");
-
-                    },
-
-                    beforeSend: function (xhr) {
-
+                    beforeSend: function () {
                         $("#divProcesando").modal("show");
+                    },
+                    success: function (json) {
+                        console.log(json);
+                        rellenaProductos(json);
                     },
                     complete: function () {
                         $("#divProcesando").modal("hide");
                     },
                     error: function (error) {
-                        $("#divProcesando").modal("hide");
+                        console.error("Error:", error);
+                        // Aquí puedes agregar más manejo de errores si es necesario
                     }
                 });
 
@@ -1042,37 +1034,27 @@
 
                 $.ajax({
                     type: 'GET',
-
                     url: '@Url.Page("Nuevo", "Clientes")',
                     dataType: 'json',
                     data: { idB: "0" },
                     headers: {
                         RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                     },
-                    success: function (json) {
-
-                        console.log(json);
-                        $("#divProcesando").modal("hide");
-
-                        $("#divProcesando").modal("hide");
-                        rellenaClientes(json);
-                        $("#divProcesando").modal("hide");
-                        $("#divProcesando").modal("hide");
-
-                    },
-
-                    beforeSend: function (xhr) {
-
+                    beforeSend: function () {
                         $("#divProcesando").modal("show");
+                    },
+                    success: function (json) {
+                        console.log(json);
+                        rellenaClientes(json);
                     },
                     complete: function () {
                         $("#divProcesando").modal("hide");
                     },
                     error: function (error) {
-                        $("#divProcesando").modal("hide");
+                        console.error("Error:", error);
+                        // Aquí puedes agregar más manejo de errores si es necesario
                     }
                 });
-
 
 
 

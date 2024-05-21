@@ -233,10 +233,10 @@
 
                     if (Errores.filter(a => a.id == Detalles[i].idError)[0] != undefined)
                     {
-                        sOptions += '<tr> <td colspan="13"><b>Diagnóstico:</b> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Descripcion + ' -> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Diagnostico + ' </td></tr>';
+                        sOptions += '<tr> <td colspan="14"><b>Diagnóstico:</b> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Descripcion + ' -> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Diagnostico + ' </td></tr>';
 
                     }else{
-                        sOptions += '<tr> <td colspan="13"><b>Diagnóstico:</b> </td></tr';
+                        sOptions += '<tr> <td colspan="14"><b>Diagnóstico:</b> </td></tr>';
                     }
 
                 }
