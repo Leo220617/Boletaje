@@ -154,6 +154,19 @@ namespace Boletaje.Pages.Llamadas
                     filtHistDet.CardCode = Input.SerieFabricante.ToString();
                     filtHistDet.CardName = Input.ItemCode.ToString();
                     HistoricoDetallado = await historicoDetallado.ObtenerListaEspecial(filtHistDet);
+                    if(HistoricoDetallado.Historico == null)
+                    {
+                        HistoricoDetallado.Historico = new HistoricoDetalladoViewModel.historicoDet[1];
+                        HistoricoDetallado.Historico[0] = new HistoricoDetalladoViewModel.historicoDet();
+                        HistoricoDetallado.Historico[0].Boleta = "";
+                        HistoricoDetallado.Historico[0].Fecha = DateTime.Now;
+                        HistoricoDetallado.Historico[0].Tecnico = "";
+                        HistoricoDetallado.Historico[0].DocEntryEntrega = "";
+                        HistoricoDetallado.Historico[0].Articulo = "";
+                        HistoricoDetallado.Historico[0].Descripcion = "";
+                        HistoricoDetallado.Historico[0].Garantia = 0;
+                        HistoricoDetallado.Historico[0].Facturado = 0;
+                    }
                 }
                 catch (Exception ex)
                 {
