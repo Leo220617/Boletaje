@@ -510,49 +510,61 @@
                                     <td align="right">@decimal.Round(item.TotalComprobante, 2).ToString("N", formato)</td>
 
                                     <td>
-                                        @if (item.DocEntry == 0)
+                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "63").FirstOrDefault()))
                                         {
-                                            @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2) && Model.RequiereAprobacion == 1)
+                                            @if (item.DocEntry == 0)
                                             {
-                                                @if (item.AprobadaSuperior)
+                                                @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2) && Model.RequiereAprobacion == 1)
+                                                {
+                                                    @if (item.AprobadaSuperior)
+                                                    {
+                                                        <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
+                                                    }
+                                                }
+                                                else
                                                 {
                                                     <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
                                                 }
+
+
+
+
                                             }
                                             else
                                             {
-                                                <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
-                                            }
 
+                                                <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
+                                                @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                                {
+                                                    <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
 
-
-
-                                        }
-                                        else
-                                        {
-
-                                            <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
-                                            @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
-                                            {
-                                                <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
-
+                                                }
                                             }
                                         }
-                                        &nbsp;
+                                            &nbsp;
+                                        
                                         <a asp-page="./Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
                                         &nbsp;
-                                        @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "64").FirstOrDefault()))
                                         {
-                                            <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
+                                            @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                            {
+                                                <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
 
+                                            }
                                         }
+                                        
 
                                         &nbsp;
-                                        @if (item.TipoMovimiento == 3)
+                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "65").FirstOrDefault()))
                                         {
-                                            <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
+                                            @if (item.TipoMovimiento == 3)
+                                            {
+                                                <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
 
+                                            }
                                         }
+                                       
                                         &nbsp;
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "58").FirstOrDefault()))
                                         {
