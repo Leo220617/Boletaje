@@ -50,6 +50,7 @@
 
             $(document).ready(function () {
                 $('#tablita').DataTable();
+                $('.js-example-basic-multiple').select2();
             });
 
 
@@ -350,32 +351,35 @@
             <div class="card-body">
                 <form method="get">
                     <div class="row">
-                        <div class="col-sm-4 pr-1">
-                            <div class="form-group">
-                                <label>Fecha Inicial</label>
-                                <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
+                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
+                        {
+                            <div class="col-sm-4 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Inicial</label>
+                                    <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
+                                </div>
+
+
                             </div>
 
-
-                        </div>
-
-                        <div class="col-sm-4 pr-1">
-                            <div class="form-group">
-                                <label>Fecha Final</label>
-                                <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
+                            <div class="col-sm-4 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Final</label>
+                                    <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
+                                </div>
                             </div>
-                        </div>
+
+                        }
 
                         <div class="col-md-4 pl-1">
                             <div class="form-group">
                                 <label>Estado de la Llamada</label>
-                                <select id="estadoLlamada" class="form-control" asp-for="filtro.Codigo2">
-                                    <option value="0">Seleccione</option>
+                                
+                                <select class="js-example-basic-multiple form-control" id="estadoLlamada" asp-for="filtro.seleccionMultiple" multiple="multiple">
                                     @foreach (var item in Model.Status)
                                     {
                                         <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
                                     }
-
                                 </select>
                             </div>
 
@@ -401,12 +405,40 @@
 
                         </div>
 
-
+                   
                         <div class="col-sm-12">
                             <br />
                         </div>
 
+                        <div class="col-sm-6 pr-1">
+                            <div class="form-group">
+                                <label>No. Llamada</label>
+                                <input class="form-control" id="noLlamada" type="text" asp-for="filtro.Texto">
+                            </div>
 
+
+                        </div>
+                        <div class="col-sm-6 pl-1">
+                            <div class="form-group">
+                                <label>Cliente:</label>
+
+                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="filtro.CardCode"  autocomplete="off">
+
+                                <datalist id="cardcodes">
+
+                                    @foreach (var item in Model.Clientes.Clientes)
+                                    {
+                                        <option value="@item.CardCode/@item.CardName"> @item.CardCode - @item.CardName </option>
+                                    }
+                                </datalist>
+
+
+                            </div>
+
+                        </div>
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
                         <div class="col-sm-6 pr-1">
                         </div>
                         <div class="col-sm-6 pl-1" style="text-align: right;">

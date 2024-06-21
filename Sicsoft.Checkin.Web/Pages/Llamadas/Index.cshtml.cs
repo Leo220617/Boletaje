@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -63,21 +64,32 @@ namespace Boletaje.Pages.Llamadas
                 {
 
 
-                    filtro.FechaInicial = DateTime.Now;
+                    filtro.FechaInicial = DateTime.Now.Date;
 
-                    filtro.FechaInicial = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
-
-
-                    DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
+                   // filtro.FechaInicial = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
 
 
-                    DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
-
-                    filtro.FechaFinal = ultimoDia;
+                    //DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
 
 
+                    //DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
 
+                    filtro.FechaFinal = DateTime.Now.Date.AddDays(1);
+
+
+                    if(string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
+                    {
+                        filtro.FiltroEspecial = true;
+                       
+                    }
+                    if (!string.IsNullOrEmpty(filtro.CardCode))
+                    {
+                        filtro.CardCode = filtro.CardCode.Split("/")[0];
+                    }
                 }
+
+                
+
                 Clientes = await clientes.ObtenerListaEspecial("");
 
                 Objeto = await service.ObtenerLista(filtro);

@@ -65,7 +65,11 @@ namespace Boletaje.Pages.Movimientos
                 DateTime time = new DateTime();
                 Status = await status.ObtenerLista("");
                 TP = await tp.ObtenerLista("");
+                if (string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
+                {
+                    filtro.FiltroEspecial = true;
 
+                }
 
                 if (time == filtro.FechaInicial)
                 {
@@ -82,12 +86,33 @@ namespace Boletaje.Pages.Movimientos
                     DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
 
                     filtro.FechaFinal = ultimoDia;
-
-                    filtro.Codigo2 = Status.Where(a => a.idSAP == "48").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "48").FirstOrDefault().idSAP);
+                    if(filtro.FiltroEspecial && filtro.seleccionMultiple.Count == 0)
+                    {
+                        filtro.Codigo2 = Status.Where(a => a.idSAP == "48").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "48").FirstOrDefault().idSAP);
+                        if (filtro.Codigo2 != 0)
+                        {
+                            filtro.seleccionMultiple.Add(filtro.Codigo2);
+                        }
+                    }
 
 
                 }
+               
+                
+                   
 
+                    
+               
+
+                if (!string.IsNullOrEmpty(filtro.CardCode))
+                {
+                    filtro.CardCode = filtro.CardCode.Split("/")[0];
+                }
+                filtro.CardName = "";
+                foreach (var item in filtro.seleccionMultiple)
+                {
+                    filtro.CardName += item + "|";
+                }
                 Objeto = await service.ObtenerLista(filtro);
                 InputLlamada = await serviceL.ObtenerLista("");
 

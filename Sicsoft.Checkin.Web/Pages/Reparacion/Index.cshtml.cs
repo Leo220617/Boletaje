@@ -81,29 +81,51 @@ namespace Boletaje.Pages.Reparacion
                 {
 
 
-                    filtro.FechaInicial = DateTime.Now;
+                    filtro.FechaInicial = DateTime.Now.Date;
 
-                    filtro.FechaInicial = DateTime.Now.AddDays(-7); //new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
-
-
-                    DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
+                    // filtro.FechaInicial = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
 
 
-                    DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
+                    //DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
 
-                    filtro.FechaFinal = DateTime.Now.AddDays(1); //ultimoDia;
+
+                    //DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
+
+                    filtro.FechaFinal = DateTime.Now.Date.AddDays(1);
 
                     filtro.Codigo2 = 1;
 
                     //filtro.FechaInicial = DateTime.Now.AddDays(-1);
                     //filtro.FechaFinal = filtro.FechaInicial;
                     filtro.Codigo3 = Status.Where(a => a.idSAP == "46").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "46").FirstOrDefault().idSAP);
+                    if (filtro.Codigo3 != 0)
+                    {
+                        filtro.seleccionMultiple.Add(filtro.Codigo3);
+                    }
+                      
+                    filtro.Codigo3 = Status.Where(a => a.idSAP == "47").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "47").FirstOrDefault().idSAP);
+                    if (filtro.Codigo3 != 0)
+                    {
+                        filtro.seleccionMultiple.Add(filtro.Codigo3);
+
+                    }
+                    filtro.Codigo3 = Status.Where(a => a.idSAP == "45").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "45").FirstOrDefault().idSAP);
+                    if(filtro.Codigo3 != 0)
+                    {
+                        filtro.seleccionMultiple.Add(filtro.Codigo3);
+                    }
+                    
 
                 }
                 ParametrosFiltros filtro2 = new ParametrosFiltros();
                 filtro2.FechaInicial = filtro.FechaInicial;
                 filtro2.FechaFinal = filtro.FechaFinal;
                 InputLlamada = await serviceL.ObtenerLista(filtro2);
+                filtro.Texto = "";
+                foreach(var item in filtro.seleccionMultiple)
+                {
+                    filtro.Texto += item + "|";
+                }
                 Objeto = await service.ObtenerLista(filtro);
                 Tecnicos = await serviceT.ObtenerLista("");
                 Productos = await prods.ObtenerListaEspecial("");

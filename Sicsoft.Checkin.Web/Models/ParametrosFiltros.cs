@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,5 +22,7 @@ namespace InversionGloblalWeb.Models
         public string Categoria { get; set; }
         public DateTime FechaInicial { get; set; }
         public DateTime FechaFinal { get; set; }
+        public bool FiltroEspecial { get; set; }
+        public List<int> seleccionMultiple { get; set; } = new List<int>();
     }
 }

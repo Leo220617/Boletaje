@@ -18,6 +18,7 @@
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
     formato.CurrencyGroupSeparator = ",";
     formato.NumberDecimalSeparator = ".";
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
 
 
 }
@@ -49,6 +50,7 @@
 
             $(document).ready(function () {
                 // $('#tablita').DataTable();
+                $('.js-example-basic-multiple').select2();
             });
 
 
@@ -155,21 +157,25 @@
             <div class="card-body">
                 <form method="get">
                     <div class="row">
-                        <div class="col-sm-4 pr-1">
-                            <div class="form-group">
-                                <label>Fecha Inicial</label>
-                                <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
+                        @if (!string.IsNullOrEmpty(Roles.Where(a => a == "66").FirstOrDefault()))
+                        {
+                            <div class="col-sm-4 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Inicial</label>
+                                    <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
+                                </div>
+
+
                             </div>
 
-
-                        </div>
-
-                        <div class="col-sm-4 pr-1">
-                            <div class="form-group">
-                                <label>Fecha Final</label>
-                                <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
+                            <div class="col-sm-4 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Final</label>
+                                    <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
+                                </div>
                             </div>
-                        </div>
+                        }
+                      
 
                         <div class="col-md-4 pl-1">
                             @if (Model.bandera)
@@ -203,13 +209,13 @@
                         <div class="col-sm-4 pr-1">
                             <div class="form-group">
                                 <label>Estado de la Llamada</label>
-                                <select id="estadoLlamada" class="form-control" asp-for="filtro.Codigo3">
-                                    <option value="0">Seleccione</option>
+                             
+
+                                <select class="js-example-basic-multiple form-control" id="estadoLlamada" asp-for="filtro.seleccionMultiple"   multiple="multiple">
                                     @foreach (var item in Model.Status)
                                     {
                                         <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
                                     }
-
                                 </select>
                             </div>
                         </div>
@@ -218,6 +224,21 @@
                             <br />
                         </div>
 
+                        <div class="col-sm-6 pr-1">
+                            <div class="form-group">
+                                <label>No. Llamada</label>
+                                <input class="form-control" id="noLlamada" type="text" asp-for="filtro.CardCode">
+                            </div>
+
+
+                        </div>
+                        <div class="col-sm-6 pl-1">
+                            
+
+                        </div>
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
 
                         <div class="col-sm-6 pr-1">
                         </div>

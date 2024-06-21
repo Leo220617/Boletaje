@@ -55,34 +55,37 @@ namespace Boletaje.Pages.Bodega
                 {
                     return RedirectToPage("/NoPermiso");
                 }
-
+                Status = await status.ObtenerLista("");
                 DateTime time = new DateTime();
 
                 if (time == filtro.FechaInicial)
                 {
 
 
-                    filtro.FechaInicial = DateTime.Now;
+                    filtro.FechaInicial = DateTime.Now.Date;
 
-                    filtro.FechaInicial = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
+                   
 
-
-                    DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
-
-
-                    DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
-
-                    filtro.FechaFinal = ultimoDia;
+                    filtro.FechaFinal = filtro.FechaInicial.AddDays(1);
 
                     filtro.Codigo3 = 0;
                     filtro.Codigo4 = 0;
+                    filtro.Codigo4 = Status.Where(a => a.idSAP == "56").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "56").FirstOrDefault().idSAP);
+                    if (filtro.Codigo4 != 0)
+                    {
+                        filtro.seleccionMultiple.Add(filtro.Codigo4);
+                    }
                 }
                 ParametrosFiltros filtro2 = new ParametrosFiltros();
                 filtro2.FechaInicial = filtro.FechaInicial.AddMonths(-1);
                 filtro2.FechaFinal = filtro.FechaFinal.AddMonths(1);
                 InputLlamada = await serviceL.ObtenerLista(filtro2);
-                Status = await status.ObtenerLista("");
-
+                
+                filtro.Texto = "";
+                foreach (var item in filtro.seleccionMultiple)
+                {
+                    filtro.Texto += item + "|";
+                }
                 Objeto = await serviceMov.ObtenerLista(filtro);
                 Tecnicos = await serviceT.ObtenerLista("");
 
