@@ -1,0 +1,169 @@
+﻿@page "{id}"
+@model Boletaje.Pages.Soportes.ObservarModel
+@{
+    ViewData["Title"] = "Observar Soporte";
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Soportes</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Observar Soporte</a>
+    </li>
+
+}
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@using Newtonsoft.Json;
+
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
+@section styles
+{
+    <style>
+        .image-container {
+            max-width: 90%;
+            max-height: 90%;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            background-color: #fff;
+            padding: 10px;
+            transition: transform 0.3s ease;
+        }
+
+            .image-container:hover {
+                transform: scale(1.05);
+            }
+
+
+
+        .beautiful-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            filter: grayscale(50%);
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+            .beautiful-image:hover {
+                filter: grayscale(0%);
+                transform: scale(1.05);
+            }
+    </style>
+}
+@section scripts
+{
+
+}
+
+<div class="row">
+    <div class=" col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header p-4">
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Soporte</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/Soportes/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>No. Boleta:</label>
+                            <input type="text" class="form-control form-control-lg" asp-for="Input.NoBoleta" id="noBoleta" readonly>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Pantalla:</label>
+                            <select id="pantalla" class="form-control" required asp-for="Input.Pantalla" readonly>
+
+                                <option value="Transaccional">Llamadas de Servicio</option>
+                                <option value="Taller">Taller</option>
+                                <option value="Bodega">Bodega</option>
+                                <option value="BackOffice">BackOffice</option>
+
+
+                            </select>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <select id="status" class="form-control" required asp-for="Input.Status" readonly disabled>
+                                <option value="0">Seleccione</option>
+                                <option value="A">Abierta</option>
+                                <option value="E">Atendiendose</option>
+                                <option value="R">Resuelta</option>
+                                <option value="C">Cancelada</option>
+
+                            </select>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Asunto:</label>
+                            <input type="text" class="form-control form-control-lg" id="asunto" asp-for="Input.Asunto" readonly>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Mensaje:</label>
+                            <textarea class="form-control form-control-lg" id="mensaje" asp-for="Input.Mensaje" readonly> </textarea>
+
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Comentarios Soportista:</label>
+                            <textarea class="form-control form-control-lg" id="mensaje" asp-for="Input.Comentarios" readonly> </textarea>
+
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-12">
+        <div class="image-container">
+            <img src="data:image/jpeg;base64,@Model.Input.base64" alt="" class="beautiful-image">
+        </div>
+    </div>
+</div>
+
+

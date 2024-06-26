@@ -16,6 +16,7 @@ namespace Boletaje.Models
             public decimal Cantidad_Revisiones { get; set; }
             public string Ultimo_Tecnico { get; set; }
             public string Obse_Ultima_Repara { get; set; }
+            public string Horas { get; set; }
         }
     }
 }

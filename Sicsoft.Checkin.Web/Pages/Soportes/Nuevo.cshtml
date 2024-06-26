@@ -1,0 +1,327 @@
+﻿@page
+@model Boletaje.Pages.Soportes.NuevoModel
+@{
+    ViewData["Title"] = "Generar Soporte";
+}
+
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Soportes</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Generar Soporte</a>
+    </li>
+
+}
+@using Newtonsoft.Json;
+@section styles {
+    <style>
+        .input {
+            width: 40%;
+        }
+
+        .input2 {
+        }
+
+
+
+
+        .image-upload-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            transition: border-color 0.3s ease;
+        }
+
+            .image-upload-container:hover {
+                border-color: #333;
+            }
+
+        .image-upload-label {
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .image-upload-label i {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+            .image-upload-label:hover {
+                color: #333;
+            }
+
+        #imageUpload {
+            display: none;
+        }
+
+        #imagePreview {
+            margin-top: 10px;
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 10px;
+        }
+    </style>
+
+}
+@section scripts
+{
+
+ 
+    <script>
+        var imgBase64 = "";
+        document.getElementById('imageUpload').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('imagePreview');
+                    imgBase64 = e.target.result;
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function onGuardar() {
+            try {
+                let button = document.getElementById("Guardar");
+               
+              
+
+
+                var recibidos = {
+                    id: 0,
+                    idUsuarioCreador: 0,
+                    Asunto: $("#asunto").val(),
+                    Mensaje: $("#mensaje").val(),
+                    Pantalla: $("#pantalla").val(),
+                    NoBoleta: $("#noBoleta").val(),
+                    base64: imgBase64
+                     
+
+                }
+
+                if (validar(recibidos)) {
+                    Swal.fire({
+                        title: '¿Desea guardar los cambios?',
+                        showDenyButton: true,
+                        showCancelButton: false,
+                        confirmButtonText: `Aceptar`,
+                        denyButtonText: `Cancelar`,
+                        customClass: {
+                            confirmButton: 'swalBtnColor',
+                            denyButton: 'swalDeny'
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            button.disabled = true;
+
+                            $.ajax({
+                                type: 'POST',
+
+                                url: '@Url.Page("Nuevo", "Generar")',
+                                dataType: 'json',
+                                data: { recibido: recibidos },
+                                headers: {
+                                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                                },
+                                success: function (json) {
+
+                                    $("#divProcesando").hide();
+
+                                    console.log("resultado " + json);
+                                    if (json.success == true) {
+                                        Swal.fire({
+                                            title: "Ha sido generado con éxito",
+
+                                            icon: 'success',
+                                            showCancelButton: false,
+
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'swalBtnColor',
+
+                                            },
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                window.location.href = window.location.href.split("/Nuevo")[0];
+                                            }
+                                        })
+
+                                    } else {
+                                        button.disabled = false;
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Oops...',
+                                            text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+
+                                        });
+                                        $("#divProcesando").hide();
+
+                                    }
+                                },
+
+                                beforeSend: function (xhr) {
+
+                                    $("#divProcesando").modal("show");
+
+                                },
+                                complete: function () {
+
+                                },
+                                error: function (error) {
+                                    button.disabled = false;
+                                    $("#divProcesando").hide();
+
+                                }
+                            });
+                        }
+
+                        button.disabled = false;
+                        $("#divProcesando").hide();
+
+                    })
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Faltan datos por rellenar '  
+
+                    });
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar guardar ' + e
+
+                })
+            }
+        }
+        function validar(e) {
+            try {
+                if (e.NoBoleta == "" || e.NoBoleta == null) {
+
+                    return false;
+                } else if (e.Asunto == "" || e.Asunto == null) {
+                    return false;
+                } else if (e.Mensaje == "" || e.Mensaje == null) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar validar ' + e
+
+                })
+            }
+        }
+    </script>
+
+}
+<div class="row">
+    <div class=" col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header p-4">
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Soporte</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/Soportes/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>No. Boleta:</label>
+                            <input type="text" class="form-control form-control-lg" id="noBoleta">
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Pantalla:</label>
+                            <select id="pantalla" class="form-control" required>
+
+                                <option value="Transaccional">Llamadas de Servicio</option>
+                                <option value="Taller">Taller</option>
+                                <option value="Bodega">Bodega</option>
+                                <option value="BackOffice">BackOffice</option>
+
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Asunto:</label>
+                            <input type="text" class="form-control form-control-lg" id="asunto">
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Mensaje:</label>
+                            <textarea class="form-control form-control-lg" id="mensaje"></textarea>
+
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-12">
+        <div class="image-upload-container">
+            <input type="file" id="imageUpload" accept="image/*" />
+            <label for="imageUpload" class="image-upload-label">
+                <i class="fas fa-upload"></i> Subir IMAGEN
+            </label>
+            <img id="imagePreview" src="" alt="Image Preview" style="display: none;" />
+        </div>
+        
+    </div>
+</div>
+
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <button type="button" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar()">Guardar Cambios</button>
+        </div>
+    </div>
+</div>

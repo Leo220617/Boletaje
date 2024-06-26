@@ -1863,7 +1863,7 @@
                                 </div>
                             </div>
                            
-                            @*<div class="col-md-4">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Inversión en Reparaciones:</label>
                                     <br>
@@ -1886,14 +1886,22 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                          @*   <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Ult. Técnico:</label>
                                     <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
 
                                 </div>
-                            </div>*@
+                            </div> *@
+
                             <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Horas Actuales:</label>
+                                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Horas" readonly>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8">
                                 <div class="form-group">
                                     <label>Observaciones Ult. Reparación:</label>
                                     <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>

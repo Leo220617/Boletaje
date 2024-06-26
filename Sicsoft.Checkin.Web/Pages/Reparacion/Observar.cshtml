@@ -4,7 +4,7 @@
     ViewData["Title"] = "Reparaciones";
 }
 
-@section breadcrumb{
+@section breadcrumb {
 
     <li class="breadcrumb-item">
         <a asp-page="./Index">Reparaciones</a>
@@ -38,7 +38,7 @@
 }
 
 
-@section styles{
+@section styles {
 
     <style>
         #menu {
@@ -75,7 +75,7 @@
     </style>
 
 }
-@section scripts{
+@section scripts {
 
 
     <script>
@@ -135,7 +135,7 @@
         }
     </script>
 }
- 
+
 @using Sicsoft.Checkin.Web.Models;
 @inject IHttpContextAccessor httpContextAccessor
 
@@ -344,8 +344,8 @@
 
                             </div>
                         </div>
-                        
-                        @*<div class="col-md-4">
+
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Inversión en Reparaciones:</label>
                                 <br>
@@ -367,15 +367,22 @@
 
                             </div>
                         </div>
+                        @*
+                    <div class="col-md-4">
+                    <div class="form-group">
+                    <label>Ult. Técnico:</label>
+                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
 
+                    </div>
+                    </div>*@
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Ult. Técnico:</label>
-                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
+                                <label>Horas Actuales:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Horas" readonly>
 
                             </div>
-                        </div>*@
-                        <div class="col-md-4">
+                        </div>
+                        <div class="col-md-8">
                             <div class="form-group">
                                 <label>Observaciones Ult. Reparación:</label>
                                 <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
@@ -469,7 +476,7 @@
                                                                     @foreach (var item2 in item3)
                                                                     {
                                                                         <tr>
-                                                                            <td align="right">@item2.Garantia.ToString("N",formato)</td>
+                                                                            <td align="right">@item2.Garantia.ToString("N", formato)</td>
 
 
 
@@ -485,7 +492,7 @@
                                                                     @foreach (var item2 in item3)
                                                                     {
                                                                         <tr>
-                                                                            <td align="right">@item2.Facturado.ToString("N",formato)</td>
+                                                                            <td align="right">@item2.Facturado.ToString("N", formato)</td>
 
 
 
@@ -498,8 +505,8 @@
                                                         </tr>
                                                         <tr>
                                                             <td colspan="4" align="center"><b>Total Boleta</b></td>
-                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N",formato)</td>
-                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N",formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N", formato)</td>
 
                                                         </tr>
                                                     </tbody>
@@ -537,8 +544,8 @@
                                         <tbody>
                                             <tr>
                                                 <td colspan="4" style="text-align: center;"><b>Gran Total</b></td>
-                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N",formato)</td>
-                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N",formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N", formato)</td>
 
                                             </tr>
                                         </tbody>
@@ -724,7 +731,7 @@
                         <h5>Listado de Actividades de la llamada # @Model.InputLlamada.DocEntry</h5>
                     </div>
                     <div class="col-md-4">
-                        
+
 
                         <input hidden id="idLlamadaActividad" asp-for="InputLlamada.id" />
                     </div>
@@ -743,7 +750,7 @@
                                 <th>Usuario Creador</th>
 
                                 <th>Detalle</th>
-                       
+
 
 
 
@@ -809,7 +816,7 @@
                                     <td>@(Model.Usuarios.Where(a => a.id == cardCode).FirstOrDefault() == null ? "" : Model.Usuarios.Where(a => a.id == cardCode).FirstOrDefault().Nombre) </td>
 
                                     <td>@item.Detalle </td>
-                                 
+
                                 </tr>
                             }
 
@@ -822,7 +829,7 @@
                                 <th>Fecha Creación</th>
                                 <th>Usuario Creador</th>
 
-                                <th>Detalle</th> 
+                                <th>Detalle</th>
 
                             </tr>
                         </tfoot>

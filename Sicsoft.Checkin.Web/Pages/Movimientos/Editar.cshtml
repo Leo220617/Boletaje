@@ -4,7 +4,7 @@
     ViewData["Title"] = "Generar Movimiento";
 }
 
-@section breadcrumb{
+@section breadcrumb {
 
     <li class="breadcrumb-item">
         <a asp-page="./Index">BackOffice</a>
@@ -15,7 +15,7 @@
 
 }
 @using Newtonsoft.Json;
-@section styles{
+@section styles {
     <style>
         .input {
             width: 40%;
@@ -35,7 +35,7 @@
 
 }
 @section scripts
-    {
+{
 
     <script>
         $(document).ready(function () {
@@ -77,8 +77,7 @@
             }
         }
         function Recuperar() {
-            try
-            {
+            try {
                 var detalles = JSON.parse($("#Detalle").val());
                 ManoObra = JSON.parse($("#ManoObra").val());
                 ImpuestosS = JSON.parse($("#Impuestos").val());
@@ -133,8 +132,7 @@
                 }
                 RellenaTabla();
                 ModificaMoneda(true);
-            }catch(e)
-            {
+            } catch (e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -142,13 +140,13 @@
 
                 })
             }
-            
+
 
 
         }
 
         function RellenaTabla() {
-            try{
+            try {
                 var btn = document.getElementById('agregaManoObra');
 
                 var sOptions = '';
@@ -214,13 +212,12 @@
                     sOptions += '<td align="right"> <p id="' + i + 'Desc">' + Detalles[i].Descuento + '</p></td>';
                     sOptions += '<td align="right"><p id="' + i + 'TLinea">' + Detalles[i].TotalLinea + '</p></td>';
                     sOptions += '<td align="center">  <input class="form-check-input" type="checkbox" onclick="javascript: ModificaLinea(' + i + ', false)" style="position: unset;" id="' + i + 'check"><span class="form-check-sign"></span> </td>';
-                    if(Detalles[i].Opcional)
-                    {
+                    if (Detalles[i].Opcional) {
 
                         sOptions += '<td align="center">  <input class="form-check-input" type="checkbox" checked = "true" onclick="javascript: ModificaLinea(' + i + ', false)" style="position: unset;" id="' + i + 'checkOpcional"><span class="form-check-sign"></span> </td>';
 
 
-                    }else{
+                    } else {
 
                         sOptions += '<td align="center">  <input class="form-check-input" type="checkbox" onclick="javascript: ModificaLinea(' + i + ', false)" style="position: unset;" id="' + i + 'checkOpcional"><span class="form-check-sign"></span> </td>';
                     }
@@ -231,18 +228,17 @@
 
                     sOptions += '</tr>'
 
-                    if (Errores.filter(a => a.id == Detalles[i].idError)[0] != undefined)
-                    {
+                    if (Errores.filter(a => a.id == Detalles[i].idError)[0] != undefined) {
                         sOptions += '<tr> <td colspan="14"><b>Diagnóstico:</b> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Descripcion + ' -> ' + Errores.filter(a => a.id == Detalles[i].idError)[0].Diagnostico + ' </td></tr>';
 
-                    }else{
+                    } else {
                         sOptions += '<tr> <td colspan="14"><b>Diagnóstico:</b> </td></tr>';
                     }
 
                 }
                 $("#tbody").html(sOptions);
 
-              // selectOpcional();
+                // selectOpcional();
 
 
             } catch (e) {
@@ -253,13 +249,12 @@
 
                 })
             }
-           
+
 
 
         }
-        function selectOpcional()
-        {
-            try{
+        function selectOpcional() {
+            try {
                 for (var i = 0; i < Detalles.length; i++) {
                     if (Detalles[i].Opcional) {
                         var checkbox2 = document.getElementById(i + "checkOpcional");
@@ -282,12 +277,12 @@
             }
         }
         function ModificaLinea(i, ban) {
-            try{
+            try {
                 var Impuestos = 0;
                 var Descuentos = 0;
                 var TotalLinea = 0;
                 var Subtotal = 0;
-                try{
+                try {
                     var checkbox1 = document.getElementById(i + "check");
                     var checkbox2 = document.getElementById(i + "checkOpcional");
                     Detalles[i].Garantia = checkbox1.checked;
@@ -297,7 +292,7 @@
                     Detalles[i].Opcional = false;
                     console.log(e);
                 }
-                
+
 
                 var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
                 if (producto == undefined) {
@@ -310,7 +305,7 @@
                     banderaConversion = false;
                 }
 
-                
+
 
 
                 if (banderaConversion) {
@@ -398,12 +393,11 @@
 
                 })
             }
-            
+
         }
 
         function ModificaTodo() {
-            try
-            {
+            try {
                 var SubTotal = 0;
                 var Descuentos = 0;
                 var Impuestos = 0;
@@ -450,12 +444,11 @@
 
                 })
             }
-           
+
         }
 
         function Validar(Detalles) {
-            try
-            {
+            try {
                 var bandera = true;
                 for (var i = 0; i < Detalles.length; i++) {
                     var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
@@ -484,12 +477,11 @@
 
                 })
             }
-            
+
         }
 
         function Generar(generar) {
-            try
-            {
+            try {
                 var btn = document.getElementById('Guardar1');
                 var btn2 = document.getElementById('Guardar2');
 
@@ -901,13 +893,12 @@
 
                 })
             }
-            
+
 
         }
 
         function ModificaMoneda(ban) {
-            try
-            {
+            try {
                 if ($("#Moneda").val() == "COL") {
                     banderaConversion = true;
 
@@ -916,19 +907,18 @@
                     banderaConversion = true;
                     $(".moneda").text("$")
                 }
-                if(!ban)
-                {
+                if (!ban) {
                     for (var i = 0; i < Detalles.length; i++) {
                         ModificaLinea(i, "true");
 
                     }
-                }else{
+                } else {
                     for (var i = 0; i < Detalles.length; i++) {
                         ModificaLinea(i, "false");
 
                     }
                 }
-              
+
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -937,12 +927,11 @@
 
                 })
             }
-          
+
         }
 
         function MeterManoObra() {
-            try
-            {
+            try {
                 var btn = document.getElementById('agregaManoObra');
                 btn.disabled = true;
                 var Precio = 0;
@@ -970,8 +959,8 @@
                 Detalles.push(detalle);
                 RellenaTabla();
 
-               var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
-               ModificaLinea(posicion,"false");
+                var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
+                ModificaLinea(posicion, "false");
 
             } catch (e) {
                 Swal.fire({
@@ -981,7 +970,7 @@
 
                 })
             }
-            
+
         }
 
     </script>
@@ -1051,7 +1040,7 @@
                         Opcional: false
                     };
                     Detalles.push(detalle);
-                   
+
                     RellenaTabla();
                     LimpiarDatos();
 
@@ -1081,7 +1070,7 @@
 
                 //    })
                 //    return false;
-                //} 
+                //}
                 else {
                     return true;
                 }
@@ -1123,11 +1112,9 @@
 
             }
         }
-        
-        function DevuelveTotal()
-        {
-            try
-            {
+
+        function DevuelveTotal() {
+            try {
                 var total = 0;
                 for (var i = 0; i < Detalles.length; i++) {
                     total += Detalles[i].TotalLinea;
@@ -1145,32 +1132,28 @@
 
             }
         }
-        function CalculaSemaforo()
-        {
-            try{
+        function CalculaSemaforo() {
+            try {
                 var PrecioMaquina = parseFloat($("#PrecioProductoPadre").val());
-                if ($("#Moneda").val() != "COL")
-                {
+                if ($("#Moneda").val() != "COL") {
                     PrecioMaquina = PrecioMaquina / Rate;
                 }
                 var PrecioTotalDoc = parseFloat(DevuelveTotal());
 
                 var Semaforo = PrecioMaquina != 0 ? (PrecioTotalDoc / PrecioMaquina) * 100 : 0;
-                $('#divSemaforo').css('width', Semaforo+'%');
-                $('#spanSemaforo').text(  Semaforo.toFixed(0) + '%');
+                $('#divSemaforo').css('width', Semaforo + '%');
+                $('#spanSemaforo').text(Semaforo.toFixed(0) + '%');
 
-                if(Semaforo > 0 && Semaforo < 40)
-                {
+                if (Semaforo > 0 && Semaforo < 40) {
                     $('#divSemaforo').attr('class', 'progress-bar bg-success');
                     $('#spanSemaforo').attr('class', 'badge bg-success');
 
-                    
-                } else if (Semaforo > 40 && Semaforo < 80)
-                {
+
+                } else if (Semaforo > 40 && Semaforo < 80) {
                     $('#divSemaforo').attr('class', 'progress-bar bg-warning');
                     $('#spanSemaforo').attr('class', 'badge bg-warning');
 
-                }else{
+                } else {
                     $('#divSemaforo').attr('class', 'progress-bar bg-danger');
                     $('#spanSemaforo').attr('class', 'badge bg-danger');
 
@@ -1461,10 +1444,10 @@
 
                             </div>
                         </div>
-                       
 
 
-                      @*  <div class="col-md-4">
+
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Inversión en Reparaciones:</label>
                                 <br>
@@ -1486,15 +1469,22 @@
 
                             </div>
                         </div>
+                        @*
+                    <div class="col-md-4">
+                    <div class="form-group">
+                    <label>Ult. Técnico:</label>
+                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
 
+                    </div>
+                    </div>*@
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Ult. Técnico:</label>
-                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Ultimo_Tecnico" readonly>
+                                <label>Horas Actuales:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Horas" readonly>
 
                             </div>
-                        </div>*@
-                        <div class="col-md-4">
+                        </div>
+                        <div class="col-md-8">
                             <div class="form-group">
                                 <label>Observaciones Ult. Reparación:</label>
                                 <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
@@ -1587,7 +1577,7 @@
                                                                     @foreach (var item2 in item3)
                                                                     {
                                                                         <tr>
-                                                                            <td align="right">@item2.Garantia.ToString("N",formato)</td>
+                                                                            <td align="right">@item2.Garantia.ToString("N", formato)</td>
 
 
 
@@ -1603,7 +1593,7 @@
                                                                     @foreach (var item2 in item3)
                                                                     {
                                                                         <tr>
-                                                                            <td align="right">@item2.Facturado.ToString("N",formato)</td>
+                                                                            <td align="right">@item2.Facturado.ToString("N", formato)</td>
 
 
 
@@ -1616,8 +1606,8 @@
                                                         </tr>
                                                         <tr>
                                                             <td colspan="4" align="center"><b>Total Boleta</b></td>
-                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N",formato)</td>
-                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N",formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N", formato)</td>
 
                                                         </tr>
                                                     </tbody>
@@ -1655,8 +1645,8 @@
                                         <tbody>
                                             <tr>
                                                 <td colspan="4" style="text-align: center;"><b>Gran Total</b></td>
-                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N",formato)</td>
-                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N",formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N", formato)</td>
 
                                             </tr>
                                         </tbody>
@@ -1677,7 +1667,7 @@
     </div>
 }
 
-@if (!string.IsNullOrEmpty(Roles.Where(a => a == "62").FirstOrDefault()) )
+@if (!string.IsNullOrEmpty(Roles.Where(a => a == "62").FirstOrDefault()))
 {
     <div class="row">
         <div class="col-md-12">
@@ -1762,7 +1752,7 @@
 
                             </div>
                         </div>
-                   
+
 
 
 
@@ -1821,8 +1811,8 @@
                         </div>
                     </div>
 
-                   
-                   
+
+
 
 
 
@@ -1843,7 +1833,7 @@
                 <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Imp)" />
                 <input hidden id="ProductosHijosInsertar" value="@JsonConvert.SerializeObject(Model.ProductosHijosInsertar)" />
                 <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
-                <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" /> 
+                <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
                 <input hidden id="idLlamada" value="@Model.Llamada.id" />
 
 
@@ -1910,7 +1900,7 @@
 
                             <div class="form-group">
                                 <label>Precio Producto Padre</label>
-                                <input id="PrecioProductoPadre" type="number" class="form-control"   onchange="javascript: CalculaSemaforo()" />
+                                <input id="PrecioProductoPadre" type="number" class="form-control" onchange="javascript: CalculaSemaforo()" />
 
                             </div>
                         </div>

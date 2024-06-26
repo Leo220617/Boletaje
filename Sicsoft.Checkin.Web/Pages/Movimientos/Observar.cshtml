@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Observar Movimiento";
 }
-@section breadcrumb{
+@section breadcrumb {
 
     <li class="breadcrumb-item">
         <a asp-page="./Index">BackOffice</a>
@@ -14,7 +14,7 @@
 
 }
 @using Newtonsoft.Json;
-@section styles{
+@section styles {
     <style>
         .input {
             width: 40%;
@@ -26,7 +26,7 @@
     </style>
 
 }
-@section scripts{
+@section scripts {
 
 
     <script>
@@ -241,30 +241,37 @@
 
                             </div>
                         </div>
-                        
-                        @*  <div class="col-md-4">
-                    <div class="form-group">
-                    <label>Inversión en Reparaciones:</label>
-                    <br>
-                    <label><b>@Model.Historico.Historico.FirstOrDefault().Total_Revisiones.ToString("N", formato)</b></label>
 
-                    </div>
-                    </div>
-                    <div class="col-md-4">
-                    <div class="form-group">
-                    <label>Fecha Ult. Revisión:</label>
-                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().fecha_Ultima_Rev" readonly>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Inversión en Reparaciones:</label>
+                                <br>
+                                <label><b>@Model.Historico.Historico.FirstOrDefault().Total_Revisiones.ToString("N", formato)</b></label>
 
-                    </div>
-                    </div>
-                    <div class="col-md-4">
-                    <div class="form-group">
-                    <label>Total de Revisiones:</label>
-                    <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Cantidad_Revisiones" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Fecha Ult. Revisión:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().fecha_Ultima_Rev" readonly>
 
-                    </div>
-                    </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Total de Revisiones:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Cantidad_Revisiones" readonly>
 
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Horas Actuales:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Horas" readonly>
+
+                            </div>
+                        </div>
+                        @*
                     <div class="col-md-4">
                     <div class="form-group">
                     <label>Ult. Técnico:</label>
@@ -272,7 +279,7 @@
 
                     </div>
                     </div>*@
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <div class="form-group">
                                 <label>Observaciones Ult. Reparación:</label>
                                 <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
@@ -365,7 +372,7 @@
                                                                     @foreach (var item2 in item3)
                                                                     {
                                                                         <tr>
-                                                                            <td align="right">@item2.Garantia.ToString("N",formato)</td>
+                                                                            <td align="right">@item2.Garantia.ToString("N", formato)</td>
 
 
 
@@ -381,7 +388,7 @@
                                                                     @foreach (var item2 in item3)
                                                                     {
                                                                         <tr>
-                                                                            <td align="right">@item2.Facturado.ToString("N",formato)</td>
+                                                                            <td align="right">@item2.Facturado.ToString("N", formato)</td>
 
 
 
@@ -394,8 +401,8 @@
                                                         </tr>
                                                         <tr>
                                                             <td colspan="4" align="center"><b>Total Boleta</b></td>
-                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N",formato)</td>
-                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N",formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N", formato)</td>
 
                                                         </tr>
                                                     </tbody>
@@ -433,8 +440,8 @@
                                         <tbody>
                                             <tr>
                                                 <td colspan="4" style="text-align: center;"><b>Gran Total</b></td>
-                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N",formato)</td>
-                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N",formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N", formato)</td>
 
                                             </tr>
                                         </tbody>
@@ -532,7 +539,7 @@
                         <thead>
                             <tr>
                                 <th class="center">#</th>
-                                <th>Producto</th> 
+                                <th>Producto</th>
                                 <th>Stock</th>
                                 <th class="center">Precio Unitario</th>
                                 <th class="center">Cantidad</th>
@@ -556,7 +563,7 @@
 
                                         <td align="center">@i</td>
                                         <td align="left" class="strong">@item.ItemCode -  @item.ItemName </td>
-                                        <td align="left"><b> @(Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault() == null ? "0" : Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault().Stock.ToString("N",formato)) </b></td>
+                                        <td align="left"><b> @(Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault() == null ? "0" : Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault().Stock.ToString("N", formato)) </b></td>
                                         <td align="right"> @decimal.Round(item.PrecioUnitario, 2).ToString("N", formato)</td>
                                         <td align="center"> @decimal.Round(item.Cantidad, 2).ToString("N", formato)</td>
                                         <td align="right"> @decimal.Round(item.Impuestos, 2).ToString("N", formato)</td>
@@ -583,12 +590,13 @@
 
                                     </tr>
 
-                                    if(Model.Errores.Where(a => a.id == item.idError).FirstOrDefault() != null)
+                                    if (Model.Errores.Where(a => a.id == item.idError).FirstOrDefault() != null)
                                     {
                                         <tr>
                                             <td colspan="14"><b>Diagnóstico:</b> @Model.Errores.Where(a => a.id == item.idError).FirstOrDefault().Descripcion -> @Model.Errores.Where(a => a.id == item.idError).FirstOrDefault().Diagnostico</td>
                                         </tr>
-                                    }else
+                                    }
+                                    else
 
                                     {
                                         <tr>
