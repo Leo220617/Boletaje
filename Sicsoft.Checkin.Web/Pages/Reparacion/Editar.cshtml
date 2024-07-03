@@ -199,7 +199,7 @@
                 });
             });
             RecuperarProductosGenerales();
-            $("#idTraslado").val("1");
+            $("#idTraslado").val("5");
             onChangeTipoMovimiento();
         });
 
@@ -329,8 +329,7 @@
                         ItemCode: seleccionados[i].ItemCode,
                         Cantidad: seleccionados[i].Cantidad,
                         idError: seleccionados[i].idError,
-                        Stock: seleccionados[i].Stock,
-                        idError: 0,
+                        Stock: seleccionados[i].Stock, 
                         Opcional: seleccionados[i].Opcional
 
 
@@ -348,8 +347,7 @@
                             idEncabezado: "",
                             idProducto: Prod.id,
                             ItemCode: RepuestosAprobados[i].ItemCode,
-                            Cantidad: RepuestosAprobados[i].Cantidad,
-                            idError: 0,
+                            Cantidad: RepuestosAprobados[i].Cantidad, 
                             Stock: Prod.Stock,
                             idError: RepuestosAprobados[i].idError,
                             Opcional: RepuestosAprobados[i].Opcional
@@ -866,7 +864,7 @@
                 console.log(JSON.stringify(recibido));
 
                 Swal.fire({
-                    title: '¿Desea guardar los cambios?',
+                    title: '¿Desea guardar los cambios de esta ' + (tipo == 4 ? 'Cotizacion a BackOffice' : tipo == 1 ? 'Solicitud de Traslado' : tipo == 2 ? 'Devolución': tipo == 0 ? 'Reparacion' : 'Preliminar') + '?',
                     showDenyButton: true,
                     showCancelButton: false,
                     confirmButtonText: `Aceptar`,
@@ -999,7 +997,7 @@
                     $("#rowRepAprobados").hide();
                     $("#rowSolicitud2").hide();
 
-                } else if (parseInt($("#idTraslado").val()) == 2 || parseInt($("#idTraslado").val()) == 3) {
+                } else if (parseInt($("#idTraslado").val()) == 2 || parseInt($("#idTraslado").val()) == 3 ) {
                     $("#rowRepAprobados").hide();
                     $("#rowSolicitud2").hide();
 
@@ -1034,7 +1032,7 @@
 
                     $("#titleRepUti").text("Repuestos Utilizados");
 
-                    if (parseInt($("#idTraslado").val()) == 1) {
+                    if (parseInt($("#idTraslado").val()) == 1 || parseInt($("#idTraslado").val()) == 5) {
                         $("#rowRepAprobados").show();
                     }
                 }
@@ -2111,11 +2109,11 @@
                                 <label>Tipo de Reparación</label>
                                 <select id="idTraslado" class="form-control" asp-for="Encabezado.TipoReparacion" onchange="javascript: onChangeTipoMovimiento();">
                                     <option value="0">0-Reparado </option>
+                                    <option value="5">1- Preliminar </option>
+                                    <option value="4">2- Cotizar BackOffice </option>
 
-                                    <option value="4">1- Cotizar BackOffice </option>
-
-                                    <option value="1">2- Solicitud </option>
-                                    <option value="2">3- Devolución </option>
+                                    <option value="1">3- Solicitud </option>
+                                    <option value="2">4- Devolución </option>
                                   @*  <option value="3">4- Cotizar </option>*@
 
 
