@@ -33,6 +33,8 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
 
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
+        private readonly ICrudApi<LogModificacionesViewModel, int> logs;
+
 
 
         [BindProperty]
@@ -82,9 +84,12 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public UbicacionesViewModel[] Ubicaciones { get; set; }
 
+        [BindProperty]
+        public LogModificacionesViewModel[] Logs { get; set; }
+
         public EditarModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
             ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE,
-            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado)
+            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<LogModificacionesViewModel, int> logs)
         {
             this.service = service;
             this.clientes = clientes;
@@ -99,6 +104,7 @@ namespace Boletaje.Pages.Llamadas
             this.historico = historico;
             this.ubicaciones = ubicaciones;
             this.historicoDetallado = historicoDetallado;
+            this.logs = logs;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -112,6 +118,9 @@ namespace Boletaje.Pages.Llamadas
                 Asuntos = await asuntos.ObtenerLista("");
 
                 Input = await service.ObtenerPorId(id);
+                var filtro = new ParametrosFiltros();
+                filtro.Codigo1 = id;
+                Logs = await logs.ObtenerLista(filtro);
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault().CardCode + " - " + Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault().CardName;
                 ParametrosFiltros filtUbi = new ParametrosFiltros();

@@ -127,7 +127,7 @@
                     Diagnostico += Errores.find(a => a.id == Detalles[i].idError).Diagnostico + " ";
                 }
             }
-            html = html.replace("Diagnosticos", Diagnostico);
+            html = html.replace("Diagnosticos", Diagnostico + "\n" + $("#comentarios").val());
             html = html.replace("INYECTADO", inyectado);
 
 

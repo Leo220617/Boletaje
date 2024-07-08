@@ -17,5 +17,6 @@ namespace Boletaje.Models
         public string Phone1 { get; set; }
         public string E_Mail { get; set; }
         public string Activo { get; set; }
+        public string Exonerado { get; set; }
     }
 }

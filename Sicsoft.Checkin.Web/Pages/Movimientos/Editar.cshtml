@@ -23,6 +23,14 @@
 
         .input2 {
         }
+
+        .badge {
+            background-color: green;
+            color: white;
+            padding: 4px 8px;
+            text-align: center;
+            border-radius: 5px;
+        }
     </style>
 
 }
@@ -1912,7 +1920,12 @@
 
                         <div># Serie: @Model.Llamada.SerieFabricante</div>
                         <div>Ubicación: @Model.UbicacionProd</div>
+                        <br />
+                        @if(Model.Cliente.Exonerado == "1")
+                        {
+                            <div><span class="badge">CLIENTE EXONERADO</span></div>
 
+                        }
                         <br />
                         <button id="agregaManoObra" class="btn btn-rounded btn-outline-danger" style="margin-top: 27%;" onclick="javascript: MeterManoObra()"> <i class="fas fa-plus "></i> Mano De Obra</button>
                     </div>

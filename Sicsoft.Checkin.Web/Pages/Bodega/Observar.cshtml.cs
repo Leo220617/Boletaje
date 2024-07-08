@@ -25,8 +25,8 @@ namespace Boletaje.Pages.Bodega
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<LlamadasViewModel, int> llamada;
         private readonly ICrudApi<StatusViewModel, int> status;
-
-
+        private readonly ICrudApi<ActividadesViewModel, int> actividades;
+        private readonly ICrudApi<UsuariosViewModel, int> login;
         [BindProperty]
 
         public StatusViewModel[] Status { get; set; }
@@ -54,8 +54,13 @@ namespace Boletaje.Pages.Bodega
 
         [BindProperty]
         public LlamadasViewModel InputLlamada { get; set; }
+        [BindProperty]
+        public ActividadesViewModel[] Actividades { get; set; }
+        [BindProperty]
+        public UsuariosViewModel[] Usuarios { get; set; }
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<ProductosHijosViewModel, int> prodHijos,
-            ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<StatusViewModel, int> status )
+            ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<StatusViewModel, int> status, ICrudApi<ActividadesViewModel, int> actividades,
+            ICrudApi<UsuariosViewModel, int> login)
         {
             this.service = service;
             this.prods = prods;
@@ -65,6 +70,8 @@ namespace Boletaje.Pages.Bodega
             this.clientes = clientes;
             this.llamada = llamada;
             this.status = status; 
+            this.actividades = actividades; 
+            this.login = login;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -99,6 +106,10 @@ namespace Boletaje.Pages.Bodega
 
                 InputLlamada = Llamada;
 
+                ParametrosFiltros filtro2 = new ParametrosFiltros();
+                filtro2.Codigo1 = Llamada.id;
+                Actividades = await actividades.ObtenerLista(filtro2);
+                Usuarios = await login.ObtenerLista("");
                 return Page();
             }
             catch (Exception ex)
@@ -203,6 +214,79 @@ namespace Boletaje.Pages.Bodega
                 return new JsonResult(resp2);
             }
         }
+        public async Task<IActionResult> OnPostGenerarActividad(ActividadesViewModel recibido)
+        {
+            try
+            {
 
+
+                ActividadesViewModel coleccion = new ActividadesViewModel();
+                coleccion.id = 0;
+                coleccion.idLlamada = recibido.idLlamada;
+                coleccion.TipoActividad = recibido.TipoActividad;
+                coleccion.Detalle = recibido.Detalle;
+                coleccion.UsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+                coleccion.idLogin = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == ClaimTypes.NameIdentifier).Select(s1 => s1.Value).FirstOrDefault());
+
+
+
+                await actividades.Agregar(coleccion);
+
+                var obj = new
+                {
+                    success = true,
+                    mensaje = ""
+                };
+
+                return new JsonResult(obj);
+
+            }
+            catch (ApiException ex)
+            {
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
+            }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString()
+                };
+                return new JsonResult(obj);
+            }
+        }
+
+        public async Task<IActionResult> OnGetEnviarActividadSAP(string idB)
+        {
+            try
+            {
+
+                var Actividad = new ActividadesViewModel();
+                Actividad.id = Convert.ToInt32(idB);
+                var objetos = await actividades.EnviarSAP(Actividad);
+
+
+
+
+                return new JsonResult(objetos);
+            }
+            catch (ApiException ex)
+            {
+                Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
+
+
+                return new JsonResult(error);
+            }
+        }
     }
 }
