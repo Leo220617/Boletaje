@@ -32,5 +32,6 @@ namespace InversionGloblalWeb.Models
 
         public string NormaReparto { get; set; }
         public int EmpleadoSAP { get; set; }
+        public string  PIN { get; set; }
     }
 }

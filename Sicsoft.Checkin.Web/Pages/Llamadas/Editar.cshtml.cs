@@ -251,7 +251,7 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.NumeroPersonaContacto = recibido.NumeroPersonaContacto;
                 coleccion.Adjuntos = new List<AdjuntosViewModel>();
                 coleccion.AdjuntosIdentificacion = new List<AdjuntosIdentificacionViewModel>();
-
+                coleccion.PIN = recibido.PIN;
 
                 if (recibido.Adjuntos != null)
                 {
@@ -312,6 +312,64 @@ namespace Boletaje.Pages.Llamadas
                 {
                     success = false,
                     mensaje = "Error en el exception: -> " + ex.Message //+ " -> " + ex.StackTrace.ToString()
+                };
+                return new JsonResult(obj);
+            }
+        }
+
+        public async Task<IActionResult> OnPostValidarPIN(string recibido)
+        {
+            try
+            {
+                var PIN = recibido.Split("|");
+                if (PIN[0] == ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "PIN").Select(s1 => s1.Value).FirstOrDefault())
+                {
+                    LogModificacionesViewModel log = new LogModificacionesViewModel();
+                    log.idLlamada = Convert.ToInt32(PIN[1]);
+                    log.idUsuario = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == ClaimTypes.NameIdentifier).Select(s1 => s1.Value).FirstOrDefault());
+                    log.Accion = "Se utilizo el PIN del usuario para cerrar la llamada correspondiente";
+
+                    await logs.Agregar(log);
+
+                    LlamadasViewModel llamada = new LlamadasViewModel();
+                    llamada.id = log.idLlamada;
+                    llamada.PIN = true;
+
+                    await service.Editar(llamada);
+                }
+                else
+                {
+                    throw new Exception("PIN INCORRECTO");
+                }
+
+                var obj = new
+                {
+                    success = true,
+                    mensaje = "Exitoso!!"
+                };
+
+                return new JsonResult(obj);
+            }
+            catch (ApiException ex)
+            {
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                };
+                return new JsonResult(obj);
+            }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje =  ex.Message //+ " -> " + ex.StackTrace.ToString()
                 };
                 return new JsonResult(obj);
             }

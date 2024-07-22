@@ -313,7 +313,7 @@
                     <div class="row">
                         @if (!string.IsNullOrEmpty(Roles.Where(a => a == "66").FirstOrDefault()))
                         {
-                            <div class="col-sm-4 pr-1">
+                            <div class="col-sm-3 pr-1">
                                 <div class="form-group">
                                     <label>Fecha Inicial</label>
                                     <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
@@ -322,14 +322,14 @@
 
                             </div>
 
-                            <div class="col-sm-4 pr-1">
+                            <div class="col-sm-3 pr-1">
                                 <div class="form-group">
                                     <label>Fecha Final</label>
                                     <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
                                 </div>
                             </div>
 
-                            <div class="col-md-4 pl-1">
+                            <div class="col-md-3 pr-1">
 
 
 
@@ -346,6 +346,17 @@
 
                                 </div>
                             </div>
+
+                            <div class="col-sm-3 pl-1" style="text-align:center; margin-top:2%;">
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input asp-for="filtro.PIN" class="form-check-input" type="checkbox" onclick="check()" id="check1">
+                                        <span class="form-check-sign"></span>
+                                       PIN validado
+                                    </label>
+                                </div>
+                            </div>
+
                         }
 
                        
@@ -430,7 +441,7 @@
 
                                 <th>Status</th>
                                 <th>Lugar Reparación</th>
-
+                                <th>PIN</th>
 
                                 <th width="150">Acción</th>
 
@@ -456,6 +467,16 @@
 
                                     <td>@(Model.Status.Where(a => a.idSAP == status).FirstOrDefault() == null ? "" : Model.Status.Where(a => a.idSAP == status).FirstOrDefault().Nombre) </td>
                                     <td>@(item.LugarReparacion == 1 ? "Taller" : "Visita")</td>
+
+                                    @if(item.PIN)
+                                    {
+                                        <td>
+                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Validado</span>
+                                        </td>
+                                    }else
+                                    {
+                                        <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Validar</span></td>
+                                    }
                                     <td>
 
                                         <a asp-page="./Editar" asp-route-id="@item.id" title="Editar" class="btn btn-rounded btn-outline-warning"> Editar</a> &nbsp;
@@ -464,7 +485,11 @@
 
                                             <a onclick="javascript: enviarSAP('@item.id')" title="Enviar a SAP"> <img src="~/sap.png" style="width: 40%;height: 50%;border-radius: 30%; cursor: pointer;" /></a>
                                         }&nbsp;
-                                        <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta('@item.DocEntry', '@item.CardCode - @Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName')">PDF</button>
+                                        @{
+                                            var NombreCliente = item.CardCode + " - " + (@Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? @item.CardCode : @Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName);
+                                        }
+                                        
+                                        <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta('@item.DocEntry', '@NombreCliente')">PDF</button>
                                         &nbsp;
                                         <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
                                         &nbsp;
@@ -488,7 +513,7 @@
                                 <th>Sucursal</th>
                                 <th>Status</th>
                                 <th>Lugar Reparación</th>
-
+                                <th>PIN</th>
                                 <th>Acción</th>
 
                             </tr>

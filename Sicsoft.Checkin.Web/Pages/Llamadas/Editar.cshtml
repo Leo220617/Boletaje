@@ -468,6 +468,103 @@
                     }
                 }
 
+                if($("#status").val() == -1)
+                {
+                    Swal.fire({
+                        title: 'Introduce tu PIN',
+                        input: 'password',
+                        inputAttributes: {
+                            maxlength: 4,
+                            autocapitalize: 'off',
+                            autocorrect: 'off'
+                        },
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showCancelButton: false,
+                        inputPlaceholder: 'PIN de 4 dígitos',
+                        confirmButtonText: 'Aceptar',
+                        showCancelButton: false,
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return '¡Por favor, ingresa tu PIN!'
+                            }
+                            if (value.length !== 4) {
+                                return '¡El PIN debe tener 4 dígitos!'
+                            }
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: 'POST',
+
+                                url: '@Url.Page("Editar", "ValidarPIN")',
+                                dataType: 'json',
+                                data: { recibido: result.value + "|" + $("#idLlamada").val() },
+                                headers: {
+                                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                                },
+                                success: function (json) {
+
+                                    
+                                    if (json.success == true) {
+                                        $("#idPIN").val(result.value);
+                                        Swal.fire({
+                                            title: "Ha sido validado con éxito",
+
+                                            icon: 'success',
+                                            showCancelButton: false,
+
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'swalBtnColor',
+
+                                            },
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+
+                                                
+                                            }
+                                        })
+
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Oops...',
+                                            text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                onChangeStatus();
+                                            } else {
+                                                
+                                                
+                                            }
+                                        });
+                                   
+                                    }
+                                },
+
+                                beforeSend: function (xhr) {
+
+                               
+                                },
+                                complete: function () {
+
+                                },
+                                error: function (error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text:   error.mensaje
+
+                                    })
+                                    
+
+                                }
+                            });
+                        }
+                    });
+                }
 
             } catch (e) {
                 Swal.fire({
@@ -496,6 +593,8 @@
                     }
                 }
             }
+
+     
             //else if (recibido1.Status == -1) {
             //    if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
             //        return false;
@@ -553,7 +652,7 @@
                     PersonaContacto: $("#personaContacto").val(),
                     EmailPersonaContacto: $("#emailPersonaContacto").val(),
                     NumeroPersonaContacto: $("#telefonoPersonaContacto").val(),
-
+                    PIN: $("#idPIN").val().length > 0 ? true : false,
                     Adjuntos: [],
                     AdjuntosIdentificacion: bases64I
                 }
@@ -840,6 +939,7 @@
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input asp-for="Input.id" hidden id="idLlamada" />
+                    <input id="idPIN" hidden />
                     <input hidden id="HistoricoDetallado" value="@JsonConvert.SerializeObject(Model.HistoricoDetallado.Historico)" />
 
                     <div class="row">
