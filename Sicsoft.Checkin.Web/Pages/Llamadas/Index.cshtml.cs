@@ -91,7 +91,10 @@ namespace Boletaje.Pages.Llamadas
                 
 
                 Clientes = await clientes.ObtenerListaEspecial("");
-
+                if (!string.IsNullOrEmpty(filtro.CardCode))
+                {
+                    filtro.CardCode = filtro.CardCode.Split("/")[0];
+                }
                 Objeto = await service.ObtenerLista(filtro);
                 Status = await serviceStatus.ObtenerLista("");
                 Productos = await prods.ObtenerListaEspecial("");
