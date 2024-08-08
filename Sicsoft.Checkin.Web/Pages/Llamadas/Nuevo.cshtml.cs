@@ -210,8 +210,7 @@ namespace Boletaje.Pages.Llamadas
 
                     foreach (var item in prod1)
                     {
-                        objeto.Add(objetos.Clientes.Where(a => a.CardCode.ToString().Contains(item.customer)
-                    ).FirstOrDefault());
+                        objeto.Add(objetos.Clientes.Where(a => a.CardCode.ToString() == item.customer).FirstOrDefault());
                     }
 
 
