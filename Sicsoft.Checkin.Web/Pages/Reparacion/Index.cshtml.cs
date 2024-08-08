@@ -106,7 +106,8 @@ namespace Boletaje.Pages.Reparacion
                     //filtro.FechaInicial = DateTime.Now.AddDays(-1);
                     //filtro.FechaFinal = filtro.FechaInicial;
 
-                    if (filtro.FiltroEspecial && filtro.seleccionMultiple.Count == 0)
+                    //if (filtro.FiltroEspecial && filtro.seleccionMultiple.Count == 0)
+                    if ( filtro.seleccionMultiple.Count == 0)
                     {
                         filtro.Codigo3 = Status.Where(a => a.idSAP == "46").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "46").FirstOrDefault().idSAP);
                         if (filtro.Codigo3 != 0)
@@ -139,19 +140,19 @@ namespace Boletaje.Pages.Reparacion
                 }
                 Objeto = await service.ObtenerLista(filtro);
                 var Listado = Objeto.OrderByDescending(a => a.id);
-                ParametrosFiltros filtro2 = new ParametrosFiltros();
-                filtro2.FechaInicial = Listado.LastOrDefault() != null ? Listado.LastOrDefault().FechaCreacion.AddDays(-5) : new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
-                filtro2.FechaFinal = Listado.FirstOrDefault() != null ? Listado.FirstOrDefault().FechaCreacion.AddDays(5) : filtro.FechaFinal;
-                filtro2.CardName = filtro.Texto;
-                if (filtro.seleccionMultiple.Count > 0)
-                {
-                    foreach (var item in filtro.seleccionMultiple)
-                    {
-                        filtro2.seleccionMultiple.Add(item);
-                    }
-                }
+                //ParametrosFiltros filtro2 = new ParametrosFiltros();
+                //filtro2.FechaInicial = Listado.LastOrDefault() != null ? Listado.LastOrDefault().FechaCreacion.AddDays(-5) : new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
+                //filtro2.FechaFinal = Listado.FirstOrDefault() != null ? Listado.FirstOrDefault().FechaCreacion.AddDays(5) : filtro.FechaFinal;
+                //filtro2.CardName = filtro.Texto;
+                //if (filtro.seleccionMultiple.Count > 0)
+                //{
+                //    foreach (var item in filtro.seleccionMultiple)
+                //    {
+                //        filtro2.seleccionMultiple.Add(item);
+                //    }
+                //}
 
-                InputLlamada = await serviceL.ObtenerLista(filtro2);
+                //InputLlamada = await serviceL.ObtenerLista(filtro2);
 
                 Tecnicos = await serviceT.ObtenerLista("");
                 Productos = await prods.ObtenerListaEspecial("");

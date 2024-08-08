@@ -15,11 +15,14 @@ namespace Boletaje.Models
         public DateTime FechaModificacion { get; set; }
         public int TipoReparacion { get; set; }
         public string idProductoArreglar { get; set; }
+        public string SerieFabricante { get; set; }
         public int Status { get; set; }
         public bool ProcesadaSAP { get; set; }
         public string Comentarios { get; set; }
         public string BodegaOrigen { get; set; }
         public string BodegaFinal { get; set; }
+        public int StatusLlamada { get; set; }
+        public DateTime FechaSISO { get; set; }
         public DetReparacionViewModel[] Detalle { get; set; }
         public AdjuntosViewModel[] Adjuntos { get; set; }
         public AdjuntosIdentificacionViewModel[] AdjuntosIdentificacion { get; set; }

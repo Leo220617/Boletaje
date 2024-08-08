@@ -301,11 +301,14 @@
                                     <td>@(Model.Tecnicos.Where(a => a.idSAP == id).FirstOrDefault() == null ? "" : Model.Tecnicos.Where(a => a.idSAP == id).FirstOrDefault().Nombre)</td>
 
                                     <td>@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
-                                    <td>@(Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().FechaSISO == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().FechaSISO.Value.ToString("dd/MM/yyyy"))</td>
+                                    <td> @item.FechaSISO.ToString("dd/MM/yyyy")</td>
+
+                                  
                                     <td>
                                         @(
-                                            Model.Productos.Productos.Where(a => a.itemCode == (Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().ItemCode)).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().ItemCode).FirstOrDefault().itemName
-                                            ) - @(Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().SerieFabricante)
+                                            Model.Productos.Productos.Where(a => a.itemCode == item.idProductoArreglar).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.idProductoArreglar).FirstOrDefault().itemName
+                                            ) -  @item.SerieFabricante
+                                       
                                     </td>
                                     <td>
                                         @switch (item.Status)
@@ -330,7 +333,7 @@
                                     </td>
                                     <td>
                                         @{
-                                            string LLamada = Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "0" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().Status.Value.ToString();
+                                            string LLamada = item.StatusLlamada.ToString();  
 
 
                                         }
