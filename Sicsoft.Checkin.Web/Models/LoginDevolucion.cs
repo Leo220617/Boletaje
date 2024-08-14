@@ -18,6 +18,8 @@ namespace Sicsoft.CostaRica.Checkin.Web.Models
         public string CodigoVendedor { get; set; }
         public string Bodega { get; set; }
         public string PIN { get; set; }
+        public string idTecnico { get; set; }
+
         public List<SeguridadRolesModulos> Seguridad { get; set; }
     }
 }

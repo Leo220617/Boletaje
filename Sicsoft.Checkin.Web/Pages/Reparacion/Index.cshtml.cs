@@ -67,7 +67,7 @@ namespace Boletaje.Pages.Reparacion
 
                 if (!string.IsNullOrEmpty(Roles1.Where(a => a == "22").FirstOrDefault()))
                 {
-                    filtro.Codigo1 = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+                    filtro.Codigo1 = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "idTecnico").Select(s1 => s1.Value).FirstOrDefault());
                     bandera = false;
                 }
                 else

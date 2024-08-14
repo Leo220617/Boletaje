@@ -64,6 +64,8 @@ namespace Sicsoft.Checkin.Web
                 identity.AddClaim(new Claim("Vendedor", resultado.Nombre));
                 identity.AddClaim(new Claim("Bodega", resultado.Bodega));
                 identity.AddClaim(new Claim("PIN", resultado.PIN));
+                identity.AddClaim(new Claim("idTecnico", resultado.idTecnico));
+
 
                 var principal = new ClaimsPrincipal(identity);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);

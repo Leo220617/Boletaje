@@ -507,9 +507,11 @@
                                     @{
                                         var DocEntry = Convert.ToInt32(item.NumLlamada);
                                     }
-                                    <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault().Nombre) </td>
+                                   @*  <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault().Nombre) </td>
                                     <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault().Nombre) </td>
-
+ *@
+                                    <td> @(  Model.Status.Where(b => b.idSAP == @item.StatusLlamada.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == item.StatusLlamada.ToString()).FirstOrDefault().Nombre) </td>
+                                    <td> @(Model.TP.Where(b => b.idSAP == @item.TipoCaso.ToString().ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == item.TipoCaso.ToString()).FirstOrDefault().Nombre) </td>
 
 
                                     <td>@item.CardCode - @item.CardName</td>
@@ -565,7 +567,9 @@
                                             else
                                             {
 
-                                                <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
+                                                @* <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a> *@
+                                                <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
+
                                                 @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
                                                 {
                                                     <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
@@ -614,14 +618,14 @@
                                             try
                                             {
                                                 NumLlamada = Convert.ToInt32(item.NumLlamada);
-                                                                }
+                                            }
                                             catch (Exception)
                                             {
-                                                
-                                                
+
+
                                             }
-                                            
-                                            var idLlamada = Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault() == null ? 0 : Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault().id;
+
+                                            var idLlamada = item.idLlamada; //Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault() == null ? 0 : Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault().id;
                                         }
                                         <a asp-page="/Llamadas/Actividades" asp-route-id="@idLlamada" title="Actividades" class="btn btn-rounded btn-outline-info"> Actividades</a> &nbsp;
 

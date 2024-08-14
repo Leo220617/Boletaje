@@ -95,7 +95,15 @@
                 Errores = JSON.parse($("#Errores").val());
 
                 for (var i = 0; i < ProductosHijos.length; i++) {
-                    ProductosHijosInsertar.splice(ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)), 1);
+                    if(ProductosHijos[i] != undefined)
+                    {
+                        if (ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)) > 0)
+                        {
+                            ProductosHijosInsertar.splice(ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)), 1);
+
+                        }
+                    }
+                    
                 }
 
                 if (ProductoPadre.Precio == 0) {

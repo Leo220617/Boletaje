@@ -13,6 +13,10 @@ namespace Boletaje.Models
         public string CardCode { get; set; }
         public string CardName { get; set; }
         public string NumLlamada { get; set; }
+        public int idLlamada { get; set; }
+        public string EmailPersonaContacto { get; set; }
+        public int StatusLlamada { get; set; }
+        public int TipoCaso { get; set; }
         public DateTime Fecha { get; set; }
         public int TipoMovimiento { get; set; }
         public string Comentarios { get; set; }

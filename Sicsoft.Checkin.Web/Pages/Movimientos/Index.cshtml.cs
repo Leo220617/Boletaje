@@ -114,7 +114,9 @@ namespace Boletaje.Pages.Movimientos
                     filtro.CardName += item + "|";
                 }
                 Objeto = await service.ObtenerLista(filtro);
-                InputLlamada = await serviceL.ObtenerLista("");
+                 
+              
+               //InputLlamada = await serviceL.ObtenerLista("");
 
                 Clientes = await clientes.ObtenerListaEspecial("");
 
