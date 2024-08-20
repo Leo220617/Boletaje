@@ -368,7 +368,9 @@
 
                                     <td>
                                         @{
-                                            string LLamada = Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "0" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().Status.Value.ToString();
+                                            string LLamada = item.StatusLlamada == null ? "0" : item.StatusLlamada.ToString();
+
+                                            //string LLamada = Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault() == null ? "0" : Model.InputLlamada.Where(a => a.DocEntry == item.idLlamada).FirstOrDefault().Status.Value.ToString();
 
 
                                         }

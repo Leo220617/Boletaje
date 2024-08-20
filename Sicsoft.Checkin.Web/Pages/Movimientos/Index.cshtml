@@ -487,7 +487,7 @@
 
                                 <th>Descuento</th>
                                 <th>Total</th>
-
+                                <th>Aprobada</th>
 
                                 <th>Acción</th>
 
@@ -542,6 +542,25 @@
 
                                     <td align="right">@decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
                                     <td align="right">@decimal.Round(item.TotalComprobante, 2).ToString("N", formato)</td>
+                                    @if (item.Aprobada)
+                                    {
+                                        <td>
+                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Aprobada</span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        if(item.TipoMovimiento != 3)
+                                        {
+                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>No Aplica</span></td>
+
+                                        }
+                                        else
+                                        {
+                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Aprobar</span></td>
+
+                                        }
+                                    }
 
                                     <td>
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "63").FirstOrDefault()))
@@ -596,7 +615,11 @@
                                         {
                                             @if (item.TipoMovimiento == 3)
                                             {
-                                                <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
+                                                @if(!item.Aprobada && item.AprobadaSuperior)
+                                                {
+                                                    <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
+
+                                                }
 
                                             }
                                         }
@@ -653,6 +676,8 @@
 
                                 <th>Descuento</th>
                                 <th>Total</th>
+                                <th>Aprobada</th>
+
                                 <th>Acción</th>
 
                             </tr>

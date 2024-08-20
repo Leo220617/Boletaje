@@ -305,6 +305,10 @@ namespace Boletaje.Pages.Movimientos
                     coleccion.Detalle[cantidad - 1].Opcional = item.Opcional;
                     coleccion.Detalle[cantidad - 1].idImpuesto = item.idImpuesto;
 
+                    if(item.TotalLinea < 1 && item.Garantia == false)
+                    {
+                        throw new Exception("El item con el codigo '" + item.ItemCode + " tiene el total en 0 y no es garantia");
+                    }
 
 
                     cantidad++;

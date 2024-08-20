@@ -481,7 +481,9 @@
                         bandera = false;
                     }
 
-
+                    if (Detalles[i].TotalLinea < 1 && Detalles[i].Garantia == false) { 
+                        bandera = false;
+                    }
                 }
 
                 return bandera;
@@ -1876,17 +1878,17 @@
                             {
                                 case 1:
                                     {
-                                        <h3 class="text-dark mb-1">Oferta de Venta</h3>
+                                            <h3 class="text-dark mb-1">Oferta de Venta</h3>
                                         break;
                                     }
                                 case 2:
                                     {
-                                        <h3 class="text-dark mb-1">Entrega</h3>
+                                            <h3 class="text-dark mb-1">Entrega</h3>
                                         break;
                                     }
                                 case 3:
                                     {
-                                        <h3 class="text-dark mb-1">Cotización BackOffice</h3>
+                                            <h3 class="text-dark mb-1">Cotización BackOffice</h3>
                                         break;
                                     }
                             }
@@ -2173,37 +2175,37 @@
                                         {
                                             case 1:
                                                 {
-                                                    <td> Llamada Telefónica</td>
+                                                        <td> Llamada Telefónica</td>
 
                                                     break;
                                                 }
                                             case 2:
                                                 {
-                                                    <td> Reunión</td>
+                                                        <td> Reunión</td>
 
                                                     break;
                                                 }
                                             case 3:
                                                 {
-                                                    <td> Tarea</td>
+                                                        <td> Tarea</td>
 
                                                     break;
                                                 }
                                             case 4:
                                                 {
-                                                    <td>Nota</td>
+                                                        <td>Nota</td>
 
                                                     break;
                                                 }
                                             case 5:
                                                 {
-                                                    <td> Campaña</td>
+                                                        <td> Campaña</td>
 
                                                     break;
                                                 }
                                             case 6:
                                                 {
-                                                    <td> Otros</td>
+                                                        <td> Otros</td>
 
                                                     break;
                                                 }

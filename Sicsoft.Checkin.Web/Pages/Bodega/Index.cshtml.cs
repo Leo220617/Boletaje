@@ -76,10 +76,10 @@ namespace Boletaje.Pages.Bodega
                         filtro.seleccionMultiple.Add(filtro.Codigo4);
                     }
                 }
-                ParametrosFiltros filtro2 = new ParametrosFiltros();
-                filtro2.FechaInicial = filtro.FechaInicial.AddMonths(-1);
-                filtro2.FechaFinal = filtro.FechaFinal.AddMonths(1);
-                InputLlamada = await serviceL.ObtenerLista(filtro2);
+                //ParametrosFiltros filtro2 = new ParametrosFiltros();
+                //filtro2.FechaInicial = filtro.FechaInicial.AddMonths(-1);
+                //filtro2.FechaFinal = filtro.FechaFinal.AddMonths(1);
+                //InputLlamada = await serviceL.ObtenerLista(filtro2);
                 
                 filtro.Texto = "";
                 foreach (var item in filtro.seleccionMultiple)

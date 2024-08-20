@@ -611,9 +611,19 @@
 
                 btn.disabled = true;
 
-
+                var bases64 = [];
                 var bases64I = [];
+                for (var i = 0; i < documentosbase64.length; i++) {
 
+                    var det = {
+                        id: 0,
+                        idEncabezado: 0,
+                        base64: documentosbase64[i].base64
+
+                    };
+                    bases64.push(det);
+
+                }
                 for (var i = 0; i < documentosbase642.length; i++) {
 
                     var det = {
@@ -653,7 +663,7 @@
                     EmailPersonaContacto: $("#emailPersonaContacto").val(),
                     NumeroPersonaContacto: $("#telefonoPersonaContacto").val(),
                     PIN: $("#idPIN").val().length > 0 ? true : false,
-                    Adjuntos: [],
+                    Adjuntos: bases64,
                     AdjuntosIdentificacion: bases64I
                 }
 
@@ -908,6 +918,159 @@
                 e.target.parentNode.remove();
                 formData2.delete(e.target.parentNode.dataset.id);
                 eliminar2(e.target.parentNode.dataset.id);
+
+            }
+        });
+
+
+    </script>
+
+    <script type="text/javascript">
+        var file = document.getElementById('file');
+        var preload = document.querySelector('.preload');
+
+        var formData = new FormData();
+        var documentosbase64 = [];
+
+
+
+        function resizedataURL(datas, wantedWidth, wantedHeight) {
+
+            return new Promise((resolve, reject) => {
+                // We create an image to receive the Data URI
+                var img = document.createElement('img');
+                var retornar = "";
+                // We put the Data URI in the image's src attribute
+                img.src = datas;
+                // When the event "onload" is triggered we can resize the image.
+                img.onload = function () {
+
+                    var height = this.height;
+                    var width = this.width;
+
+
+
+
+
+                    if (height > wantedHeight && width > wantedWidth) {
+                        while (height > wantedHeight) {
+
+                            height = height - 100;
+                        }
+                        while (width > wantedWidth) {
+                            width = width - 100;
+                        }
+                        // We create a canvas and get its context.
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+
+                        // We set the dimensions at the wanted size.
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // We resize the image with the canvas method drawImage();
+                        ctx.drawImage(this, 0, 0, width, height);
+
+                        var dataURI = canvas.toDataURL();
+                        retornar = dataURI;
+                        resolve(retornar);
+                        /////////////////////////////////////////
+                        // Use and treat your Data URI here !! //
+                        /////////////////////////////////////////
+                    } else {
+                        resolve(datas);
+                    }
+
+
+                };
+            })
+
+
+
+
+
+
+        }
+        function getBase642(event, id) {
+            var input = event.target;
+
+            var reader = new FileReader();
+            reader.onload = function () {
+                var dataURL = reader.result;
+
+
+                var imgResized = "";
+
+                resizedataURL(dataURL, 600, 600).then((resized) => {
+                    imgResized = resized;
+                    var detalle = {
+                        id: id,
+                        base64: imgResized//dataURL
+                    }
+                    documentosbase64.push(detalle);
+                });
+
+
+
+
+
+            };
+            reader.readAsDataURL(input.files[0]);
+
+
+        }
+
+        function eliminar(id) {
+            documentosbase64.splice(documentosbase64.indexOf(documentosbase64.find(a => a.id == id)), 1)
+        }
+
+        file.addEventListener('change', function (e) {
+
+            for (var i = 0; i < file.files.length; i++) {
+                var thumbnail_id = Math.floor(Math.random() * 30000) + '_' + Date.now();
+                createThumbnail(file, i, thumbnail_id);
+                formData.append(thumbnail_id, file.files[i]);
+            }
+            getBase642(e, thumbnail_id);
+            e.target.value = '';
+
+        });
+
+
+
+        var createThumbnail = function (file, iterator, thumbnail_id) {
+            var thumbnail = document.createElement('div');
+            thumbnail.classList.add('thumbnail', thumbnail_id);
+            thumbnail.dataset.id = thumbnail_id;
+
+            thumbnail.setAttribute('style', `background-image: url(${URL.createObjectURL(file.files[iterator])})`);
+            document.getElementById('preview-images').appendChild(thumbnail);
+            createCloseButton(thumbnail_id);
+        }
+
+        var createCloseButton = function (thumbnail_id) {
+            var closeButton = document.createElement('div');
+            closeButton.classList.add('close-button');
+            closeButton.innerText = 'x';
+            document.getElementsByClassName(thumbnail_id)[0].appendChild(closeButton);
+        }
+
+        var clearFormDataAndThumbnails = function () {
+            for (var key of formData.keys()) {
+                formData.delete(key);
+            }
+
+            document.querySelectorAll('.thumbnail').forEach(function (thumbnail) {
+                thumbnail.remove();
+            });
+        }
+
+
+        document.body.addEventListener('click', function (e) {
+            if (e.target.classList.contains('close-button')) {
+                e.target.parentNode.remove();
+                formData.delete(e.target.parentNode.dataset.id);
+                eliminar(e.target.parentNode.dataset.id);
 
             }
         });
@@ -1471,6 +1634,47 @@
         </div>
 
     </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Subir Imágenes</h5>
+
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div id="wrapper">
+
+                        <div id="container-input">
+                            <div class="wrap-file">
+                                <div class="content-icon-camera">
+                                    <input type="file" id="file" name="file[]" accept="image/*" multiple   />
+                                    <div class="icon-camera"></div>
+                                </div>
+                                <div id="preview-images">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="preload">
+                            <img src="~/preloader.gif" alt="preload" />
+                        </div>
+                        <h2 id="success"></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <div class="row">
         <div class="col-sm-12">
             <div class="card">

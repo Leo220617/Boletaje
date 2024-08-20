@@ -30,6 +30,7 @@ namespace Boletaje.Models
         public bool Regenerar { get; set; }
 
         public string Moneda { get; set; }
+        public bool Aprobada { get; set; }
         public bool AprobadaSuperior { get; set; }
         public int idCondPago { get; set; }
         public int idGarantia { get; set; }
