@@ -1096,7 +1096,7 @@
                             <div class="form-group">
                                 <label>Técnico:</label>
                                 <select id="tecnico" class="form-control" asp-for="Input.Tecnico" required>
-                                    <option value="0">Seleccione</option>
+                                  @*   <option value="0">Seleccione</option> *@
                                     @foreach (var item in Model.Tecnicos)
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>

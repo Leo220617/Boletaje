@@ -17,6 +17,7 @@ namespace Boletaje.Models
         public string idProductoArreglar { get; set; }
         public string SerieFabricante { get; set; }
         public int Status { get; set; }
+        public int TipoCaso { get; set; }
         public bool ProcesadaSAP { get; set; }
         public string Comentarios { get; set; }
         public string BodegaOrigen { get; set; }

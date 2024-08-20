@@ -36,6 +36,7 @@ namespace Sicsoft.Checkin.Web
            .AddCookie(options =>
            {
                options.ExpireTimeSpan = TimeSpan.FromMinutes(90000);
+               options.SlidingExpiration = true;
            });
 
             services.AddHttpContextAccessor();
