@@ -411,7 +411,7 @@
         $(document).ready(function () {
 
             Recuperar();
-            onChangeStatus();
+            onChangeStatusInicial();
         });
 
         function Recuperar() {
@@ -450,6 +450,34 @@
                 console.log(i);
             } catch (e) {
 
+            }
+        }
+
+        function onChangeStatusInicial()
+        {
+            try {
+                var RolIdentificacion = "@(!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))";
+                if (RolIdentificacion == "False") {
+                    $("#rowIdentificacion").hide();
+
+                } else {
+                    if ($("#status").val() == -1) {
+                        $("#rowIdentificacion").show();
+                    } else {
+                        $("#rowIdentificacion").hide();
+
+                    }
+                }
+
+              
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar cambiar ' + e
+
+                })
             }
         }
 
@@ -586,7 +614,8 @@
                 return false;
 
             } else if (recibido1.Status == -1) {
-                if (recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) {
+                var CantidadCedulas = parseFloat("@Model.Input.AdjuntosIdentificacion.Count()");
+                if ((recibido1.AdjuntosIdentificacion == [] || recibido1.AdjuntosIdentificacion.length == 0) && CantidadCedulas < 2) {
                     var RolIdentificacion = "@(!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))";
                     if (RolIdentificacion != "False") {
                         return false;
@@ -1184,8 +1213,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Tipo de Caso:</label>
-                                <select id="tp" class="form-control" asp-for="Input.TipoCaso" required>
-                                    <option value="0">Seleccione</option>
+                                <select id="tp" class="form-control" asp-for="Input.TipoCaso" required> 
                                     @foreach (var item in Model.TP)
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>

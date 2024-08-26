@@ -480,6 +480,8 @@
                                     <td>
 
                                         <a asp-page="./Editar" asp-route-id="@item.id" title="Editar" class="btn btn-rounded btn-outline-warning"> Editar</a> &nbsp;
+                                        <a asp-page="./Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a> &nbsp;
+
                                         @if (string.IsNullOrEmpty(item.DocEntry.ToString()) || item.DocEntry == 0)
                                         {
 

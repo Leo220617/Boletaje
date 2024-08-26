@@ -239,6 +239,7 @@
 
 
         function Aprobar(id) {
+            var btn = document.getElementById('btnAprobar_'+id);
             var idEnviar = id;
             $.ajax({
                 type: 'GET',
@@ -247,6 +248,14 @@
                 data: { id: idEnviar },
                 success: function (result) {
                     console.log(result);
+                    btn.disabled = false;
+                    $("#divProcesando").hide();
+
+                    if ($('.modal-backdrop').is(':visible')) {
+
+                        $('body').removeClass('modal-open');
+                        $('.modal-backdrop').hide();
+                    }
                     if (result == false) {
                         ids = 0;
                         Swal.fire({
@@ -276,7 +285,8 @@
                     }
                 },
                 beforeSend: function () {
-
+                    btn.disabled = true;
+                    $("#divProcesando").modal("show");
                 }
             })
         }
@@ -589,7 +599,7 @@
                                                 @* <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a> *@
                                                 <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
 
-                                                @if (item.TipoMovimiento == 1 || item.TipoMovimiento == 3)
+                                                @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3) && !item.Aprobada)
                                                 {
                                                     <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
 
@@ -615,9 +625,9 @@
                                         {
                                             @if (item.TipoMovimiento == 3)
                                             {
-                                                @if(!item.Aprobada && item.AprobadaSuperior)
+                                                @if (!item.Aprobada && (item.AprobadaSuperior || item.DocEntry != 0))
                                                 {
-                                                    <a onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
+                                                    <a id="btnAprobar_@item.id" onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
 
                                                 }
 

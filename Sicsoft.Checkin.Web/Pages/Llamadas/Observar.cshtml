@@ -1,0 +1,1061 @@
+﻿@page "{id}"
+@model Boletaje.Pages.Llamadas.ObservarModel
+@{
+    ViewData["Title"] = "Observar Llamada Servicio";
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Llamadas Servicios</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Observar de Llamada de Servicios</a>
+    </li>
+
+}
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@using Newtonsoft.Json;
+
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
+@section styles {
+
+    <style>
+
+        #menu {
+            float: left;
+            width: 100%;
+            background-color: #fff;
+        }
+
+            #menu img {
+                width: 12%;
+                margin: 2%;
+                cursor: pointer;
+            }
+
+        #principal {
+            float: left;
+            width: 75%;
+        }
+
+        #visor {
+            width: 60%;
+            margin: 10%
+        }
+
+            #visor img {
+                width: 100%
+            }
+
+
+
+        h4 {
+            font-size: 22px !important;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        img {
+            border: none;
+        }
+
+        button, h1 {
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper {
+            width: 100%;
+        }
+
+        h1 {
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .preload2 {
+            padding-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .preload {
+            padding-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .activate-preload {
+            display: block;
+        }
+
+        .activate-preload2 {
+            display: block;
+        }
+
+        #container-input {
+            width: 640px;
+            margin: 0 auto;
+            border: solid 1px #CCC;
+            position: relative;
+            overflow: hidden;
+        }
+
+
+            #container-input .wrap-file .content-icon-camera #file2 {
+                padding: 15px;
+                opacity: 0;
+                position: relative;
+                cursor: pointer;
+                left: -120px;
+                z-index: 1;
+            }
+
+
+
+
+
+
+            #container-input .wrap-file .content-icon-camera {
+                width: 55px;
+                overflow: hidden;
+            }
+
+                #container-input .wrap-file .content-icon-camera:hover {
+                    background-color: #e6e6e6;
+                }
+
+                #container-input .wrap-file .content-icon-camera .icon-camera {
+                    width: 36px;
+                    height: 36px;
+                    background: url('../../camera.png') no-repeat;
+                    cursor: pointer;
+                    position: absolute;
+                    top: 8px;
+                    left: 8px;
+                }
+
+                #container-input .wrap-file .content-icon-camera #file {
+                    padding: 15px;
+                    opacity: 0;
+                    position: relative;
+                    cursor: pointer;
+                    left: -120px;
+                    z-index: 1;
+                }
+
+            #container-input .wrap-file #preview-images .thumbnail {
+                width: 120px;
+                height: 120px;
+                display: inline-block;
+                vertical-align: middle;
+                border: solid 2px #CCC;
+                background-size: cover;
+                position: relative;
+            }
+
+                #container-input .wrap-file #preview-images .thumbnail:not(:last-child) {
+                    margin-right: 5px;
+                }
+
+                #container-input .wrap-file #preview-images .thumbnail .close-button {
+                    width: 20px;
+                    height: 20px;
+                    background-color: black;
+                    color: white;
+                    text-align: center;
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    border-radius: 100px;
+                    cursor: pointer;
+                }
+
+
+            #container-input .wrap-file #preview-images2 .thumbnail {
+                width: 120px;
+                height: 120px;
+                display: inline-block;
+                vertical-align: middle;
+                border: solid 2px #CCC;
+                background-size: cover;
+                position: relative;
+            }
+
+                #container-input .wrap-file #preview-images2 .thumbnail:not(:last-child) {
+                    margin-right: 5px;
+                }
+
+                #container-input .wrap-file #preview-images2 .thumbnail .close-button {
+                    width: 20px;
+                    height: 20px;
+                    background-color: black;
+                    color: white;
+                    text-align: center;
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    border-radius: 100px;
+                    cursor: pointer;
+                }
+
+            #container-input #publish {
+                padding: 15px 35px;
+                font-size: 1.1em;
+                float: right;
+                border: none;
+                cursor: pointer;
+                background-color: #8ECA67;
+                color: #FFF;
+            }
+
+                #container-input #publish:hover {
+                    background-color: #6EAD45;
+                }
+    </style>
+    <style>
+        /*Efecto*/
+        .modalmask {
+            position: fixed;
+            font-family: Arial, sans-serif;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 99999;
+            opacity: 0;
+            -webkit-transition: opacity 400ms ease-in;
+            -moz-transition: opacity 400ms ease-in;
+            transition: opacity 400ms ease-in;
+            pointer-events: none;
+        }
+
+            .modalmask:target {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+        /*Formato de la ventana*/
+        .modalbox {
+            width: 400px;
+            position: relative;
+            padding: 5px 20px 13px 20px;
+            background: #fff;
+            border-radius: 3px;
+            -webkit-transition: all 500ms ease-in;
+            -moz-transition: all 500ms ease-in;
+            transition: all 500ms ease-in;
+        }
+
+        /*Movimientos*/
+        .movedown {
+            margin: 0 auto;
+        }
+
+        .rotate {
+            margin: 10% auto;
+            -webkit-transform: scale(-5,-5);
+            transform: scale(-5,-5);
+        }
+
+        .resize {
+            margin: 10% auto;
+            width: 0;
+            height: 0;
+        }
+
+        .modalmask:target .movedown {
+            margin: 10% auto;
+        }
+
+        .modalmask:target .rotate {
+            transform: rotate(360deg) scale(1,1);
+            -webkit-transform: rotate(360deg) scale(1,1);
+        }
+
+        .modalmask:target .resize {
+            width: 400px;
+            height: 200px;
+        }
+
+        /*Boton de cerrar*/
+        .close {
+            background: #606061;
+            color: #FFFFFF;
+            line-height: 25px;
+            position: absolute;
+            right: 1px;
+            text-align: center;
+            top: 1px;
+            width: 24px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+
+            .close:hover {
+                background: #FAAC58;
+                color: #222;
+            }
+    </style>
+}
+@section scripts {
+    <script>
+        // Get the modal
+        var modal = document.getElementById('myModal');
+
+
+        // Get the image and insert it inside the modal - use its "alt" text as a caption
+        //   var img = document.getElementById('myImg');
+        var modalImg = document.getElementById("img01");
+        //var captionText = document.getElementById("caption");
+        function onclickImage(id) {
+            modal.style.display = "block";
+            modalImg.src = $("#" + id).attr('src');
+
+        }
+        function onclickImageAdj(id) {
+            modal.style.display = "block";
+            modalImg.src = $("#" + id + "-Adj").attr('src');
+
+        }
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+    </script>
+    <script>
+       
+
+        function ImprimeEtiqueta(boleta, cliente) {
+            var html = htmlLlamada;
+            html = html.replace("NombreCliente", $("#cardcode1").val());
+            html = html.replace("NombreContacto", $("#personaContacto").val());
+            html = html.replace("email", $("#emailPersonaContacto").val());
+            html = html.replace("telcontacto", $("#telefonoPersonaContacto").val());
+
+            html = html.replace("EquipoDelClie", $("#prod").val());
+            html = html.replace("SerieR", $("#serie").val());
+            html = html.replace("FechaR", $("#fecha").val());
+
+            html = html.replace("SucursalR", $("#sr option:selected").text());
+            html = html.replace("SucE", $("#srt option:selected").text());
+
+
+            html = html.replace("ObservacionesR", $("#asunto").val());
+            html = html.replace("DiagnosticosDelCliente", $("#comentarios").val());
+
+            html = html.replace("NumBoleta", $("#boleta").val());
+
+
+
+
+            html = html.replace("Imagen", "<img src='" + '@Model.Input.Firma' + "' width='100'   />");
+
+
+
+            var item = html;
+
+            var opt = {
+                margin: 0,
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 1, logging: true, dpi: 192, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }
+            };
+
+
+
+            html2pdf().set(opt)
+                .from(item)
+                .save("Llamada.pdf");
+
+        }
+    </script>
+    <script>
+        
+        var HistoricoDetallado = [];
+
+        $(document).ready(function () {
+
+            Recuperar();
+            onChangeStatusInicial();
+        });
+
+        function Recuperar() {
+            try {
+                HistoricoDetallado = JSON.parse($("#HistoricoDetallado").val());
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar recuperar ' + e
+
+                })
+            }
+        }
+
+        function onAbrirModalDetallado() {
+            try {
+                $("#exampleModal").modal("show");
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar abrir el modal ' + e
+
+                })
+            }
+        }
+
+        function onClickCollage(i) {
+            try {
+                $('#contenido(' + i + ')').slideToggle("slow");
+
+                console.log(i);
+            } catch (e) {
+
+            }
+        }
+
+         
+    </script>
+ 
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Observar Llamada</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/Llamadas/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input asp-for="Input.id" hidden id="idLlamada" />
+                <input id="idPIN" hidden />
+                <input hidden id="HistoricoDetallado" value="@JsonConvert.SerializeObject(Model.HistoricoDetallado.Historico)" />
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Llamada:</label>
+                            <input class="form-control form-control-lg" placeholder="" readonly asp-for="Input.DocEntry">
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Cliente:</label>
+                            <input type="text" class="form-control form-control-lg" id="cardcode1" placeholder="Nombre Cliente" asp-for="Cliente" readonly>
+
+                            <input type="text" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="Input.CardCode" hidden>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Producto:</label>
+                            <input type="text" class="form-control form-control-lg" id="prod" placeholder="" asp-for="Producto" readonly>
+
+                            <input type="text" class="form-control form-control-lg" id="prod" placeholder="" asp-for="Input.ItemCode" hidden>
+                            <input type="text" class="form-control form-control-lg" id="serie" asp-for="Input.SerieFabricante" hidden>
+                            <input type="text" class="form-control form-control-lg" id="boleta" asp-for="Input.DocEntry" hidden>
+
+                            <input type="text" class="form-control form-control-lg" id="fecha" value="@DateTime.Now" hidden>
+
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Ubicación del Producto:</label>
+                            <input type="text" class="form-control form-control-lg" id="prod" placeholder="" asp-for="UbicacionProd" readonly>
+
+
+
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Fecha SISO:</label>
+                            <input type="date" class="form-control form-control-lg" id="fecsiso" placeholder="" asp-for="Input.FechaSISO" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Estado:</label>
+                            <select id="status" class="form-control" asp-for="Input.Status" required readonly disabled>
+                                <!-- <option value="0">Seleccione</option> -->
+                                @foreach (var item in Model.Status)
+                                {
+                                    <option value="@item.idSAP">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Tipo de Caso:</label>
+                            <select id="tp" class="form-control" asp-for="Input.TipoCaso" required readonly disabled>
+                                <option value="0">Seleccione</option>
+                                @foreach (var item in Model.TP)
+                                {
+                                    <option value="@item.idSAP">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Lugar Reparación:</label>
+                            <select id="lReparacion" class="form-control" asp-for="Input.LugarReparacion" required readonly disabled>
+                                <option value="1">Taller</option>
+                                <option value="2">Visita</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Persona de Contacto:</label>
+                            <input type="text" class="form-control form-control-lg" id="personaContacto" placeholder="Nombre Persona Contacto" asp-for="Input.PersonaContacto" readonly disabled>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label> Correo Persona Contacto:</label>
+                            <input type="email" class="form-control form-control-lg" id="emailPersonaContacto" placeholder="Email Persona Contacto" asp-for="Input.EmailPersonaContacto" readonly disabled>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Telefono Persona Contacto:</label>
+                            <input type="tel" class="form-control form-control-lg" id="telefonoPersonaContacto" placeholder="Telefono Persona Contacto" asp-for="Input.NumeroPersonaContacto" readonly disabled>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Sucursal de Recibo:</label>
+                            <select id="sr" class="form-control" asp-for="Input.SucRecibo" required readonly disabled>
+                                <option value="0">Seleccione</option>
+                                @foreach (var item in Model.Sucursales)
+                                {
+                                    <option value="@item.idSAP">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Sucursal de Retiro:</label>
+                            <select id="srt" class="form-control" asp-for="Input.SucRetiro" required readonly disabled>
+                                <option value="0">Seleccione</option>
+                                @foreach (var item in Model.Sucursales)
+                                {
+                                    <option value="@item.idSAP">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+
+                        <div class="form-group">
+                            <label>Técnico:</label>
+                            <select id="tecnico" class="form-control" asp-for="Input.Tecnico" required readonly disabled>
+                                @*   <option value="0">Seleccione</option> *@
+                                @foreach (var item in Model.Tecnicos)
+                                {
+                                    <option value="@item.idSAP">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Horas:</label>
+                            <input type="number" min="0" step="1" class="form-control" asp-for="Input.Horas" id="horas" required readonly disabled />
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(Roles.Where(a => a == "56").FirstOrDefault()))
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Histórico de Llamada</h5>
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label># Factura de Venta:</label>
+                                <input type="text" class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Factura" readonly>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Fecha de Venta:</label>
+                                <input class="form-control form-control-lg" id="cardcode1" asp-for="Historico.Historico.FirstOrDefault().Fecha_Factura" readonly>
+
+                            </div>
+                        </div>
+                    @using System.Globalization;
+                        @{
+                            NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+                            formato.CurrencyGroupSeparator = ",";
+                            formato.NumberDecimalSeparator = ".";
+
+
+                        }
+                      
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Observaciones Ult. Reparación:</label>
+                                <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
+
+                            </div>
+                            <a href="#" onclick="javascript: onAbrirModalDetallado() ">Ver más detallado</a>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Histórico Llamada Detallado</h5>
+
+                </div>
+                <div class="modal-body">
+                    @{
+                        var i = 0;
+                    }
+                    <div style=" overflow-y:scroll;    z-index: 5; height: 500px;">
+                        <div class="panel-group" id="accordion">
+                            @foreach (var item in Model.HistoricoDetallado.Historico.OrderBy(a => a.Fecha).GroupBy(a => a.Boleta))
+                            {
+                                i++;
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#collapse@(i)">Boleta # @item.Key</a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse@(i)" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+
+                                            @foreach (var item3 in item.GroupBy(a => a.DocEntryEntrega))
+                                            {
+                                                <table style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th align="center">Orden</th>
+                                                            <th align="center">Fecha</th>
+                                                            <th align="center">Artículos</th>
+                                                            <th align="center">Descripción</th>
+                                                            <th align="center">Garantía</th>
+                                                            <th align="center">Facturado</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr id="contenido(@i)">
+                                                            <td align="center">
+                                                                @item3.Key
+                                                            </td>
+                                                            <td align="center">@item3.FirstOrDefault().Fecha.ToString("dd/MM/yyyy")</td>
+                                                            <td>
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="left">@item2.Articulo</td>
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+                                                            <td>
+
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="left">@item2.Descripcion</td>
+
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+
+                                                            <td>
+
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="right">@item2.Garantia.ToString("N", formato)</td>
+
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+
+                                                            <td>
+
+                                                                <table style="width: 100%;">
+                                                                    @foreach (var item2 in item3)
+                                                                    {
+                                                                        <tr>
+                                                                            <td align="right">@item2.Facturado.ToString("N", formato)</td>
+
+
+
+                                                                        </tr>
+                                                                    }
+
+                                                                </table>
+                                                            </td>
+
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="4" align="center"><b>Total Boleta</b></td>
+                                                            <td align="right">@item3.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                            <td align="right">@item3.Sum(a => a.Facturado).ToString("N", formato)</td>
+
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            }
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse0">Gran Total</a>
+                                </h4>
+                            </div>
+                            <div id="collapse0" class="panel-collapse collapse in show">
+                                <div class="panel-body">
+                                    <table style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th align="center"></th>
+                                                <th align="center"></th>
+                                                <th align="center"></th>
+                                                <th align="center"></th>
+                                                <th align="center">Garantía</th>
+                                                <th align="center">Facturado</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4" style="text-align: center;"><b>Gran Total</b></td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Garantia).ToString("N", formato)</td>
+                                                <td style="text-align: right;">@Model.HistoricoDetallado.Historico.Sum(a => a.Facturado).ToString("N", formato)</td>
+
+                                            </tr>
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Asunto:</label>
+
+                            <select id="asunto" class="form-control" asp-for="Input.Asunto" required readonly disabled>
+
+                                @foreach (var item in Model.Asuntos)
+                                {
+
+                                    <option value="@item.Asunto">@item.Asunto</option>
+
+
+                                }
+                            </select>
+                            @*
+                            //<input type="text" class="form-control form-control-lg" id="asunto" placeholder="Asunto" asp-for="Input.Asunto">*@
+
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Comentarios:</label>
+
+                            <textarea class="form-control form-control-lg" id="comentarios" placeholder="Comentarios" asp-for="Input.Comentarios" readonly> </textarea>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+
+            <div class="card-body">
+                <center>
+                    <img src="@Model.Input.Firma" width="300" height="300" />
+
+                </center>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+ 
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Adjuntos</h5>
+
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div id="menu">
+                    @foreach (var item in Model.Input.Adjuntos)
+                    {
+                        <img src='data:image/png;base64,@item.base64' id="@item.id-Adj" name='fotos1' onclick="javascript: onclickImageAdj(@item.id)" />
+
+                    }
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@if (!string.IsNullOrEmpty(Roles.Where(a => a == "47").FirstOrDefault()))
+{
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Documentos de Identidad</h5>
+
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div id="menu">
+                        @foreach (var item in Model.Input.AdjuntosIdentificacion)
+                        {
+                            <img src='data:image/png;base64,@item.base64' id="@item.id" name='fotos1' onclick="javascript: onclickImage(@item.id)" />
+
+                        }
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Logs Modificaciones</h5>
+
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered first">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Detalle</th>
+                                <th>Fecha Creación</th>
+
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Logs)
+                            {
+                                <tr>
+                                    <td>@item.id</td>
+
+                                    <td>@item.Usuario </td>
+                                    <td>@item.Accion </td>
+
+                                    <td>
+
+                                        @item.Fecha
+                                    </td>
+
+
+                                </tr>
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Detalle</th>
+                                <th>Fecha Creación</th>
+
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="myModal" class="modal">
+    <span class="close">×</span>
+    <img class="modal-content" id="img01">
+
+</div>

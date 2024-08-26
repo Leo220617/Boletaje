@@ -22,6 +22,8 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion;
         private readonly ICrudApi<LlamadasViewModel, int> serviceL;
         private readonly ICrudApi<StatusViewModel, int> status;
+        private readonly ICrudApi<TiposCasosViewModel, int> tp;
+
         private readonly ICrudApi<ProductosViewModel, int> prods;
 
 
@@ -30,6 +32,10 @@ namespace Boletaje.Pages.Reparacion
         [BindProperty]
 
         public StatusViewModel[] Status { get; set; }
+
+        [BindProperty]
+
+        public TiposCasosViewModel[] TP { get; set; }
         [BindProperty]
         public EncReparacionViewModel[] Objeto { get; set; }
 
@@ -45,7 +51,7 @@ namespace Boletaje.Pages.Reparacion
         [BindProperty]
         public ProductosViewModel Productos { get; set; }
 
-        public IndexModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<StatusViewModel, int> status, ICrudApi<ProductosViewModel, int> prods)
+        public IndexModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<StatusViewModel, int> status, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TiposCasosViewModel, int> tp)
         {
             this.service = service;
             this.serviceT = serviceT;
@@ -53,6 +59,7 @@ namespace Boletaje.Pages.Reparacion
             this.serviceL = serviceL;
             this.status = status;
             this.prods = prods;
+            this.tp = tp;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -75,6 +82,7 @@ namespace Boletaje.Pages.Reparacion
                     bandera = true;
                 }
                 Status = await status.ObtenerLista("");
+                TP = await tp.ObtenerLista("");
                 DateTime time = new DateTime();
                 if (string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
                 {

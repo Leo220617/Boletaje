@@ -1562,8 +1562,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Tipo de Caso:</label>
-                            <select id="tp" class="form-control" asp-for="Input.TipoCaso" required>
-                                <option value="0">Seleccione</option>
+                            <select id="tp" class="form-control" asp-for="Input.TipoCaso" required> 
                                 @foreach (var item in Model.TP)
                                 {
                                     <option value="@item.idSAP">@item.Nombre</option>
