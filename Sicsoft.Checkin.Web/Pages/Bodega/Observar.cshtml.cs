@@ -193,12 +193,12 @@ namespace Boletaje.Pages.Bodega
             }
             catch (ApiException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Content.ToString());
+                Errores errors = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
 
                 var resp2 = new
                 {
                     success = false,
-                    Exon = ex.Content.ToString()
+                    Exon = errors.Message
                 };
                 return new JsonResult(resp2);
 
