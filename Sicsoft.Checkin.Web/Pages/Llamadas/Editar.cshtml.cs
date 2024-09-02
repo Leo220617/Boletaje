@@ -334,7 +334,7 @@ namespace Boletaje.Pages.Llamadas
                     LlamadasViewModel llamada = new LlamadasViewModel();
                     llamada.id = log.idLlamada;
                     llamada.PIN = true;
-
+                     
                     await service.Editar(llamada);
                 }
                 else
