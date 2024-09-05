@@ -321,6 +321,7 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.Firma = recibido.Firma;
                 coleccion.Horas = recibido.Horas;
                 coleccion.SinRepuestos = recibido.SinRepuestos;
+                coleccion.Prioridad = recibido.Prioridad;
                 coleccion.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
                 try
                 {

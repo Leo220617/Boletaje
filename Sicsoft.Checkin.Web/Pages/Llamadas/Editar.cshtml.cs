@@ -252,6 +252,8 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.Adjuntos = new List<AdjuntosViewModel>();
                 coleccion.AdjuntosIdentificacion = new List<AdjuntosIdentificacionViewModel>();
                 coleccion.PIN = recibido.PIN;
+                coleccion.Prioridad = recibido.Prioridad;
+
 
                 if (recibido.Adjuntos != null)
                 {

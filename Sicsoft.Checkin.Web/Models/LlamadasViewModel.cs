@@ -60,6 +60,7 @@ namespace Boletaje.Models
         public string NumeroPersonaContacto { get; set; }
         public bool PIN { get; set; }
         public bool SinRepuestos { get; set; }
+        public string Prioridad { get; set; }
         public List<AdjuntosViewModel> Adjuntos { get; set; }
         public List<AdjuntosIdentificacionViewModel> AdjuntosIdentificacion { get; set; }
 
