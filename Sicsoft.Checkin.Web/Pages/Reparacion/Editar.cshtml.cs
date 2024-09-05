@@ -365,9 +365,10 @@ namespace Boletaje.Pages.Reparacion
                 try
                 {
                     var Status = recibido.StatusLlamada;
+                    var Horas = recibido.HorasLlamada;
                     InputLlamada = await serviceL.ObtenerPorId(recibido.idLlamada);
                     InputLlamada.Status = Status;
-
+                    InputLlamada.Horas = Horas;
                     await serviceL.Editar(InputLlamada);
                 }
                 catch (Exception ex)

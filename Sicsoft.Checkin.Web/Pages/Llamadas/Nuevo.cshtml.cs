@@ -320,7 +320,7 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.Tecnico = recibido.Tecnico;
                 coleccion.Firma = recibido.Firma;
                 coleccion.Horas = recibido.Horas;
-
+                coleccion.SinRepuestos = recibido.SinRepuestos;
                 coleccion.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
                 try
                 {

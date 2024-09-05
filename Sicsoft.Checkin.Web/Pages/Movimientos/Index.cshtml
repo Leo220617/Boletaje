@@ -239,56 +239,77 @@
 
 
         function Aprobar(id) {
+
+
+
             var btn = document.getElementById('btnAprobar_'+id);
             var idEnviar = id;
-            $.ajax({
-                type: 'GET',
-                dataType: 'json',
-                url: '@Url.Page("Index", "Aprobar")',
-                data: { id: idEnviar },
-                success: function (result) {
-                    console.log(result);
-                    btn.disabled = false;
-                    $("#divProcesando").hide();
-
-                    if ($('.modal-backdrop').is(':visible')) {
-
-                        $('body').removeClass('modal-open');
-                        $('.modal-backdrop').hide();
-                    }
-                    if (result == false) {
-                        ids = 0;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Ha ocurrido un error al intentar Aprobar'
-
-                        })
-
-                    } else {
-                        Swal.fire({
-                            title: "Ha sido Aprobado con éxito",
-
-                            icon: 'success',
-                            showCancelButton: false,
-                            customClass: {
-                                confirmButton: 'swalBtnColor',
-
-                            },
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-
-                            }
-                        })
-                    }
+            Swal.fire({
+                title: '¿Desea Aprobar esta movimiento?',
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: `Aceptar`,
+                denyButtonText: `Cancelar`,
+                customClass: {
+                    confirmButton: 'swalBtnColor',
+                    denyButton: 'swalDeny'
                 },
-                beforeSend: function () {
-                    btn.disabled = true;
-                    $("#divProcesando").modal("show");
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '@Url.Page("Index", "Aprobar")',
+                        data: { id: idEnviar },
+                        success: function (result) {
+                            console.log(result);
+                            btn.disabled = false;
+                            $("#divProcesando").hide();
+
+                            if ($('.modal-backdrop').is(':visible')) {
+
+                                $('body').removeClass('modal-open');
+                                $('.modal-backdrop').hide();
+                            }
+                            if (result == false) {
+                                ids = 0;
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Ha ocurrido un error al intentar Aprobar'
+
+                                })
+
+                            } else {
+                                Swal.fire({
+                                    title: "Ha sido Aprobado con éxito",
+
+                                    icon: 'success',
+                                    showCancelButton: false,
+                                    customClass: {
+                                        confirmButton: 'swalBtnColor',
+
+                                    },
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        location.reload();
+
+                                    }
+                                })
+                            }
+                        },
+                        beforeSend: function () {
+                            btn.disabled = true;
+                            $("#divProcesando").modal("show");
+                        }
+                    })
+
                 }
             })
+          
         }
 
 
@@ -599,7 +620,7 @@
                                                 @* <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a> *@
                                                 <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
 
-                                                @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3) && !item.Aprobada)
+                                                @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3))
                                                 {
                                                     <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
 

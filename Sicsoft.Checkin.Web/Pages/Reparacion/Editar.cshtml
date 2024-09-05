@@ -852,6 +852,7 @@
                     Tipo: tipo,
                     Status: status,
                     StatusLlamada: $("#statusLlamada").val(),
+                    HorasLlamada: $("#horasLlamada").val(),
                     idLlamada: $("#idLlamada").val(),
                     comentarios: comentarios,
                     BodegaInicial: BodegaOrigen,
@@ -2144,7 +2145,7 @@
 
 
                         </div>
-                        <div class="col-md-4 pr-1">
+                        <div class="col-md-3 pr-1">
 
                             <div class="form-group">
                                 <label>Estado de la Reparación</label>
@@ -2163,7 +2164,7 @@
 
 
                         </div>
-                        <div class="col-md-4 pl-1">
+                        <div class="col-md-3 pr-1">
                             <div class="form-group">
                                 <label>Estado de la Llamada:</label>
                                 <input asp-for="InputLlamada.id" id="idLlamada" hidden />
@@ -2176,7 +2177,13 @@
                                 </select>
                             </div>
                         </div>
-
+                        <div class="col-md-2 pl-1">
+                            <div class="form-group">
+                                <label>Horas:</label>
+                                <input type="number" min="0" step="1" class="form-control" asp-for="InputLlamada.Horas" id="horasLlamada" required />
+                                 
+                            </div>
+                        </div>
 
                         <div class="col-md-4 pr-1" hidden>
 

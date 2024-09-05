@@ -666,7 +666,7 @@
                     PersonaContacto: $("#personaContacto").val(),
                     EmailPersonaContacto: $("#emailPersonaContacto").val(),
                     NumeroPersonaContacto: $("#telefonoPersonaContacto").val(),
-
+                    SinRepuestos: $('#sinRepuestos').prop('checked'),
                     Adjuntos: bases64,
                     AdjuntosIdentificacion: bases64I
                 }
@@ -1678,12 +1678,24 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-3">
                         <div class="form-group">
                             <label>Horas:</label>
                             <input type="number" min="0" step="1" class="form-control" asp-for="Input.Horas" id="horas" required />
                         </div>
                     </div>
+
+                    <div class="col-sm-3">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input asp-for="Input.SinRepuestos" class="form-check-input" type="checkbox" id="sinRepuestos">
+                                <span class="form-check-sign"></span>
+                                Sin Repuestos
+                            </label>
+                        </div>
+                         
+                    </div>
+
 
                 </div>
 

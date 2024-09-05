@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime;
 using System.Threading.Tasks;
 
 namespace Boletaje.Models
@@ -58,6 +59,7 @@ namespace Boletaje.Models
         public string EmailPersonaContacto { get; set; }
         public string NumeroPersonaContacto { get; set; }
         public bool PIN { get; set; }
+        public bool SinRepuestos { get; set; }
         public List<AdjuntosViewModel> Adjuntos { get; set; }
         public List<AdjuntosIdentificacionViewModel> AdjuntosIdentificacion { get; set; }
 
