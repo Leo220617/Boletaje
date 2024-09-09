@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -227,6 +229,27 @@ namespace Boletaje.Pages.Llamadas
 
 
                 LlamadasViewModel coleccion = new LlamadasViewModel();
+                var ms = new MemoryStream();
+                await Request.Body.CopyToAsync(ms);
+
+                byte[] compressedData = ms.ToArray();
+
+                // Descomprimir los datos utilizando GZip
+                using (var compressedStream = new MemoryStream(compressedData))
+                using (var decompressedStream = new MemoryStream())
+                {
+                    using (var decompressionStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+                    {
+                        decompressionStream.CopyTo(decompressedStream);
+                    }
+
+                    // Convertir los datos descomprimidos a una cadena JSON
+                    var jsonString = System.Text.Encoding.UTF8.GetString(decompressedStream.ToArray());
+
+                    // Procesar la cadena JSON como desees
+                    // Por ejemplo, puedes deserializarla a un objeto C# utilizando Newtonsoft.Json
+                    recibido = Newtonsoft.Json.JsonConvert.DeserializeObject<LlamadasViewModel>(jsonString);
+                }
                 coleccion.id = recibido.id;
                 coleccion.TipoLlamada = recibido.TipoLlamada;
                 coleccion.Status = recibido.Status;
