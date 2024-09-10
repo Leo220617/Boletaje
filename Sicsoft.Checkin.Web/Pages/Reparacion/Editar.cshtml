@@ -41,6 +41,23 @@
 @section styles{
 
     <style>
+        /* Estilo para el botón de cerrar (X) */
+        .close {
+            position: absolute;
+            top: 9%;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+            /* Cambiar el color de la X al pasar el cursor */
+            .close:hover,
+            .close:focus {
+                color: #bbb;
+            }
 
         #menu {
             float: left;

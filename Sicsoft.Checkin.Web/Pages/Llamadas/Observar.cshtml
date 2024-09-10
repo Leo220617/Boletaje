@@ -34,7 +34,22 @@
 @section styles {
 
     <style>
+        .close {
+            position: absolute;
+            top: 9%;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
 
+            /* Cambiar el color de la X al pasar el cursor */
+            .close:hover,
+            .close:focus {
+                color: #bbb;
+            }
         #menu {
             float: left;
             width: 100%;
@@ -303,7 +318,7 @@
             position: absolute;
             right: 1px;
             text-align: center;
-            top: 1px;
+            top: 9%;
             width: 24px;
             text-decoration: none;
             font-weight: bold;

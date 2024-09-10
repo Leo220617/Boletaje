@@ -315,6 +315,58 @@
                 color: #222;
             }
     </style>
+    <style>
+
+        
+        .modal {
+    display: none; /* Ocultarlo por defecto */
+    position: fixed; /* Fijo en la pantalla */
+    z-index: 1000; /* Superposición sobre otros elementos */
+    left: 0;
+    top: 0;
+    width: 100%; /* Ocupa todo el ancho */
+    height: 100%; /* Ocupa todo el alto */
+    overflow: auto; /* Habilita scroll si el contenido es más grande que la ventana */
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro con opacidad */
+}
+
+/* Estilo para la imagen dentro del modal */
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px; /* Limita el tamaño de la imagen */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.6); /* Sombra para la imagen */
+    animation-name: zoom;
+    animation-duration: 0.6s; /* Animación de zoom al aparecer */
+}
+
+/* Animación de zoom para la imagen */
+ 
+
+/* Estilo para el botón de cerrar (X) */
+.close {
+    position: absolute;
+    top: 9%;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+/* Cambiar el color de la X al pasar el cursor */
+.close:hover,
+.close:focus {
+    color: #bbb;
+}
+
+ 
+ 
+</style>
+
 }
 
 @section scripts{
@@ -337,6 +389,7 @@
             modalImg.src = $("#" + id + "-Adj").attr('src');
 
         }
+   
 
         // Get the <span> element that closes the modal
         var span = document.getElementsByClassName("close")[0];
@@ -1878,7 +1931,8 @@
 </form>
 <!-- The Modal -->
 <div id="myModal" class="modal">
+
     <span class="close">×</span>
     <img class="modal-content" id="img01">
-
+ 
 </div>
