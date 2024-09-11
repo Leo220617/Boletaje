@@ -58,7 +58,7 @@ namespace Boletaje.Pages.Soportes
                 coleccion.Pantalla = recibido.Pantalla;
                 coleccion.Status = "A";
                 coleccion.base64 = recibido.base64;
-                coleccion.idUsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+                coleccion.idUsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == ClaimTypes.NameIdentifier).Select(s1 => s1.Value).FirstOrDefault());
 
 
                 await service.Agregar(coleccion);
