@@ -373,7 +373,13 @@ namespace Boletaje.Pages.Reparacion
                 }
                 catch (Exception ex)
                 {
- 
+                    var obj2 = new
+                    {
+                        success = true,
+                        mensaje = "La reparacion se ejecuto correctamente, pero la boleta dio error al actualizar " + ex.Message
+                    };
+
+                    return new JsonResult(obj2);
                 }
              
 
