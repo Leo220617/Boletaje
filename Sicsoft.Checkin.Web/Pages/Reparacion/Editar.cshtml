@@ -931,7 +931,7 @@
                                 if (json.success == true) {
                                     Swal.fire({
                                         title: "Ha sido generado con éxito",
-                                        text:  json.mensaje
+                                        text:  json.mensaje,
                                         icon: 'success',
                                         showCancelButton: false,
 
@@ -2183,11 +2183,23 @@
                         </div>
                         <div class="col-md-3 pr-1">
                             <div class="form-group">
+                                <label>Estado de la Llamada (Actual):</label>
+                       
+                                <select id="statusLlamadaActual" class="form-control" value="@Model.InputLlamada.Status" required disabled>
+                                    
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
                                 <label>Estado de la Llamada:</label>
                                 <input asp-for="InputLlamada.id" id="idLlamada" hidden />
-                                <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
-                                    <option value="0">Seleccione</option>
-                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "-3" || a.idSAP == "47" || a.idSAP == "46" || a.idSAP == "48" || a.idSAP == "56"))
+                                <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required> 
+                                    @foreach (var item in Model.Status.Where(a =>   a.idSAP == "47"   || a.idSAP == "48" || a.idSAP == "55"))
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
                                     }
@@ -2337,7 +2349,7 @@
                             <datalist id="prodHijos">
                                 @foreach (var item in Model.ProductosGenerales.ToList())
                                 {
-                                    <option value="@item.codSAP _ @item.Nombre "> @item.codSAP - @item.Nombre </option>
+                                    <option value="@item.codSAP _ @item.Nombre "> @item.codSAP - @item.Nombre - Stock: @item.Stock </option>
                                 }
                             </datalist>
 
@@ -2350,7 +2362,7 @@
 
 
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-12">
 
                             <div class="form-group row">
                                 <input hidden id="codigoSAPProducto" />
@@ -2368,7 +2380,7 @@
 
 
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
 
                             <div class="form-group row"> 
                                 <div class="col-sm-12">
@@ -2385,7 +2397,7 @@
 
 
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <div class="form-group row">
                                 <div class="col-sm-12">
                                     <label class="col-form-label">Cantidad:</label>
@@ -2399,7 +2411,7 @@
                         </div>
 
 
-                        <div class="col-sm-3" style="text-align: center;">
+                        <div class="col-sm-4" style="text-align: center;">
 
                             <a title="Agregar" id="Agregar" onclick="javascript: InsertarProductoTabla();" style=" color: #fff; width: 25%;" class="btn btn-rounded btn-primary">+</a>
                         </div>

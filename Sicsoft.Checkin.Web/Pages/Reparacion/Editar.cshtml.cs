@@ -331,6 +331,7 @@ namespace Boletaje.Pages.Reparacion
                 coleccion.EncReparacion.id = recibido.id;
                 coleccion.EncReparacion.TipoReparacion = recibido.Tipo;
                 coleccion.EncReparacion.Status = recibido.Status;
+                coleccion.EncReparacion.StatusLlamada = recibido.StatusLlamada;
                 coleccion.EncReparacion.Comentarios = recibido.comentarios;
                 coleccion.EncReparacion.BodegaOrigen = recibido.BodegaInicial;
                 coleccion.EncReparacion.BodegaFinal = recibido.BodegaFinal;
@@ -358,7 +359,11 @@ namespace Boletaje.Pages.Reparacion
                     coleccion.Adjuntos[cantidad - 1].base64 = item.base64;
                     cantidad++;
                 }
-
+                // Si esta pidiendo repuestos y la llamada no esta en taller
+                if(coleccion.EncReparacion.TipoReparacion == 1 && coleccion.EncReparacion.StatusLlamada != 47 )
+                {
+                    throw new Exception("Debes colocar el status en taller para solicitar repuestos");
+                }
 
                 await serviceColeccion.Agregar(coleccion);
 
@@ -413,7 +418,7 @@ namespace Boletaje.Pages.Reparacion
                 var obj = new
                 {
                     success = false,
-                    mensaje = "Error en el exception: -> " + ex.ToString()  
+                    mensaje = "Error en el exception: -> " + ex.Message.ToString()  
                 };
                 return new JsonResult(obj);
             }
