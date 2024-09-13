@@ -332,6 +332,7 @@ namespace Boletaje.Pages.Reparacion
                 coleccion.EncReparacion.TipoReparacion = recibido.Tipo;
                 coleccion.EncReparacion.Status = recibido.Status;
                 coleccion.EncReparacion.StatusLlamada = recibido.StatusLlamada;
+                coleccion.EstadoLlamada = recibido.StatusLlamada;
                 coleccion.EncReparacion.Comentarios = recibido.comentarios;
                 coleccion.EncReparacion.BodegaOrigen = recibido.BodegaInicial;
                 coleccion.EncReparacion.BodegaFinal = recibido.BodegaFinal;

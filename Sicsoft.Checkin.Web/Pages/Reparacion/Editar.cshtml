@@ -953,6 +953,13 @@
                                     })
 
                                 } else {
+                                    $("#divProcesando").hide();
+
+                                    if ($('.modal-backdrop').is(':visible')) {
+
+                                        $('body').removeClass('modal-open');
+                                        $('.modal-backdrop').hide();
+                                    }
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Oops...',
@@ -968,7 +975,13 @@
                                 $("#divProcesando").modal("show");
                             },
                             complete: function () {
+                                $("#divProcesando").hide();
 
+                                if ($('.modal-backdrop').is(':visible')) {
+
+                                    $('body').removeClass('modal-open');
+                                    $('.modal-backdrop').hide();
+                                }
                             },
                             error: function (error) {
                                 btn.disabled = false;
@@ -980,7 +993,13 @@
                 )
             } catch (e) {
                 btn.disabled = false;
+                $("#divProcesando").hide();
 
+                if ($('.modal-backdrop').is(':visible')) {
+
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').hide();
+                }
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
