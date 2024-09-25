@@ -2204,11 +2204,20 @@
                             <div class="form-group">
                                 <label>Estado de la Llamada (Actual):</label>
                        
-                                <select id="statusLlamadaActual" class="form-control" value="@Model.InputLlamada.Status" required disabled>
+                                <select id="statusLlamadaActual" class="form-control"  required disabled>
                                     
                                     @foreach (var item in Model.Status)
                                     {
-                                        <option value="@item.idSAP">@item.Nombre</option>
+                                        @if(Model.InputLlamada.Status.ToString() == item.idSAP)
+                                        {
+                                            <option value="@item.idSAP" selected>@item.Nombre</option>
+
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.idSAP">@item.Nombre</option>
+
+                                        }
                                     }
                                 </select>
                             </div>
@@ -2218,7 +2227,7 @@
                                 <label>Estado de la Llamada:</label>
                                 <input asp-for="InputLlamada.id" id="idLlamada" hidden />
                                 <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required> 
-                                    @foreach (var item in Model.Status.Where(a =>   a.idSAP == "47"   || a.idSAP == "48" || a.idSAP == "55"))
+                                    @foreach (var item in Model.Status.Where(a =>   a.idSAP == "47"   || a.idSAP == "48" || a.idSAP == "55" || a.idSAP == "45"))
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
                                     }

@@ -1712,12 +1712,24 @@
 
                         <div class="form-group">
                             <label>Prioridad:</label>
-                            <select id="prioridad" class="form-control" asp-for="Input.Prioridad" required>
-                                <option value="L">Baja</option> 
-                                <option value="H">Alta</option>
 
-                                
-                            </select>
+                            @if (!string.IsNullOrEmpty(Roles.Where(a => a == "70").FirstOrDefault()))
+                            {
+                                <select id="prioridad" class="form-control" asp-for="Input.Prioridad" required>
+                                    <option value="L">Baja</option>
+                                    <option value="H">Alta</option>
+
+
+                                </select>
+                            }else
+                            {
+                                <select id="prioridad" class="form-control" asp-for="Input.Prioridad" required disabled>
+                                    <option value="L" selected>Baja</option> 
+
+                                </select>
+                            }
+
+                            
                         </div>
                     </div>
                 </div>
