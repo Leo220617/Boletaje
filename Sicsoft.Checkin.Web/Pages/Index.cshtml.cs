@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using FacturaElectronica.Models;
 using Boletaje.Models;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Sicsoft.Checkin.Web.Pages
 {
@@ -49,10 +50,10 @@ namespace Sicsoft.Checkin.Web.Pages
         {
             try
             {
+
              
 
-       
-               
+
                 return Page();
 
 
