@@ -1,6 +1,6 @@
 ﻿namespace Boletaje.Models
 {
-    public class CondicionesPagosViewModel
+    public class PlazosCreditosViewModel
     {
         public int id { get; set; }
         public string codSAP { get; set; }

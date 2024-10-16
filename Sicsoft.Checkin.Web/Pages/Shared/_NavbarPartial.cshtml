@@ -221,6 +221,29 @@
                                     }
 
                                 </li>
+
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "71").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/PlazosCreditos/Index">Plazos de Credito</a>
+                                        }
+
+                                    }
+
+                                </li>
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "76").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/CuentasBancarias/Index">Cuentas Bancarias</a>
+                                        }
+
+                                    }
+
+                                </li>
                             </ul>
                         </div>
                     </li>
@@ -361,6 +384,62 @@
                                                 {
 
                                                     <a class="nav-link" asp-page="/OrdenVenta/Index">Orden Venta</a>
+                                                }
+
+                                            }
+
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+
+
+                    }
+                    @{
+                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "73").FirstOrDefault()))
+                        {
+                            <li class="nav-item ">
+                                <a class="nav-link active" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-9" aria-controls="submenu-9"><i class="fas fa-clipboard-list"></i>Entregas Por Facturar <span class="badge badge-success">9</span></a>
+                                <div id="submenu-9" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+
+
+                                        <li class="nav-item">
+                                            @{
+                                                if (!string.IsNullOrEmpty(Roles.Where(a => a == "73").FirstOrDefault()))
+                                                {
+
+                                                    <a class="nav-link" asp-page="/EntregasFacturar/Index">Listado</a>
+                                                }
+
+                                            }
+
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+
+
+                    }
+                    @{
+                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "75").FirstOrDefault()))
+                        {
+                            <li class="nav-item ">
+                                <a class="nav-link active" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-10" aria-controls="submenu-10"><i class="fas fa-clipboard-list"></i>Facturas <span class="badge badge-success">10</span></a>
+                                <div id="submenu-10" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+
+
+                                        <li class="nav-item">
+                                            @{
+                                                if (!string.IsNullOrEmpty(Roles.Where(a => a == "75").FirstOrDefault()))
+                                                {
+
+                                                    <a class="nav-link" asp-page="/Facturas/Index">Listado</a>
                                                 }
 
                                             }

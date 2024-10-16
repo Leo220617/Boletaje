@@ -1,24 +1,25 @@
-﻿@page
-@model Boletaje.Pages.CondicionesPagos.NuevoModel
+﻿@page "{id}"
+@model Boletaje.Pages.PlazosCreditos.EditarModel
 @{
-    ViewData["Title"] = "Condiciones de Pago";
+    ViewData["Title"] = "Editar Plazos de Creditos";
 }
-@section breadcrumb{
+
+@section breadcrumb {
 
     <li class="breadcrumb-item">
-        <a asp-page="./Index">Condiciones de Pago</a>
+        <a asp-page="./Index">Plazos de Creditos</a>
     </li>
     <li class="breadcrumb-item active">
-        <a>Agregar</a>
+        <a>Edición de Plazos de Creditos</a>
     </li>
 
 }
-@section styles{
+
+@section styles {
 
 
 }
-
-@section scripts{
+@section scripts {
 
 
 
@@ -30,12 +31,12 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h5 class="title">Registro de Condiciones de Pago</h5>
+                        <h5 class="title">Edición de Plazos de Creditos</h5>
                     </div>
 
                     <div class="col-sm-6" style="text-align: right">
 
-                        <a asp-page="/CondicionesPagos/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                        <a asp-page="/PlazosCreditos/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
 
                     </div>
                 </div>
@@ -45,6 +46,7 @@
             <div class="card-body">
                 <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="Input.id" hidden />
 
                     <div class="row">
                         <div class="col-md-4">

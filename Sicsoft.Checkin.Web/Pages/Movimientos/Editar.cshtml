@@ -52,7 +52,7 @@
                 $(document).ready(function () {
                 });
             });
-
+            RecuperarTipoCambio();
             Recuperar();
             //selectOpcional();
 
@@ -70,6 +70,41 @@
         var regenerar = false;
         var ProductoPadre = [];
         var Errores = [];
+        var TipoCambio = [];
+        var Exoneraciones = [];
+        function RecuperarTipoCambio() {
+
+            try {
+                fetch('https://apis.gometa.org/tdc/tdc.json?fbclid=IwAR1Wfr6SFwV8_0-x9n5JrjMmNTkOcUIWdekp1Sc6sFpTnIuP29ok-aVuQWI')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json(); // Parsea la respuesta como JSON
+                    })
+                    .then(data => {
+                        // Maneja los datos obtenidos
+                        console.log(data);
+                        var det = {
+                            Moneda: "USD",
+                            TipoCambio: parseFloat(data.venta)
+                        }
+                        TipoCambio.push(det);
+                    })
+                    .catch(error => {
+                        // Maneja errores
+                        console.error('Fetch error:', error);
+                    });
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+
+        }
         function onAbrirModalDetallado() {
             try {
                 $("#exampleModal").modal("show");
@@ -93,7 +128,7 @@
                 ProductosHijosInsertar = JSON.parse($("#ProductosHijosInsertar").val());
                 ProductoPadre = JSON.parse($("#ProductoPadre").val());
                 Errores = JSON.parse($("#Errores").val());
-
+                Exoneraciones = JSON.parse($("#Exoneraciones").val());
                 for (var i = 0; i < ProductosHijos.length; i++) {
                     if(ProductosHijos[i] != undefined)
                     {
@@ -123,6 +158,8 @@
                 $("#Moneda").val("@Model.Input.Moneda");
                 console.log(detalles);
                 for (var i = 0; i < detalles.length; i++) {
+                    var IMP = ImpuestosS.find(a => a.id == detalles[i].idImpuesto);
+                    var calculoIMP = (IMP != undefined ? IMP.Tarifa : 0);
                     var detalle = {
                         id: detalles[i].id,
                         idError: detalles[i].idError,
@@ -138,8 +175,19 @@
                         Impuestos: detalles[i].Impuestos,
                         TotalLinea: detalles[i].TotalLinea,
                         Garantia: detalles[i].Garantia,
-                        Opcional: detalles[i].Opcional
+                        Opcional: detalles[i].Opcional,
+                        PorExoneracion: Exoneraciones.find(a => a.ItemCode == detalles[i].ItemCode) == undefined ? 0 : Exoneraciones.find(a => a.ItemCode == detalles[i].ItemCode).Prcnt,
+                        idDocumentoExoneracion: Exoneraciones.find(a => a.ItemCode == detalles[i].ItemCode) == undefined ? 0 : Exoneraciones.find(a => a.ItemCode == detalles[i].ItemCode).DocEntry
                     };
+                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                            detalle.Impuestos -= TarifaExonerado;
+                            detalle.PorExoneracion = EX.Prcnt;
+                        }
+                    }
                     Detalles.push(detalle);
 
                 }
@@ -223,6 +271,8 @@
 
 
                     sOptions += '<td align="right"> <p id="' + i + 'Imp">' + Detalles[i].Impuestos + '</p></td>';
+                    var Exo = Exoneraciones.length == 0 ? "" : (Exoneraciones.find(a => a.ItemCode == Detalles[i].ItemCode) == undefined ? "" : Exoneraciones.find(a => a.ItemCode == Detalles[i].ItemCode).NumeroDocumento);
+                    sOptions += '<td align="right"> <p id="' + i + 'Exo">' + Exo + '</p></td>';
                     sOptions += '<td align="right"> <input class="form-control input2" disabled readonnly value="' + Detalles[i].PorDescuento + '" type="number" step="1" id="' + i + 'PorDesc" onchange="javascript: ModificaLinea(' + i + ', false)"/> </td>';
 
                     sOptions += '<td align="right"> <p id="' + i + 'Desc">' + Detalles[i].Descuento + '</p></td>';
@@ -294,6 +344,7 @@
         }
         function ModificaLinea(i, ban) {
             try {
+                var TP = TipoCambio.find(a => a.Moneda == "USD"); 
                 var Impuestos = 0;
                 var Descuentos = 0;
                 var TotalLinea = 0;
@@ -327,9 +378,9 @@
                 if (banderaConversion) {
                     var PrecioUnitario = parseFloat($("#" + i + "PrecioU").val());
                     if ($("#Moneda").val() == "COL") {
-                        $("#" + i + "PrecioU").val((PrecioUnitario * Rate).toFixed(2))
+                        $("#" + i + "PrecioU").val((PrecioUnitario * TP.TipoCambio.toFixed(2)))
                     } else {
-                        $("#" + i + "PrecioU").val((PrecioUnitario / Rate).toFixed(4))
+                        $("#" + i + "PrecioU").val((PrecioUnitario / TP.TipoCambio).toFixed(4))
 
                     }
                 }
@@ -352,7 +403,7 @@
                     gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - (producto.Costo);
 
                 } else {
-                    gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - (producto.Costo / Rate);
+                    gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - (producto.Costo / TP.TipoCambio);
 
 
                 }
@@ -362,18 +413,29 @@
 
                 ganancia = (gananciaBruta / parseFloat($("#" + i + "PrecioU").val())) * 100;
 
+                Detalles[i].PrecioUnitario = $("#" + i + "PrecioU").val();
                 Descuentos = ($("#" + i + "PorDesc").val() / 100) * Subtotal;
                 var idImpuesto = ImpuestosS.find(a => a.id == $("#" + i + "impSelector").val());
+                var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                var calculoIMP = IMP.Tarifa;
                 if (idImpuesto != undefined) {
                     Detalles[i].idImpuesto = idImpuesto.id;
                     Impuestos = (Subtotal - Descuentos) * (idImpuesto.Tarifa / 100);
-
+                    var EX = Exoneraciones.find(a => a.ItemCode == Detalles[i].ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((Detalles[i].Cantidad * Detalles[i].PrecioUnitario) - Detalles[i].Descuento) * ValorExonerado;
+                            Impuestos -= TarifaExonerado;
+                            Detalles[i].PorExoneracion = EX.Prcnt;
+                            Detalles[i].idDocumentoExoneracion = EX.DocEntry;
+                        }
+                    }
                 } else {
                     Impuestos = 0;
                 }
                 TotalLinea = (Subtotal - Descuentos) + Impuestos;
 
-                Detalles[i].PrecioUnitario = $("#" + i + "PrecioU").val();
                 if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()) || ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0] == undefined) {
                     Detalles[i].Cantidad = $("#" + i + "Cantidad").val();
 
@@ -466,6 +528,7 @@
         function Validar(Detalles) {
             try {
                 var bandera = true;
+                    var TP = TipoCambio.find(a => a.Moneda == "USD");
                 for (var i = 0; i < Detalles.length; i++) {
                     var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
                     if (producto == undefined) {
@@ -473,8 +536,13 @@
                     }
                     var ganancia = 0;
                     var gananciaBruta = 0;
-
-                    gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - producto.Costo;
+                    if ($("#Moneda").val() == "USD") {
+                        gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - (producto.Costo / TP.TipoCambio);
+                    } else {
+                         
+                        gananciaBruta = (parseFloat($("#" + i + "PrecioU").val())) - producto.Costo;
+                    }
+                    //gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - producto.Costo;
 
                     ganancia = (gananciaBruta / parseFloat($("#" + i + "PrecioU").val())) * 100;
                     if (ganancia < producto.PorMinimo) {
@@ -1063,6 +1131,7 @@
 
         function InsertarProductoTabla() {
             try {
+                var TP = TipoCambio.find(a => a.Moneda == "USD");
 
                 if (ValidarAntesTabla()) {
 
@@ -1078,7 +1147,7 @@
                         idImpuesto: 0,
                         ItemCode: Prod.codSAP,
                         ItemName: Prod.Nombre,
-                        PrecioUnitario: $("#Moneda").val() == "COL" ? Prod.Precio.toFixed(2) : (Prod.Precio / Rate).toFixed(2),
+                        PrecioUnitario: $("#Moneda").val() == "COL" ? Prod.Precio.toFixed(2) : (Prod.Precio / TP.TipoCambio).toFixed(2),
                         Cantidad: 1,
                         PorDescuento: 0,
                         Descuento: 0,
@@ -1182,9 +1251,11 @@
         }
         function CalculaSemaforo() {
             try {
+                var TP = TipoCambio.find(a => a.Moneda == "USD");
+
                 var PrecioMaquina = parseFloat($("#PrecioProductoPadre").val());
                 if ($("#Moneda").val() != "COL") {
-                    PrecioMaquina = PrecioMaquina / Rate;
+                    PrecioMaquina = PrecioMaquina / TP.TipoCambio;
                 }
                 var PrecioTotalDoc = parseFloat(DevuelveTotal());
 
@@ -1882,6 +1953,8 @@
                 <input hidden id="ProductosHijosInsertar" value="@JsonConvert.SerializeObject(Model.ProductosHijosInsertar)" />
                 <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
                 <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
+                <input hidden id="Exoneraciones" value="@JsonConvert.SerializeObject(Model.Exoneraciones.Exoneraciones)" />
+
                 <input hidden id="idLlamada" value="@Model.Llamada.id" />
 
 
@@ -2057,6 +2130,8 @@
                                 <th class="center">Imp</th>
 
                                 <th class="center">Impuestos</th>
+                                <th class="center"># Exoneración</th>
+
                                 <th class="center">% Descuento</th>
 
                                 <th class="center">Descuentos</th>

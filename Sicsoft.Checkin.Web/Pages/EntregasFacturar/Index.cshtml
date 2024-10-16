@@ -1,0 +1,287 @@
+﻿@page
+@model Boletaje.Pages.EntregasFacturar.IndexModel
+@{
+    ViewData["Title"] = "Entregas a Facturar";
+}
+@using System.Globalization;
+@{
+    NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+    formato.CurrencyGroupSeparator = ",";
+    formato.NumberDecimalSeparator = ".";
+
+    var Roles1 = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Entregas a Facturar</a>
+    </li>
+
+
+}
+
+
+
+
+@section styles {
+
+    <style>
+        .tableFixHead th {
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+    </style>
+
+}
+
+
+@section scripts {
+
+
+    <script>
+        $(document).ready(function () {
+            jQuery(document).ready(function ($) {
+
+            });
+
+
+
+            $(document).ready(function () {
+                $('#tablita').DataTable();
+                $('.js-example-basic-multiple').select2();
+            });
+
+
+        });
+
+    </script>
+
+}
+
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@inject IHttpContextAccessor httpContextAccessor
+
+<div class="row">
+    <div class="col-md-12   ">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Filtro</h4>
+
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="row">
+                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
+                        {
+                            <div class="col-sm-6 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Inicial</label>
+                                    <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
+                                </div>
+
+
+                            </div>
+
+                            <div class="col-sm-6 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Final</label>
+                                    <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
+                                </div>
+                            </div>
+
+
+                        }
+
+
+
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
+
+                        <div class="col-sm-6 pr-1">
+                            <div class="form-group">
+                                <label>No. Llamada</label>
+                                <input class="form-control" id="noLlamada" type="text" asp-for="filtro.Texto">
+                            </div>
+
+
+                        </div>
+                        <div class="col-sm-6 pl-1" style="text-align:center; margin-top:2%;">
+
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input asp-for="filtro.NoFacturado" class="form-check-input" type="checkbox" id="check1">
+                                    <span class="form-check-sign"></span>
+                                    Sin Facturar
+                                </label>
+                            </div>
+
+                        </div>
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
+                        <div class="col-sm-6 pr-1">
+                        </div>
+                        <div class="col-sm-6 pl-1" style="text-align: right;">
+                            <button title="Buscar" type="submit" class="btn btn-rounded btn-outline-primary"> <i class="fas fa-search"></i></button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Entregas a Facturar</h5>
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered first">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Llamada</th>
+                                <th>Estado Llamada</th>
+                                <th>Tipo Caso</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Subtotal</th>
+                                <th>Impuestos</th>
+                                <th>Descuento</th>
+                                <th>Total</th>
+                                <th>Facturada</th>
+                                <th>Acción</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Objeto)
+                            {
+
+
+                                <tr style="@( item.Facturado ? "background-color: #c3f9ea" : "background-color: #ffdfd0")">
+
+
+
+                                    <td>@item.id</td>
+                                    <td>@item.NumLlamada</td>
+                                    @{
+                                        var DocEntry = Convert.ToInt32(item.NumLlamada);
+                                    }
+                                    @*  <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault().Nombre) </td>
+                                <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault().Nombre) </td>
+                                *@
+                                    <td> @(Model.Status.Where(b => b.idSAP == @item.StatusLlamada.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == item.StatusLlamada.ToString()).FirstOrDefault().Nombre) </td>
+                                    <td> @(Model.TP.Where(b => b.idSAP == @item.TipoCaso.ToString().ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == item.TipoCaso.ToString()).FirstOrDefault().Nombre) </td>
+
+
+                                    <td>@item.CardCode - @item.CardName</td>
+                                    <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+
+                                    <td align="right">@decimal.Round(item.Subtotal, 2).ToString("N", formato)</td>
+                                    <td align="right">@decimal.Round(item.Impuestos, 2).ToString("N", formato)</td>
+
+                                    <td align="right">@decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
+                                    <td align="right">@decimal.Round(item.TotalComprobante, 2).ToString("N", formato)</td>
+                                    @if (item.Facturado)
+                                    {
+                                        <td>
+                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Facturado</span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+
+                                        <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Facturar</span></td>
+
+
+                                    }
+
+                                    <td>
+                                        @if (!item.Facturado)
+                                        {
+
+                                            <a asp-page="./Facturar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar Factura</a>
+                                        }
+                                        &nbsp;
+                                        <a asp-page="/Movimientos/Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
+
+                                        &nbsp;
+
+                                        @{
+                                            var NumLlamada = 0;
+                                            try
+                                            {
+                                                NumLlamada = Convert.ToInt32(item.NumLlamada);
+                                            }
+                                            catch (Exception)
+                                            {
+
+
+                                            }
+
+                                            var idLlamada = item.idLlamada; //Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault() == null ? 0 : Model.InputLlamada.Where(a => a.DocEntry == NumLlamada).FirstOrDefault().id;
+                                        }
+                                        <a asp-page="/Llamadas/Actividades" asp-route-id="@idLlamada" title="Actividades" class="btn btn-rounded btn-outline-info"> Actividades</a> &nbsp;
+
+                                    </td>
+                                </tr>
+
+
+
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Llamada</th>
+                                <th>Estado Llamada</th>
+                                <th>Tipo Caso</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Subtotal</th>
+                                <th>Impuestos</th>
+                                <th>Descuento</th>
+                                <th>Total</th>
+                                <th>Facturada</th>
+                                <th>Acción</th>
+
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
