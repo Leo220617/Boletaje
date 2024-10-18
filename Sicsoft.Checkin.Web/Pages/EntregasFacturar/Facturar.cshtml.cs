@@ -146,7 +146,7 @@ namespace Boletaje.Pages.EntregasFacturar
                         Detalle.ListaPrecios = "";
                         Detalle.Cabys = "";
                         Detalle.Cantidad = item.Cantidad;
-                        Detalle.PrecioUnitario = item.PrecioUnitario; ;
+                        Detalle.PrecioUnitario = item.PrecioUnitario; 
                         Detalle.UnidadMedida = "";
                         Detalle.NomPro = item.ItemName;
                         Detalle.PorDescto = item.PorDescuento; 

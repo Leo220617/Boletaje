@@ -18,7 +18,12 @@ function formatoDecimal(numero) {
     // En el alemán la coma se utiliza como separador decimal y el punto para los millares
     return new Intl.NumberFormat("en-US").format(number);
 }
+function validarCorreo(email) {
+    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
 
+
+}
 function formatoDecimalAleman(numero) {
     var number = numero;
 
