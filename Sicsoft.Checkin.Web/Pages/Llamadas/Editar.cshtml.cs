@@ -378,11 +378,11 @@ namespace Boletaje.Pages.Llamadas
             catch (ApiException ex)
             {
 
-
+                Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
                 var obj = new
                 {
                     success = false,
-                    mensaje = "Error en el exception: -> " + ex.Content.ToString()
+                    mensaje = "Error en el exception: -> " + error.Message
                 };
                 return new JsonResult(obj);
             }

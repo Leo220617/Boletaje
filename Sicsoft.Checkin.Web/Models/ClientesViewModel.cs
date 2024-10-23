@@ -19,5 +19,6 @@ namespace Boletaje.Models
         public string Activo { get; set; }
         public string Exonerado { get; set; }
         public string Cedula { get; set; }
+        public string idCondPago { get; set; }
     }
 }

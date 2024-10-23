@@ -42,6 +42,9 @@ namespace Boletaje.Pages.EntregasFacturar
         public ClientesViewModel Clientes { get; set; }
 
         [BindProperty]
+        public cliente Cliente { get; set; }
+
+        [BindProperty]
         public ExoneracionesViewModel Exoneraciones { get; set; }
 
         [BindProperty]
@@ -119,7 +122,7 @@ namespace Boletaje.Pages.EntregasFacturar
                         ProductosHijosInsertar = ProductosHijosInsertar.Where(a => a.id != item.id).ToArray();
                     }
 
-                    var Cliente = Clientes.Clientes.Where(a => a.CardCode == Movimientos.CardCode).FirstOrDefault();
+                    Cliente = Clientes.Clientes.Where(a => a.CardCode == Movimientos.CardCode).FirstOrDefault(); 
                     ParametrosFiltros filtroExo = new ParametrosFiltros();
                     filtroExo.CardCode = Cliente.CardCode;
                     Exoneraciones = await exonera.ObtenerListaEspecial(filtroExo);

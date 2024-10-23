@@ -3,6 +3,23 @@
 @{
     ViewData["Title"] = "Generar Factura";
 }
+@using System.Globalization;
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@inject IHttpContextAccessor httpContextAccessor
+@using Newtonsoft.Json;
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
 
 @section breadcrumb {
 
@@ -70,6 +87,8 @@
         var TipoCambio = [];
         var Exoneraciones = [];
         var CondicionesPagos = [];
+        var ModificarProductos = '@(!string.IsNullOrEmpty(Roles.Where(a => a == "78").FirstOrDefault()))';
+
         function RecuperarTipoCambio() {
 
             try {
@@ -199,21 +218,35 @@
                     ganancia = (gananciaBruta / parseFloat(Detalles[i].PrecioUnitario)) * 100;
 
                     sOptions += '<tr>'
-                    sOptions += '<td align="center "> <a style="margin-left: -1%; position: inherit !important;" onclick="javascript: EliminarLinea(' + i + ')" title="Eliminar" class="fa fa-trash icono"></a> </td>'
-                    sOptions += '<td align="left ">' + Detalles[i].ItemCode + ' - ' + Detalles[i].ItemName + '</td>';
+                    if (ModificarProductos == "True") {
+                        sOptions += '<td align="center "> <a style="margin-left: -1%; position: inherit !important;" onclick="javascript: EliminarLinea(' + i + ')" title="Eliminar" class="fa fa-trash icono"></a> </td>'
 
-                    sOptions += '<td align="right"> <input class="form-control input2" value="' + Detalles[i].PrecioUnitario + '" type="number" step="1" id="' + i + 'PrecioU" onchange="javascript: ModificaLinea(' + i + ', false)"/> </td>';
-                    if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()) || ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0] == undefined) {
-                        if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase())) {
-                            btn.disabled = true;
-
-                        }
-                        sOptions += '<td align="center"> <input class="form-control input2" value="' + Detalles[i].Cantidad + '" type="number" step="1" id="' + i + 'Cantidad" onchange="javascript: ModificaLinea(' + i + ', false)"/></td>';
                     } else {
-                        sOptions += '<td align="center"> <input class="form-control input2" value="' + Detalles[i].Cantidad + '" type="number" step="1" id="' + i + 'Cantidad" onchange="javascript: ModificaLinea(' + i + ', false)"/></td>';
+                        sOptions += '<td align="center "> </td>'
 
-                        // sOptions += '<td align="center"> <p id="' + i + 'Cantidad">' + Detalles[i].Cantidad + '</p></td>';
                     }
+                    sOptions += '<td align="left ">' + Detalles[i].ItemCode + ' - ' + Detalles[i].ItemName + '</td>';
+                    if (ModificarProductos == "True") {
+                        sOptions += '<td align="right"> <input class="form-control input2" value="' + Detalles[i].PrecioUnitario + '" type="number" step="1" id="' + i + 'PrecioU" onchange="javascript: ModificaLinea(' + i + ', false)"/> </td>';
+                        if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()) || ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0] == undefined) {
+                            if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase())) {
+                                btn.disabled = true;
+
+                            }
+                            sOptions += '<td align="center"> <input class="form-control input2" value="' + Detalles[i].Cantidad + '" type="number" step="1" id="' + i + 'Cantidad" onchange="javascript: ModificaLinea(' + i + ', false)"/></td>';
+                        } else {
+                            sOptions += '<td align="center"> <input class="form-control input2" value="' + Detalles[i].Cantidad + '" type="number" step="1" id="' + i + 'Cantidad" onchange="javascript: ModificaLinea(' + i + ', false)"/></td>';
+
+                            // sOptions += '<td align="center"> <p id="' + i + 'Cantidad">' + Detalles[i].Cantidad + '</p></td>';
+                        }
+                    } else {
+                        sOptions += '<td align="right"> <input class="form-control input2"  disabled readonnly value="' + Detalles[i].PrecioUnitario + '" type="number" step="1" id="' + i + 'PrecioU" onchange="javascript: ModificaLinea(' + i + ', false)"/> </td>';
+                        sOptions += '<td align="center"> <input class="form-control input2" disabled readonnly value="' + Detalles[i].Cantidad + '" type="number" step="1" id="' + i + 'Cantidad" onchange="javascript: ModificaLinea(' + i + ', false)"/></td>';
+
+                    }
+
+
+
                     sOptions += '<td align="center"><b>' + producto.Stock + '</b></td>';
 
                     sOptions += '<td align="center"> <select class=" form-control " id="' + i + 'impSelector" onchange="javascript: ModificaLinea(' + i + ', false)"> <option value="0"> Seleccione </option>';
@@ -447,1322 +480,1317 @@
             }
 
         }
-         
-    function Validar(recibido) {
-        try {
-            var bandera = true;
 
-            if (recibido.Correo == "") {
-                bandera = false;
-            } else {
-                if (!validarCorreo(recibido.Correo)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Correo invalido '
+        function Validar(recibido) {
+            try {
+                var bandera = true;
 
-                    });
-
+                if (recibido.Correo == "") {
                     bandera = false;
-                }
-            }
-            if (recibido.Cedula == "") {
-                bandera = false;
-            }
-            var TP = TipoCambio.find(a => a.Moneda == "USD");
-            for (var i = 0; i < recibido.Detalle.length; i++) {
-                var producto = ProductosHijos.filter(a => a.codSAP == recibido.Detalle[i].ItemCode)[0];
-                if (producto == undefined) {
-                    producto = ProductosHijosInsertar.filter(a => a.codSAP == recibido.Detalle[i].ItemCode)[0];
-                }
-                var ganancia = 0;
-                var gananciaBruta = 0;
-                if ($("#Moneda").val() == "USD") {
-                    gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - (producto.Costo / TP.TipoCambio);
                 } else {
-                    var TP = TipoCambio.find(a => a.Moneda == "USD");
-                    gananciaBruta = (parseFloat($("#" + i + "PrecioU").val())) - producto.Costo;
+                    if (!validarCorreo(recibido.Correo)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Correo invalido '
+
+                        });
+
+                        bandera = false;
+                    }
                 }
-
-
-
-                ganancia = (gananciaBruta / parseFloat($("#" + i + "PrecioU").val())) * 100;
-
-
-                if (ganancia < producto.PorMinimo) {
+                if (recibido.Cedula == "") {
                     bandera = false;
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Los margenes de ganancia no son correcto, favor verificar '
-
-                    });
                 }
+                var TP = TipoCambio.find(a => a.Moneda == "USD");
+                for (var i = 0; i < recibido.Detalle.length; i++) {
+                    var producto = ProductosHijos.filter(a => a.codSAP == recibido.Detalle[i].ItemCode)[0];
+                    if (producto == undefined) {
+                        producto = ProductosHijosInsertar.filter(a => a.codSAP == recibido.Detalle[i].ItemCode)[0];
+                    }
+                    var ganancia = 0;
+                    var gananciaBruta = 0;
+                    if ($("#Moneda").val() == "USD") {
+                        gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - (producto.Costo / TP.TipoCambio);
+                    } else {
+                        var TP = TipoCambio.find(a => a.Moneda == "USD");
+                        gananciaBruta = (parseFloat($("#" + i + "PrecioU").val())) - producto.Costo;
+                    }
 
 
-            }
 
-            return bandera;
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error  ' + e
+                    ganancia = (gananciaBruta / parseFloat($("#" + i + "PrecioU").val())) * 100;
 
-            })
-        }
 
-    }
+                    if (ganancia < producto.PorMinimo) {
+                        bandera = false;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Los margenes de ganancia no son correcto, favor verificar '
 
-    function Generar(generar) {
-        try {
-            var btn = document.getElementById('botonG');
-
-            btn.disabled = true;
-
-            var DetFactura = [];
-
-            for (var i = 0; i < Detalles.length; i++) {
-                var detfac = {
-                    ItemCode: Detalles[i].ItemCode,
-                    NomPro: Detalles[i].ItemName,
-                    idImpuesto: Detalles[i].idImpuesto,
-                    Cantidad: Detalles[i].Cantidad,
-                    PrecioUnitario: Detalles[i].PrecioUnitario,
-                    PorDescto: Detalles[i].PorDescuento == "" ? 0 : Detalles[i].PorDescuento,
-                    TotalDescuento: Detalles[i].Descuento,
-                    TotalImpuestos: Detalles[i].Impuestos,
-                    TotalLinea: Detalles[i].TotalLinea,
-                    idDocumentoExoneracion: Detalles[i].idDocumentoExoneracion
-                };
-
-                DetFactura.push(detfac);
-
-            }
-
-            var recibido =
-            {
-                id: 0,
-                idEntrega: parseInt("@Model.Factura.idEntrega"),
-                idCondicionVenta: $("#condPago").val(),
-                idPlazoCredito: $("#plazoPago").val(),
-                CardCode: "@Model.Factura.CardCode",
-                NombreCliente: "@Model.Factura.NombreCliente",
-                NumLlamada: "@Model.Factura.NumLlamada",
-                TipoDocumento: "01",
-                Cedula: $("#CedulaCliente").val(),
-                Correo: $("#EmailCliente").val(),
-                Moneda: $("#Moneda").val(),
-                TipoCambio: TipoCambio[0].TipoCambio,
-                Comentarios: $("#comentarios").val(),
-                Subtotal: $("#SubtotalGeneral").text(),
-                TotalImpuestos: $("#ImpGeneral").text(),
-                TotalDescuento: $("#DescGeneral").text(),
-                TotalCompra: $("#TotalGeneral").text(),
-                PorDesc: $("#descGeneral").val(),
-                Detalle: DetFactura,
-                Metodos: MetodosPagosAbonos
-
-            }
-
-            if (Validar(recibido)) {
-                Swal.fire({
-                    title: '¿Desea guardar los cambios?',
-                    showDenyButton: true,
-                    showCancelButton: false,
-                    confirmButtonText: `Aceptar`,
-                    denyButtonText: `Cancelar`,
-                    customClass: {
-                        confirmButton: 'swalBtnColor',
-                        denyButton: 'swalDeny'
-                    },
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var recibidos = JSON.stringify(recibido);
-                        var jsonString = JSON.stringify(recibido);
-                        // Comprimir la cadena JSON utilizando gzip
-                        var compressedData = pako.gzip(jsonString);
-
-                        // Convertir los datos comprimidos a un ArrayBuffer (opcional, depende de tu caso de uso)
-                        var compressedArrayBuffer = compressedData.buffer;
-
-                        $.ajax({
-                            type: 'POST',
-
-                            url: '@Url.Page("Facturar", "Generar")',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: compressedArrayBuffer,
-                            processData: false,
-                            headers: {
-                                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
-                            },
-                            success: function (json) {
-
-                                $("#divProcesando").hide();
-
-                                if ($('.modal-backdrop').is(':visible')) {
-
-                                    $('body').removeClass('modal-open');
-                                    $('.modal-backdrop').hide();
-                                }
-                                console.log("resultado " + json.mensaje);
-                                if (json.success == true) {
-                                    Swal.fire({
-                                        title: "Ha sido generado con éxito",
-
-                                        icon: 'success',
-                                        showCancelButton: false,
-
-                                        confirmButtonText: 'OK',
-                                        customClass: {
-                                            confirmButton: 'swalBtnColor',
-
-                                        },
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            //location.reload();
-                                            window.location.href = window.location.href.split("/Facturar")[0].split("/EntregasFacturar")[0] + '/Facturas';
-                                        }
-                                    })
-
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Oops...',
-                                        text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
-
-                                    })
-                                }
-                            },
-
-                            beforeSend: function (xhr) {
-
-                                $("#divProcesando").modal("show");
-                            },
-                            complete: function () {
-
-                            },
-                            error: function (error) {
-
-                            }
                         });
                     }
-                    else {
-                        btn.disabled = false;
 
-                    }
 
                 }
-                )
-            } else {
+
+                return bandera;
+            } catch (e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Parece que faltan datos por rellenar'
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+
+        }
+
+        function Generar(generar) {
+            try {
+                var btn = document.getElementById('botonG');
+
+                btn.disabled = true;
+
+                var DetFactura = [];
+
+                for (var i = 0; i < Detalles.length; i++) {
+                    var detfac = {
+                        ItemCode: Detalles[i].ItemCode,
+                        NomPro: Detalles[i].ItemName,
+                        idImpuesto: Detalles[i].idImpuesto,
+                        Cantidad: Detalles[i].Cantidad,
+                        PrecioUnitario: Detalles[i].PrecioUnitario,
+                        PorDescto: Detalles[i].PorDescuento == "" ? 0 : Detalles[i].PorDescuento,
+                        TotalDescuento: Detalles[i].Descuento,
+                        TotalImpuestos: Detalles[i].Impuestos,
+                        TotalLinea: Detalles[i].TotalLinea,
+                        idDocumentoExoneracion: Detalles[i].idDocumentoExoneracion
+                    };
+
+                    DetFactura.push(detfac);
+
+                }
+
+                var recibido =
+                {
+                    id: 0,
+                    idEntrega: parseInt("@Model.Factura.idEntrega"),
+                    idCondicionVenta: $("#condPago").val(),
+                    idPlazoCredito: $("#plazoPago").val(),
+                    CardCode: "@Model.Factura.CardCode",
+                    NombreCliente: "@Model.Factura.NombreCliente",
+                    NumLlamada: "@Model.Factura.NumLlamada",
+                    TipoDocumento: "01",
+                    Cedula: $("#CedulaCliente").val(),
+                    Correo: $("#EmailCliente").val(),
+                    Moneda: $("#Moneda").val(),
+                    TipoCambio: TipoCambio[0].TipoCambio,
+                    Comentarios: $("#comentarios").val(),
+                    Subtotal: $("#SubtotalGeneral").text(),
+                    TotalImpuestos: $("#ImpGeneral").text(),
+                    TotalDescuento: $("#DescGeneral").text(),
+                    TotalCompra: $("#TotalGeneral").text(),
+                    PorDesc: $("#descGeneral").val(),
+                    Detalle: DetFactura,
+                    Metodos: MetodosPagosAbonos
+
+                }
+
+                if (Validar(recibido)) {
+                    Swal.fire({
+                        title: '¿Desea guardar los cambios?',
+                        showDenyButton: true,
+                        showCancelButton: false,
+                        confirmButtonText: `Aceptar`,
+                        denyButtonText: `Cancelar`,
+                        customClass: {
+                            confirmButton: 'swalBtnColor',
+                            denyButton: 'swalDeny'
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var recibidos = JSON.stringify(recibido);
+                            var jsonString = JSON.stringify(recibido);
+                            // Comprimir la cadena JSON utilizando gzip
+                            var compressedData = pako.gzip(jsonString);
+
+                            // Convertir los datos comprimidos a un ArrayBuffer (opcional, depende de tu caso de uso)
+                            var compressedArrayBuffer = compressedData.buffer;
+
+                            $.ajax({
+                                type: 'POST',
+
+                                url: '@Url.Page("Facturar", "Generar")',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: compressedArrayBuffer,
+                                processData: false,
+                                headers: {
+                                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                                },
+                                success: function (json) {
+
+                                    $("#divProcesando").hide();
+
+                                    if ($('.modal-backdrop').is(':visible')) {
+
+                                        $('body').removeClass('modal-open');
+                                        $('.modal-backdrop').hide();
+                                    }
+                                    console.log("resultado " + json.mensaje);
+                                    if (json.success == true) {
+                                        Swal.fire({
+                                            title: "Ha sido generado con éxito",
+
+                                            icon: 'success',
+                                            showCancelButton: false,
+
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'swalBtnColor',
+
+                                            },
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                //location.reload();
+                                                window.location.href = window.location.href.split("/Facturar")[0].split("/EntregasFacturar")[0] + '/Facturas';
+                                            }
+                                        })
+
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Oops...',
+                                            text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+
+                                        })
+                                    }
+                                },
+
+                                beforeSend: function (xhr) {
+
+                                    $("#divProcesando").modal("show");
+                                },
+                                complete: function () {
+
+                                },
+                                error: function (error) {
+                                    $("#divProcesando").hide();
+
+                                    if ($('.modal-backdrop').is(':visible')) {
+
+                                        $('body').removeClass('modal-open');
+                                        $('.modal-backdrop').hide();
+                                    }
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Ha ocurrido un error al intentar guardar ' + error
+
+                                    })
+                                }
+                            });
+                        }
+                        else {
+                            btn.disabled = false;
+
+                        }
+
+                    }
+                    )
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Parece que faltan datos por rellenar'
+
+                    })
+                }
+
+
+
+
+                btn.disabled = false;
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
 
                 })
             }
 
 
-
-
-            btn.disabled = false;
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error  ' + e
-
-            })
         }
 
+        function ModificaMoneda(ban) {
+            try {
+                if ($("#Moneda").val() == "COL") {
+                    banderaConversion = true;
 
-    }
-
-    function ModificaMoneda(ban) {
-        try {
-            if ($("#Moneda").val() == "COL") {
-                banderaConversion = true;
-
-                $(".moneda").text("₡");
-            } else {
-                banderaConversion = true;
-                $(".moneda").text("$")
-            }
-            if (!ban) {
-                for (var i = 0; i < Detalles.length; i++) {
-                    ModificaLinea(i, "true");
-
+                    $(".moneda").text("₡");
+                } else {
+                    banderaConversion = true;
+                    $(".moneda").text("$")
                 }
-            } else {
-                for (var i = 0; i < Detalles.length; i++) {
-                    ModificaLinea(i, "false");
+                if (!ban) {
+                    for (var i = 0; i < Detalles.length; i++) {
+                        ModificaLinea(i, "true");
 
+                    }
+                } else {
+                    for (var i = 0; i < Detalles.length; i++) {
+                        ModificaLinea(i, "false");
+
+                    }
                 }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
             }
 
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error  ' + e
-
-            })
         }
 
-    }
-
-    function MeterManoObra() {
-        try {
-            var btn = document.getElementById('agregaManoObra');
-            btn.disabled = true;
-            var Precio = 0;
-            if ($("#Moneda").val() != "COL") {
-                Precio = ManoObra.Precio / ManoObra.Rate;
-            } else {
-                Precio = ManoObra.Precio;
-            }
-            var detalle = {
-                id: ManoObra.id,
-                idError: 0,
-                NumLinea: Detalles.length + 1,
-                idEncabezado: 0,
-                ItemCode: ManoObra.codSAP,
-                ItemName: ManoObra.Nombre,
-                PrecioUnitario: Precio,
-                Cantidad: 1,
-                PorDescuento: 0,
-                Descuento: 0,
-                Impuestos: 0,
-                TotalLinea: 0,
-                Garantia: false,
-                Opcional: false
-            };
-            Detalles.push(detalle);
-            RellenaTabla();
-
-            var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
-            ModificaLinea(posicion, "false");
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error  ' + e
-
-            })
-        }
-
-    }
-
-</script>
-
-
-<script>
-    var DetallePago = [];
-    var ProdCB = [];
-    var CB = [];
-    var MetodosPagosAbonos = [];
-    function cantidadRepetidos(palabra, separador) {
-
-
-        return palabra.split(separador).length - 1;
-    }
-    function ReplaceLetra(palabra) {
-        var cantidad = cantidadRepetidos(palabra, ",");
-        for (var i = 0; i < cantidad; i++) {
-            palabra = palabra.replace(",", "");
-        }
-
-        //var cantidad2 = cantidadRepetidos(palabra, ".");
-        //for (var i = 0; i < cantidad2; i++) {
-        //    palabra = palabra.replace(".", "");
-        //}
-        return palabra;
-    }
-    function onChangeProducto() {
-        try {
-            var idB = $("#Busqueda").val().toString().split("_")[0].trim();
-
-            var Prod = ProductosHijosInsertar.find(a => a.id == parseInt(idB));
-            $("#id").text(idB);
-            $("#Nombre").text(Prod.codSAP + " - " + Prod.Nombre);
-            $("#cantidad").text(Prod.Stock);
-
-            $("#Busqueda").val("");
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error ' + e
-
-            })
-        }
-
-    }
-    function LimpiarDatos() {
-        try {
-            $("#id").text("");
-            $("#Nombre").text("");
-            $("#cantidad").text("");
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error ' + e + ' - ' + e.stack
-
-            })
-        }
-    }
-
-    function InsertarProductoTabla() {
-        try {
-
-            if (ValidarAntesTabla()) {
-
-                var idB = $("#id").text();
-                var Prod = ProductosHijosInsertar.find(a => a.id == parseInt(idB));
-
-                var TP = TipoCambio.find(a => a.Moneda == "USD");
-
-
-
+        function MeterManoObra() {
+            try {
+                var btn = document.getElementById('agregaManoObra');
+                btn.disabled = true;
+                var Precio = 0;
+                if ($("#Moneda").val() != "COL") {
+                    Precio = ManoObra.Precio / ManoObra.Rate;
+                } else {
+                    Precio = ManoObra.Precio;
+                }
                 var detalle = {
-                    id: 0,
+                    id: ManoObra.id,
+                    idError: 0,
                     NumLinea: Detalles.length + 1,
                     idEncabezado: 0,
-                    idImpuesto: 0,
-                    ItemCode: Prod.codSAP,
-                    ItemName: Prod.Nombre,
-                    PrecioUnitario: $("#Moneda").val() == "COL" ? Prod.Precio.toFixed(2) : (Prod.Precio / TP.TipoCambio).toFixed(2),
+                    ItemCode: ManoObra.codSAP,
+                    ItemName: ManoObra.Nombre,
+                    PrecioUnitario: Precio,
                     Cantidad: 1,
                     PorDescuento: 0,
                     Descuento: 0,
                     Impuestos: 0,
                     TotalLinea: 0,
-                    PorExoneracion: 0,
-                    idDocumentoExoneracion: 0
+                    Garantia: false,
+                    Opcional: false
                 };
                 Detalles.push(detalle);
-
                 RellenaTabla();
-                LimpiarDatos();
 
                 var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
                 ModificaLinea(posicion, "false");
-            }
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error ' + e + ' - ' + e.stack
 
-            })
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+
         }
 
-    }
-    function ValidarAntesTabla() {
-        try {
-            if ($("#Nombre").text().trim() == "") {
+    </script>
+
+
+    <script>
+        var DetallePago = [];
+        var ProdCB = [];
+        var CB = [];
+        var MetodosPagosAbonos = [];
+        function cantidadRepetidos(palabra, separador) {
+
+
+            return palabra.split(separador).length - 1;
+        }
+        function ReplaceLetra(palabra) {
+            var cantidad = cantidadRepetidos(palabra, ",");
+            for (var i = 0; i < cantidad; i++) {
+                palabra = palabra.replace(",", "");
+            }
+
+            //var cantidad2 = cantidadRepetidos(palabra, ".");
+            //for (var i = 0; i < cantidad2; i++) {
+            //    palabra = palabra.replace(".", "");
+            //}
+            return palabra;
+        }
+        function onChangeProducto() {
+            try {
+                var idB = $("#Busqueda").val().toString().split("_")[0].trim();
+
+                var Prod = ProductosHijosInsertar.find(a => a.id == parseInt(idB));
+                $("#id").text(idB);
+                $("#Nombre").text(Prod.codSAP + " - " + Prod.Nombre);
+                $("#cantidad").text(Prod.Stock);
+
+                $("#Busqueda").val("");
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+
+        }
+        function LimpiarDatos() {
+            try {
+                $("#id").text("");
+                $("#Nombre").text("");
+                $("#cantidad").text("");
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e + ' - ' + e.stack
+
+                })
+            }
+        }
+
+        function InsertarProductoTabla() {
+            try {
+
+                if (ValidarAntesTabla()) {
+
+                    var idB = $("#id").text();
+                    var Prod = ProductosHijosInsertar.find(a => a.id == parseInt(idB));
+
+                    var TP = TipoCambio.find(a => a.Moneda == "USD");
+
+
+
+                    var detalle = {
+                        id: 0,
+                        NumLinea: Detalles.length + 1,
+                        idEncabezado: 0,
+                        idImpuesto: 0,
+                        ItemCode: Prod.codSAP,
+                        ItemName: Prod.Nombre,
+                        PrecioUnitario: $("#Moneda").val() == "COL" ? Prod.Precio.toFixed(2) : (Prod.Precio / TP.TipoCambio).toFixed(2),
+                        Cantidad: 1,
+                        PorDescuento: 0,
+                        Descuento: 0,
+                        Impuestos: 0,
+                        TotalLinea: 0,
+                        PorExoneracion: 0,
+                        idDocumentoExoneracion: 0
+                    };
+                    Detalles.push(detalle);
+
+                    RellenaTabla();
+                    LimpiarDatos();
+
+                    var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
+                    ModificaLinea(posicion, "false");
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e + ' - ' + e.stack
+
+                })
+            }
+
+        }
+        function ValidarAntesTabla() {
+            try {
+                if ($("#Nombre").text().trim() == "") {
+                    return false;
+                }
+                //else if (parseInt($("#cantidad").text()) <= 0) {
+                //    Swal.fire({
+                //        icon: 'error',
+                //        title: 'Oops...',
+                //        text: 'Producto sin stock'
+
+                //    })
+                //    return false;
+                //}
+                else {
+                    return true;
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
                 return false;
             }
-            //else if (parseInt($("#cantidad").text()) <= 0) {
-            //    Swal.fire({
-            //        icon: 'error',
-            //        title: 'Oops...',
-            //        text: 'Producto sin stock'
-
-            //    })
-            //    return false;
-            //}
-            else {
-                return true;
-            }
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error  ' + e
-
-            })
-            return false;
         }
-    }
 
-    function EliminarLinea(i) {
-        try {
-            var btn = document.getElementById('agregaManoObra');
+        function EliminarLinea(i) {
+            try {
+                var btn = document.getElementById('agregaManoObra');
 
-            var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
-            if (producto != undefined) {
-                if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase())) {
-                    btn.disabled = false;
+                var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
+                if (producto != undefined) {
+                    if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase())) {
+                        btn.disabled = false;
+                    }
                 }
-            }
-            Detalles.splice(i, 1);
-            RellenaTabla();
-            for (var i = 0; i < Detalles.length; i++) {
-                ModificaLinea(i, "false");
+                Detalles.splice(i, 1);
+                RellenaTabla();
+                for (var i = 0; i < Detalles.length; i++) {
+                    ModificaLinea(i, "false");
 
-            }
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error  ' + e
-
-            })
-
-        }
-    }
-
-    function DevuelveTotal() {
-        try {
-            var total = 0;
-            for (var i = 0; i < Detalles.length; i++) {
-                total += Detalles[i].TotalLinea;
-            }
-            var descuento = parseFloat($("#DescGeneral").text());
-            total = parseFloat($("#TotalGeneral").text());
-            return total;
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error  ' + e
-
-            })
-
-        }
-    }
-
-</script>
-<script>
-    function AbrirPago() {
-        try {
-            var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
-            $(".MetodosPagoRellenar").hide();
-            var totalG = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
-
-            if ($("#Moneda").val() != "COL") {
-                totalG = totalG * TipodeCambio.TipoCambio;
-            }
-
-            $("#TipCam").val(TipodeCambio.TipoCambio);
-
-            var CondicionActual = $("#condPago").val();
-            var Cond = CondicionesPagos.find(a => a.id == CondicionActual);
-
-            if (Cond.Dias == 0) {
-                if ($("#Moneda").val() == "COL") {
-                    var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
-                    $("#totPago").text(formatoDecimal(Total));
-                    $("#fatPago").text(formatoDecimal(Total));
-                    $("#selectMonedaP").val($("#Moneda").val());
-
-
-                    $("#totPagoD").text(formatoDecimal(Total / TipodeCambio.TipoCambio));
-                    $("#fatPagoD").text(formatoDecimal(Total / TipodeCambio.TipoCambio));
-
-
-                    onChangeMetodo();
-                    RellenaCB();
-
-
-                    $("#modalPagos").modal("show");
-                } else {
-                    var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
-                    $("#totPagoD").text(formatoDecimal(Total));
-                    $("#fatPagoD").text(formatoDecimal(Total));
-                    $("#selectMonedaP").val($("#Moneda").val());
-
-
-                    $("#totPago").text(formatoDecimal(Total * TipodeCambio.TipoCambio));
-                    $("#fatPago").text(formatoDecimal(Total * TipodeCambio.TipoCambio));
-
-
-                    onChangeMetodo();
-                    RellenaCB();
-                    $("#modalPagos").modal("show");
                 }
-            } else {
-                Generar();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+
             }
-
-
-
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error al intentar abrir pagos ' + e
-
-            })
         }
-    }
 
-    function RellenaCB() {
-        try {
-            var text = '';
-            $("#CuentaB").html(text);
-            var Moneda2 = $("#selectMonedaP").val();
-            var Metodo = $("#MetodoSeleccionado").val();
-            var Cuenta = CB.filter(a => a.Moneda == Moneda2 && a.Tipo == Metodo && a.Estado == true);
+        function DevuelveTotal() {
+            try {
+                var total = 0;
+                for (var i = 0; i < Detalles.length; i++) {
+                    total += Detalles[i].TotalLinea;
+                }
+                var descuento = parseFloat($("#DescGeneral").text());
+                total = parseFloat($("#TotalGeneral").text());
+                return total;
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
 
-            for (var i = 0; i < Cuenta.length; i++) {
+                })
 
-                text += "<option value= '" + Cuenta[i].id + "' > " + Cuenta[i].Nombre + " </option>";
             }
-
-            $("#CuentaB").html(text);
-
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error al intentar abrir pagos ' + e
-
-            })
         }
-    }
-    function onChangeMetodo() {
-        try {
-            var Metodo = $("#MetodoSeleccionado").val();
-            var Moneda = $("#selectMonedaP").val();
-            var MonedaDoc = $("#Moneda").val();
-            // var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPago").text()));
-            var Total = 0;
-            if ($("#MetodoSeleccionado").val() != '0') {
-                $(".MetodosPagoRellenar").show();
 
-            } else {
+    </script>
+    <script>
+        function AbrirPago() {
+            try {
+                var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
                 $(".MetodosPagoRellenar").hide();
+                var totalG = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
 
-            }
-            if (MonedaDoc == "COL") {
-                if (Moneda != MonedaDoc) {
-                    Total = parseFloat(ReplaceLetra($("#fatPagoD").text()));
-                } else {
-                    Total = parseFloat(ReplaceLetra($("#fatPago").text()));
+                if ($("#Moneda").val() != "COL") {
+                    totalG = totalG * TipodeCambio.TipoCambio;
                 }
-            } else {
-                if (Moneda != MonedaDoc) {
-                    Total = parseFloat(ReplaceLetra($("#fatPago").text()));
+
+                $("#TipCam").val(TipodeCambio.TipoCambio);
+
+                var CondicionActual = $("#condPago").val();
+                var Cond = CondicionesPagos.find(a => a.id == CondicionActual);
+
+                if (Cond.Dias == 0) {
+                    if ($("#Moneda").val() == "COL") {
+                        var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                        $("#totPago").text(formatoDecimal(Total));
+                        $("#fatPago").text(formatoDecimal(Total));
+                        $("#selectMonedaP").val($("#Moneda").val());
+
+
+                        $("#totPagoD").text(formatoDecimal(Total / TipodeCambio.TipoCambio));
+                        $("#fatPagoD").text(formatoDecimal(Total / TipodeCambio.TipoCambio));
+
+
+                        onChangeMetodo();
+                        RellenaCB();
+
+
+                        $("#modalPagos").modal("show");
+                    } else {
+                        var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                        $("#totPagoD").text(formatoDecimal(Total));
+                        $("#fatPagoD").text(formatoDecimal(Total));
+                        $("#selectMonedaP").val($("#Moneda").val());
+
+
+                        $("#totPago").text(formatoDecimal(Total * TipodeCambio.TipoCambio));
+                        $("#fatPago").text(formatoDecimal(Total * TipodeCambio.TipoCambio));
+
+
+                        onChangeMetodo();
+                        RellenaCB();
+                        $("#modalPagos").modal("show");
+                    }
                 } else {
-                    Total = parseFloat(ReplaceLetra($("#fatPagoD").text()));
+                    Generar();
                 }
+
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar abrir pagos ' + e
+
+                })
             }
-            $("#MontoPago").val(Total);
-
-            switch (Metodo) {
-                case "Efectivo":
-                    {
-                        $(".TARJETADIV").hide();
-                        $(".OTRODIV").hide();
-                        $(".CHEQUEDIV").hide();
-                        $(".EFECTIVODIV").show();
-                        $(".TRANSFERENCIADIV").hide();
-                        $(".CUENTADIV").show();
-
-                        if (Moneda != MonedaDoc) {
-
-                            $("#PagadoCon").val(Total);
-                        }
-
-                        RellenaCB();
-                        break;
-                    }
-                case "Tarjeta":
-                    {
-                        $(".OTRODIV").hide();
-                        $(".EFECTIVODIV").hide();
-
-                        $(".TARJETADIV").show();
-                        $(".TRANSFERENCIADIV").show();
-                        $(".CHEQUEDIV").hide();
-                        $(".CUENTADIV").show();
-                        RellenaCB();
-                        break;
-                    }
-                case "Transferencia":
-                    {
-                        $(".OTRODIV").hide();
-                        $(".EFECTIVODIV").hide();
-
-                        $(".TARJETADIV").hide();
-                        $(".CHEQUEDIV").hide();
-                        $(".TRANSFERENCIADIV").show();
-                        $(".CUENTADIV").show();
-                        RellenaCB();
-                        break;
-                    }
-                case "Cheque":
-                    {
-                        $(".OTRODIV").hide();
-                        $(".EFECTIVODIV").hide();
-
-                        $(".TARJETADIV").hide();
-                        $(".CHEQUEDIV").show();
-                        $(".TRANSFERENCIADIV").hide();
-                        $(".CUENTADIV").hide();
-                        RellenaCB();
-                        break;
-                    }
-                case "Otros":
-                    {
-                        $(".EFECTIVODIV").hide();
-
-                        $(".TARJETADIV").hide();
-                        $(".CHEQUEDIV").hide();
-                        $(".OTRODIV").show();
-                        $(".TRANSFERENCIADIV").hide();
-                        $(".CUENTADIV").show();
-                        RellenaCB();
-                        break;
-                    }
-
-                case "Pago a Cuenta":
-                    {
-                        $(".OTRODIV").hide();
-                        $(".EFECTIVODIV").hide();
-
-                        $(".TARJETADIV").hide();
-                        $(".CHEQUEDIV").hide();
-                        $(".TRANSFERENCIADIV").show();
-                        $(".CUENTADIV").show();
-                        RellenaCB();
-                        break;
-                    }
-                default:
-                    {
-                        $(".EFECTIVODIV").hide();
-
-                        $(".TARJETADIV").hide();
-                        $(".OTRODIV").hide();
-                        $(".CHEQUEDIV").hide();
-                        RellenaCB();
-                        break;
-                    }
-
-            }
-
-
-            onChangeMonedaP();
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error ' + e
-
-            })
         }
-    }
-    function insertarPago() {
-        try {
-            var Moneda = $("#selectMonedaP").val();
-            var MonedaDoc = $("#Moneda").val();
-            var Metodo = $("#MetodoSeleccionado").val();
-            var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
-            if (validarMetodo()) {
+
+        function RellenaCB() {
+            try {
+                var text = '';
+                $("#CuentaB").html(text);
+                var Moneda2 = $("#selectMonedaP").val();
+                var Metodo = $("#MetodoSeleccionado").val();
+                var Cuenta = CB.filter(a => a.Moneda == Moneda2 && a.Tipo == Metodo && a.Estado == true);
+
+                for (var i = 0; i < Cuenta.length; i++) {
+
+                    text += "<option value= '" + Cuenta[i].id + "' > " + Cuenta[i].Nombre + " </option>";
+                }
+
+                $("#CuentaB").html(text);
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar abrir pagos ' + e
+
+                })
+            }
+        }
+        function onChangeMetodo() {
+            try {
+                var Metodo = $("#MetodoSeleccionado").val();
+                var Moneda = $("#selectMonedaP").val();
+                var MonedaDoc = $("#Moneda").val();
+                // var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPago").text()));
+                var Total = 0;
+                if ($("#MetodoSeleccionado").val() != '0') {
+                    $(".MetodosPagoRellenar").show();
+
+                } else {
+                    $(".MetodosPagoRellenar").hide();
+
+                }
+                if (MonedaDoc == "COL") {
+                    if (Moneda != MonedaDoc) {
+                        Total = parseFloat(ReplaceLetra($("#fatPagoD").text()));
+                    } else {
+                        Total = parseFloat(ReplaceLetra($("#fatPago").text()));
+                    }
+                } else {
+                    if (Moneda != MonedaDoc) {
+                        Total = parseFloat(ReplaceLetra($("#fatPago").text()));
+                    } else {
+                        Total = parseFloat(ReplaceLetra($("#fatPagoD").text()));
+                    }
+                }
+                $("#MontoPago").val(Total);
+
                 switch (Metodo) {
                     case "Efectivo":
                         {
+                            $(".TARJETADIV").hide();
+                            $(".OTRODIV").hide();
+                            $(".CHEQUEDIV").hide();
+                            $(".EFECTIVODIV").show();
+                            $(".TRANSFERENCIADIV").hide();
+                            $(".CUENTADIV").show();
+
+                            if (Moneda != MonedaDoc) {
+
+                                $("#PagadoCon").val(Total);
+                            }
+
+                            RellenaCB();
+                            break;
+                        }
+                    case "Tarjeta":
+                        {
+                            $(".OTRODIV").hide();
+                            $(".EFECTIVODIV").hide();
+
+                            $(".TARJETADIV").show();
+                            $(".TRANSFERENCIADIV").show();
+                            $(".CHEQUEDIV").hide();
+                            $(".CUENTADIV").show();
+                            RellenaCB();
+                            break;
+                        }
+                    case "Transferencia":
+                        {
+                            $(".OTRODIV").hide();
+                            $(".EFECTIVODIV").hide();
+
+                            $(".TARJETADIV").hide();
+                            $(".CHEQUEDIV").hide();
+                            $(".TRANSFERENCIADIV").show();
+                            $(".CUENTADIV").show();
+                            RellenaCB();
+                            break;
+                        }
+                    case "Cheque":
+                        {
+                            $(".OTRODIV").hide();
+                            $(".EFECTIVODIV").hide();
+
+                            $(".TARJETADIV").hide();
+                            $(".CHEQUEDIV").show();
+                            $(".TRANSFERENCIADIV").hide();
+                            $(".CUENTADIV").hide();
+                            RellenaCB();
+                            break;
+                        }
+                    case "Otros":
+                        {
+                            $(".EFECTIVODIV").hide();
+
+                            $(".TARJETADIV").hide();
+                            $(".CHEQUEDIV").hide();
+                            $(".OTRODIV").show();
+                            $(".TRANSFERENCIADIV").hide();
+                            $(".CUENTADIV").show();
+                            RellenaCB();
+                            break;
+                        }
+
+                    case "Pago a Cuenta":
+                        {
+                            $(".OTRODIV").hide();
+                            $(".EFECTIVODIV").hide();
+
+                            $(".TARJETADIV").hide();
+                            $(".CHEQUEDIV").hide();
+                            $(".TRANSFERENCIADIV").show();
+                            $(".CUENTADIV").show();
+                            RellenaCB();
+                            break;
+                        }
+                    default:
+                        {
+                            $(".EFECTIVODIV").hide();
+
+                            $(".TARJETADIV").hide();
+                            $(".OTRODIV").hide();
+                            $(".CHEQUEDIV").hide();
+                            RellenaCB();
+                            break;
+                        }
+
+                }
 
 
-                            var Detalle = {
-                                id: 0,
-                                idEncabezado: 0,
-                                idCuentaBancaria: $("#CuentaB").val(),
-                                Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
-                                // Monto: Moneda == MonedaDoc ? parseFloat(ReplaceLetra($("#MontoPago").val())) : Moneda != "COL" ? parseFloat(ReplaceLetra($("#MontoPago").val())) / TipodeCambio.TipoCambio : parseFloat(ReplaceLetra($("#MontoPago").val())) * TipodeCambio.TipoCambio,
-                                BIN: "",
-                                NumReferencia: "",
-                                NumCheque: "",
-                                Metodo: "Efectivo",
-                                Moneda: $("#selectMonedaP").val(),
-                                MonedaVuelto: $("#selectMonedaV").val(),
-                                PagadoCon: parseFloat(ReplaceLetra($("#PagadoCon").val()))
-                            };
-                            MetodosPagosAbonos.push(Detalle);
+                onChangeMonedaP();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
+        function insertarPago() {
+            try {
+                var Moneda = $("#selectMonedaP").val();
+                var MonedaDoc = $("#Moneda").val();
+                var Metodo = $("#MetodoSeleccionado").val();
+                var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
+                if (validarMetodo()) {
+                    switch (Metodo) {
+                        case "Efectivo":
+                            {
+
+
+                                var Detalle = {
+                                    id: 0,
+                                    idEncabezado: 0,
+                                    idCuentaBancaria: $("#CuentaB").val(),
+                                    Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+                                    // Monto: Moneda == MonedaDoc ? parseFloat(ReplaceLetra($("#MontoPago").val())) : Moneda != "COL" ? parseFloat(ReplaceLetra($("#MontoPago").val())) / TipodeCambio.TipoCambio : parseFloat(ReplaceLetra($("#MontoPago").val())) * TipodeCambio.TipoCambio,
+                                    BIN: "",
+                                    NumReferencia: "",
+                                    NumCheque: "",
+                                    Metodo: "Efectivo",
+                                    Moneda: $("#selectMonedaP").val(),
+                                    MonedaVuelto: $("#selectMonedaV").val(),
+                                    PagadoCon: parseFloat(ReplaceLetra($("#PagadoCon").val()))
+                                };
+                                MetodosPagosAbonos.push(Detalle);
+
+                                break;
+                            }
+                        case "Tarjeta":
+                            {
+                                var Detalle = {
+                                    id: 0,
+                                    idEncabezado: 0,
+                                    idCuentaBancaria: $("#CuentaB").val(),
+                                    Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+
+                                    //Monto: MonedaDoc != "COL" ? (Moneda != MonedaDoc ? parseFloat(ReplaceLetra($("#MontoPago").val())) / TipodeCambio.TipoCambio : parseFloat(ReplaceLetra($("#MontoPago").val())) * TipodeCambio.TipoCambio) : (Moneda != MonedaDoc ? parseFloat(ReplaceLetra($("#MontoPago").val())) * TipodeCambio.TipoCambio : parseFloat(ReplaceLetra($("#MontoPago").val())) / TipodeCambio.TipoCambio),
+
+                                    BIN: $("#BINPago").val(),
+                                    NumReferencia: $("#ReferenciaPago").val(),
+                                    NumCheque: "",
+                                    Metodo: "Tarjeta",
+                                    Moneda: $("#selectMonedaP").val(),
+                                    MonedaVuelto: "",
+                                    PagadoCon: 0
+                                };
+                                MetodosPagosAbonos.push(Detalle);
+
+                                break;
+                            }
+                        case "Transferencia":
+                            {
+                                var Detalle = {
+                                    id: 0,
+                                    idEncabezado: 0,
+                                    idCuentaBancaria: $("#CuentaB").val(),
+                                    Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+                                    BIN: "",
+                                    NumReferencia: $("#ReferenciaPago").val(),
+                                    NumCheque: "",
+                                    Metodo: "Transferencia",
+                                    Moneda: $("#selectMonedaP").val(),
+                                    MonedaVuelto: "",
+                                    PagadoCon: 0
+                                };
+                                MetodosPagosAbonos.push(Detalle);
+
+                                break;
+                            }
+                        case "Cheque":
+                            {
+                                var Detalle = {
+                                    id: 0,
+                                    idEncabezado: 0,
+                                    idCuentaBancaria: $("#CuentaB").val(),
+                                    Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+
+                                    BIN: "",
+                                    NumReferencia: "",
+                                    NumCheque: $("#ChequePago").val(),
+                                    Metodo: "Cheque",
+                                    Moneda: $("#selectMonedaP").val(),
+                                    MonedaVuelto: "",
+                                    PagadoCon: 0
+                                };
+                                MetodosPagosAbonos.push(Detalle);
+                                break;
+                            }
+                        case "Otros":
+                            {
+                                var Detalle = {
+                                    id: 0,
+                                    idEncabezado: 0,
+                                    idCuentaBancaria: $("#CuentaB").val(),
+                                    Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+
+                                    BIN: "",
+                                    NumReferencia: "",
+                                    NumCheque: "",
+                                    Metodo: "Otros | " + $("#otroPago").val(),
+                                    Moneda: $("#selectMonedaP").val(),
+                                    MonedaVuelto: "",
+                                    PagadoCon: 0
+                                };
+                                MetodosPagosAbonos.push(Detalle);
+
+                                break;
+                            }
+                        case "Pago a Cuenta":
+                            {
+                                var Detalle = {
+                                    id: 0,
+                                    idEncabezado: 0,
+                                    idCuentaBancaria: $("#CuentaB").val(),
+                                    Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+
+                                    BIN: "",
+                                    NumReferencia: "",
+                                    NumCheque: $("#ReferenciaPago").val(),
+                                    Metodo: "Pago a Cuenta",
+                                    Moneda: $("#selectMonedaP").val(),
+                                    MonedaVuelto: "",
+                                    PagadoCon: 0
+                                };
+                                MetodosPagosAbonos.push(Detalle);
+
+                                break;
+                            }
+                        default:
+                            {
+
+                                break;
+                            }
+                    }
+
+
+                    $("#MetodoSeleccionado").val("0");
+                    calcularPago();
+                    onChangeMetodo();
+                    RellenaTablaPagos();
+                    LimpiarDatosPago();
+                    RellenaCB();
+                    $("#selectMonedaP").val($("#Moneda").val());
+                } else {
+
+                }
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
+        function LimpiarDatosPago() {
+            try {
+                $("#PagadoCon").val(0);
+                $("#otroPago").val("");
+                $("#ChequePago").val("");
+                $("#BINPago").val("");
+                $("#ReferenciaPago").val("");
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
+        function validarMetodo() { // CAMBIAR
+            try {
+                var Metodo = $("#MetodoSeleccionado").val();
+
+                var Moneda = $("#selectMonedaP").val();
+                var Monto = parseFloat($("#MontoPago").val());
+                var MonedaDoc = $("#Moneda").val();
+                var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
+
+                var Total = MonedaDoc == "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPago").text())) : 0; //Total En Colones
+                var TotalD = MonedaDoc != "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPagoD").text())) : 0;
+
+                if (Total <= 0 && TotalD <= 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'No se puede ingresar montos mayores a lo pagado'
+
+                    })
+                    return false;
+                }
+
+                if (parseFloat($("#MontoPago").val()) > parseFloat(ReplaceLetra($("#fatPago").text())) && MonedaDoc == Moneda && MonedaDoc == "COL") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'No se puede ingresar montos mayores a lo faltante'
+
+                    })
+                    return false;
+                }
+
+                if (parseFloat($("#MontoPago").val()) > parseFloat(ReplaceLetra($("#fatPagoD").text())) && MonedaDoc == Moneda && MonedaDoc != "COL") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'No se puede ingresar montos mayores a lo faltante'
+
+                    })
+                    return false;
+                }
+                //if ((parseFloat($("#MontoPago").val()) * TipodeCambio.TipoCambio) > parseFloat(ReplaceLetra($("#fatPago").text())) && Moneda == "USD" && MonedaDoc == "COL") {
+                //    Swal.fire({
+                //        icon: 'error',
+                //        title: 'Oops...',
+                //        text: 'No se puede ingresar montos mayores a lo faltante'
+
+                //    })
+                //    return false;
+                //}
+
+                //if ((parseFloat($("#MontoPago").val()) / TipoCambio.TipoCambio) > parseFloat(ReplaceLetra($("#fatPago").text())) && Moneda == "COL" && MonedaDoc == "USD") {
+                //    Swal.fire({
+                //        icon: 'error',
+                //        title: 'Oops...',
+                //        text: 'No se puede ingresar montos mayores a lo faltante'
+
+                //    })
+                //    return false;
+                //}
+
+                if ($("#CuentaB").val() == "") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Falta la cuenta bancaria'
+
+                    })
+                    return false;
+                }
+                switch (Metodo) {
+                    case "Efectivo":
+                        {
+                            if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#PagadoCon").val() == undefined || $("#PagadoCon").val() == 0 || $("#PagadoCon").val() < parseFloat(ReplaceLetra($("#MontoPago").val()))) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Parece que faltan datos por rellenar '
+
+                                })
+                                return false;
+                            } else {
+                                return true;
+                            }
+
 
                             break;
                         }
                     case "Tarjeta":
                         {
-                            var Detalle = {
-                                id: 0,
-                                idEncabezado: 0,
-                                idCuentaBancaria: $("#CuentaB").val(),
-                                Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+                            if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#BINPago").val() == undefined || $("#BINPago").val() == "") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Parece que faltan datos por rellenar '
 
-                                //Monto: MonedaDoc != "COL" ? (Moneda != MonedaDoc ? parseFloat(ReplaceLetra($("#MontoPago").val())) / TipodeCambio.TipoCambio : parseFloat(ReplaceLetra($("#MontoPago").val())) * TipodeCambio.TipoCambio) : (Moneda != MonedaDoc ? parseFloat(ReplaceLetra($("#MontoPago").val())) * TipodeCambio.TipoCambio : parseFloat(ReplaceLetra($("#MontoPago").val())) / TipodeCambio.TipoCambio),
+                                })
+                                return false;
+                            } else if (parseFloat(ReplaceLetra($("#ReferenciaPago").val())) <= 0 || $("#ReferenciaPago").val() == undefined || $("#ReferenciaPago").val() == "") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Parece que faltan datos por rellenar '
 
-                                BIN: $("#BINPago").val(),
-                                NumReferencia: $("#ReferenciaPago").val(),
-                                NumCheque: "",
-                                Metodo: "Tarjeta",
-                                Moneda: $("#selectMonedaP").val(),
-                                MonedaVuelto: "",
-                                PagadoCon: 0
-                            };
-                            MetodosPagosAbonos.push(Detalle);
+                                })
+                                return false;
+                            }
+                            else {
+                                return true;
+                            }
 
                             break;
                         }
                     case "Transferencia":
                         {
-                            var Detalle = {
-                                id: 0,
-                                idEncabezado: 0,
-                                idCuentaBancaria: $("#CuentaB").val(),
-                                Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
-                                BIN: "",
-                                NumReferencia: $("#ReferenciaPago").val(),
-                                NumCheque: "",
-                                Metodo: "Transferencia",
-                                Moneda: $("#selectMonedaP").val(),
-                                MonedaVuelto: "",
-                                PagadoCon: 0
-                            };
-                            MetodosPagosAbonos.push(Detalle);
+                            if (parseFloat(ReplaceLetra($("#ReferenciaPago").val())) <= 0 || $("#ReferenciaPago").val() == undefined || $("#ReferenciaPago").val() == "") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Parece que faltan datos por rellenar '
+
+                                })
+                                return false;
+                            }
+                            else {
+                                return true;
+                            }
 
                             break;
                         }
                     case "Cheque":
                         {
-                            var Detalle = {
-                                id: 0,
-                                idEncabezado: 0,
-                                idCuentaBancaria: $("#CuentaB").val(),
-                                Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+                            if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#ChequePago").val() == undefined || $("#ChequePago").val() == "") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Parece que faltan datos por rellenar '
 
-                                BIN: "",
-                                NumReferencia: "",
-                                NumCheque: $("#ChequePago").val(),
-                                Metodo: "Cheque",
-                                Moneda: $("#selectMonedaP").val(),
-                                MonedaVuelto: "",
-                                PagadoCon: 0
-                            };
-                            MetodosPagosAbonos.push(Detalle);
+                                })
+                                return false;
+                            }
+                            else {
+                                return true;
+                            }
                             break;
                         }
                     case "Otros":
                         {
-                            var Detalle = {
-                                id: 0,
-                                idEncabezado: 0,
-                                idCuentaBancaria: $("#CuentaB").val(),
-                                Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
+                            if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#otroPago").val() == undefined || $("#otroPago").val() == "") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Parece que faltan datos por rellenar '
 
-                                BIN: "",
-                                NumReferencia: "",
-                                NumCheque: "",
-                                Metodo: "Otros | " + $("#otroPago").val(),
-                                Moneda: $("#selectMonedaP").val(),
-                                MonedaVuelto: "",
-                                PagadoCon: 0
-                            };
-                            MetodosPagosAbonos.push(Detalle);
-
-                            break;
-                        }
-                    case "Pago a Cuenta":
-                        {
-                            var Detalle = {
-                                id: 0,
-                                idEncabezado: 0,
-                                idCuentaBancaria: $("#CuentaB").val(),
-                                Monto: parseFloat(ReplaceLetra($("#MontoPago").val())),
-
-                                BIN: "",
-                                NumReferencia: "",
-                                NumCheque: $("#ReferenciaPago").val(),
-                                Metodo: "Pago a Cuenta",
-                                Moneda: $("#selectMonedaP").val(),
-                                MonedaVuelto: "",
-                                PagadoCon: 0
-                            };
-                            MetodosPagosAbonos.push(Detalle);
+                                })
+                                return false;
+                            }
+                            else {
+                                return true;
+                            }
 
                             break;
                         }
                     default:
                         {
-
+                            return true;
                             break;
                         }
                 }
 
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
 
-                $("#MetodoSeleccionado").val("0");
+                })
+            }
+        }
+
+        function RellenaTablaPagos() {
+            try {
+                var text = "";
+                $("#tbodyPago").html(text);
+
+                for (var i = 0; i < MetodosPagosAbonos.length; i++) {
+                    text += "<tr>";
+                    text += "<td class='text-center'> " + MetodosPagosAbonos[i].Metodo + " </td>";
+                    text += "<td class='text-center'> " + MetodosPagosAbonos[i].BIN + " </td>";
+                    text += "<td class='text-center'> " + MetodosPagosAbonos[i].NumReferencia + " </td>";
+                    /*  text += "<td class='text-center'> " + MetodosPagosAbonos[i].NumCheque + " </td>";*/
+                    text += "<td class='text-center'> " + MetodosPagosAbonos[i].Moneda + " </td>";
+                    text += "<td class='text-rigth'> " + formatoDecimal(MetodosPagosAbonos[i].Monto) + " </td>";
+                    text += "<td class='text-center'> <a class='fa fa-trash' onclick='javascript:EliminarPago(" + i + ") '> </a> </td>";
+                    text += "</tr>";
+
+                }
+
+                $("#tbodyPago").html(text);
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
+
+
+        function calcularPago() { //REVISAR
+            try {
+
+                var Faltante = 0;
+                var FaltanteD = 0;
+                var PagadoT = 0;
+                var PagadoTD = 0;
+                var Pagado = 0;
+                var PagadoD = 0;
+                var MonedaDoc = $("#Moneda").val();
+
+                var Total = 0;// parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                var TotalD = 0;
+                var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
+                var vueltoT = 0;
+                var vueltoTD = 0;
+                var vuelto = 0;
+                var vueltoD = 0;
+                $("#vueltoPago").text(formatoDecimal(vuelto.toFixed(2)));
+                $("#vueltoPagoD").text(formatoDecimal(vueltoD.toFixed(2)));
+
+
+                if (MonedaDoc != "COL") {
+                    TotalD = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                    Total = TotalD * TipodeCambio.TipoCambio;
+                } else {
+                    Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                    TotalD = Total / TipodeCambio.TipoCambio;
+                }
+
+                for (var i = 0; i < MetodosPagosAbonos.length; i++) {
+
+                    // if (MetodosPagosAbonos[i].Moneda == MonedaDoc) {
+                    if (MetodosPagosAbonos[i].Moneda != "COL") { // Moneda del Pago viene en USD
+
+                        PagadoTD += MetodosPagosAbonos[i].Monto;
+                        PagadoT += MetodosPagosAbonos[i].Monto * TipodeCambio.TipoCambio;
+
+                        PagadoD += MetodosPagosAbonos[i].Monto;
+                        //   Pagado += MetodosPagosAbonos[i].Monto * TipodeCambio.TipoCambio;
+                        if (MetodosPagosAbonos[i].Metodo == "Efectivo") {
+
+                            if (MetodosPagosAbonos[i].PagadoCon > 0) {
+
+                                if (MetodosPagosAbonos[i].Moneda != MonedaDoc) { // SI USD = Moneda DOC
+                                    vueltoTD += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
+                                    vueltoT += ((MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto) * TipodeCambio.TipoCambio;
+
+                                    vueltoD += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
+                                } else {
+                                    vueltoTD += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
+                                    vueltoT += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) * TipodeCambio.TipoCambio;
+
+                                    vueltoD += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
+                                }
+
+                                // vuelto += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) * TipodeCambio.TipoCambio;
+                            }
+                        }
+
+                    } else {
+
+                        PagadoT += MetodosPagosAbonos[i].Monto;
+                        PagadoTD += MetodosPagosAbonos[i].Monto / TipodeCambio.TipoCambio;
+                        Pagado += MetodosPagosAbonos[i].Monto;
+                        // PagadoD += MetodosPagosAbonos[i].Monto / TipodeCambio.TipoCambio;
+
+                        if (MetodosPagosAbonos[i].Metodo == "Efectivo") {
+
+                            if (MetodosPagosAbonos[i].PagadoCon > 0) {
+                                if (MetodosPagosAbonos[i].Moneda != MonedaDoc) {
+                                    vueltoT += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
+                                    vueltoTD += ((MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto) / TipodeCambio.TipoCambio;
+
+                                    vuelto += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
+
+                                } else {
+                                    vueltoT += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
+                                    vueltoTD += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) / TipodeCambio.TipoCambio;
+
+                                    vuelto += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
+                                }
+
+                                // vueltoD += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) / TipodeCambio.TipoCambio;
+                            }
+                        }
+                    }
+
+
+                }
+
+
+                Faltante = Total - PagadoT;
+                FaltanteD = TotalD - PagadoTD;
+
+                $("#fatPago").text(formatoDecimal(Faltante));
+                $("#pagPago").text(formatoDecimal(Pagado));
+                $("#vueltoPago").text(formatoDecimal(vuelto));
+                $("#vueltoPagoG").text(formatoDecimal(vueltoT));
+
+
+                $("#fatPagoD").text(formatoDecimal(FaltanteD));
+                $("#pagPagoD").text(formatoDecimal(PagadoD));
+                $("#vueltoPagoD").text(formatoDecimal(vueltoD));
+                $("#vueltoPagoGD").text(formatoDecimal(vueltoTD));
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
+
+        function EliminarPago(i) {
+            try {
+
+                MetodosPagosAbonos.splice(i, 1);
                 calcularPago();
-                onChangeMetodo();
                 RellenaTablaPagos();
-                LimpiarDatosPago();
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
+        function onChangeMonedaP() {
+            try {
+
                 RellenaCB();
-                $("#selectMonedaP").val($("#Moneda").val());
-            } else {
-
-            }
-
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error ' + e
-
-            })
-        }
-    }
-    function LimpiarDatosPago() {
-        try {
-            $("#PagadoCon").val(0);
-            $("#otroPago").val("");
-            $("#ChequePago").val("");
-            $("#BINPago").val("");
-            $("#ReferenciaPago").val("");
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error ' + e
-
-            })
-        }
-    }
-    function validarMetodo() { // CAMBIAR
-        try {
-            var Metodo = $("#MetodoSeleccionado").val();
-
-            var Moneda = $("#selectMonedaP").val();
-            var Monto = parseFloat($("#MontoPago").val());
-            var MonedaDoc = $("#Moneda").val();
-            var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
-
-            var Total = MonedaDoc == "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPago").text())) : 0; //Total En Colones
-            var TotalD = MonedaDoc != "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPagoD").text())) : 0;
-
-            if (Total <= 0 && TotalD <= 0) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'No se puede ingresar montos mayores a lo pagado'
-
-                })
-                return false;
-            }
-
-            if (parseFloat($("#MontoPago").val()) > parseFloat(ReplaceLetra($("#fatPago").text())) && MonedaDoc == Moneda && MonedaDoc == "COL") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'No se puede ingresar montos mayores a lo faltante'
-
-                })
-                return false;
-            }
-
-            if (parseFloat($("#MontoPago").val()) > parseFloat(ReplaceLetra($("#fatPagoD").text())) && MonedaDoc == Moneda && MonedaDoc != "COL") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'No se puede ingresar montos mayores a lo faltante'
-
-                })
-                return false;
-            }
-            //if ((parseFloat($("#MontoPago").val()) * TipodeCambio.TipoCambio) > parseFloat(ReplaceLetra($("#fatPago").text())) && Moneda == "USD" && MonedaDoc == "COL") {
-            //    Swal.fire({
-            //        icon: 'error',
-            //        title: 'Oops...',
-            //        text: 'No se puede ingresar montos mayores a lo faltante'
-
-            //    })
-            //    return false;
-            //}
-
-            //if ((parseFloat($("#MontoPago").val()) / TipoCambio.TipoCambio) > parseFloat(ReplaceLetra($("#fatPago").text())) && Moneda == "COL" && MonedaDoc == "USD") {
-            //    Swal.fire({
-            //        icon: 'error',
-            //        title: 'Oops...',
-            //        text: 'No se puede ingresar montos mayores a lo faltante'
-
-            //    })
-            //    return false;
-            //}
-
-            if ($("#CuentaB").val() == "") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Falta la cuenta bancaria'
-
-                })
-                return false;
-            }
-            switch (Metodo) {
-                case "Efectivo":
-                    {
-                        if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#PagadoCon").val() == undefined || $("#PagadoCon").val() == 0 || $("#PagadoCon").val() < parseFloat(ReplaceLetra($("#MontoPago").val()))) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Parece que faltan datos por rellenar '
-
-                            })
-                            return false;
-                        } else {
-                            return true;
-                        }
+                var Moneda = $("#selectMonedaP").val(); //Moneda del pago
+                var Monto = parseFloat($("#MontoPago").val()); //Monto que se pone el input
+                var MonedaDoc = $("#Moneda").val(); //Moneda del documento
+                var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
+                var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                var Metodo = $("#MetodoSeleccionado").val();
 
 
-                        break;
-                    }
-                case "Tarjeta":
-                    {
-                        if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#BINPago").val() == undefined || $("#BINPago").val() == "") {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Parece que faltan datos por rellenar '
-
-                            })
-                            return false;
-                        } else if (parseFloat(ReplaceLetra($("#ReferenciaPago").val())) <= 0 || $("#ReferenciaPago").val() == undefined || $("#ReferenciaPago").val() == "") {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Parece que faltan datos por rellenar '
-
-                            })
-                            return false;
-                        }
-                        else {
-                            return true;
-                        }
-
-                        break;
-                    }
-                case "Transferencia":
-                    {
-                        if (parseFloat(ReplaceLetra($("#ReferenciaPago").val())) <= 0 || $("#ReferenciaPago").val() == undefined || $("#ReferenciaPago").val() == "") {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Parece que faltan datos por rellenar '
-
-                            })
-                            return false;
-                        }
-                        else {
-                            return true;
-                        }
-
-                        break;
-                    }
-                case "Cheque":
-                    {
-                        if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#ChequePago").val() == undefined || $("#ChequePago").val() == "") {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Parece que faltan datos por rellenar '
-
-                            })
-                            return false;
-                        }
-                        else {
-                            return true;
-                        }
-                        break;
-                    }
-                case "Otros":
-                    {
-                        if (parseFloat(ReplaceLetra($("#MontoPago").val())) <= 0 || $("#otroPago").val() == undefined || $("#otroPago").val() == "") {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Parece que faltan datos por rellenar '
-
-                            })
-                            return false;
-                        }
-                        else {
-                            return true;
-                        }
-
-                        break;
-                    }
-                default:
-                    {
-                        return true;
-                        break;
-                    }
-            }
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error ' + e
-
-            })
-        }
-    }
-
-    function RellenaTablaPagos() {
-        try {
-            var text = "";
-            $("#tbodyPago").html(text);
-
-            for (var i = 0; i < MetodosPagosAbonos.length; i++) {
-                text += "<tr>";
-                text += "<td class='text-center'> " + MetodosPagosAbonos[i].Metodo + " </td>";
-                text += "<td class='text-center'> " + MetodosPagosAbonos[i].BIN + " </td>";
-                text += "<td class='text-center'> " + MetodosPagosAbonos[i].NumReferencia + " </td>";
-                /*  text += "<td class='text-center'> " + MetodosPagosAbonos[i].NumCheque + " </td>";*/
-                text += "<td class='text-center'> " + MetodosPagosAbonos[i].Moneda + " </td>";
-                text += "<td class='text-rigth'> " + formatoDecimal(MetodosPagosAbonos[i].Monto) + " </td>";
-                text += "<td class='text-center'> <a class='fa fa-trash' onclick='javascript:EliminarPago(" + i + ") '> </a> </td>";
-                text += "</tr>";
-
-            }
-
-            $("#tbodyPago").html(text);
 
 
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error ' + e
+                if (Metodo == "Efectivo") {
 
-            })
-        }
-    }
-
-
-    function calcularPago() { //REVISAR
-        try {
-
-            var Faltante = 0;
-            var FaltanteD = 0;
-            var PagadoT = 0;
-            var PagadoTD = 0;
-            var Pagado = 0;
-            var PagadoD = 0;
-            var MonedaDoc = $("#Moneda").val();
-
-            var Total = 0;// parseFloat(ReplaceLetra($("#TotalGeneral").text()));
-            var TotalD = 0;
-            var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
-            var vueltoT = 0;
-            var vueltoTD = 0;
-            var vuelto = 0;
-            var vueltoD = 0;
-            $("#vueltoPago").text(formatoDecimal(vuelto.toFixed(2)));
-            $("#vueltoPagoD").text(formatoDecimal(vueltoD.toFixed(2)));
-
-
-            if (MonedaDoc != "COL") {
-                TotalD = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
-                Total = TotalD * TipodeCambio.TipoCambio;
-            } else {
-                Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
-                TotalD = Total / TipodeCambio.TipoCambio;
-            }
-
-            for (var i = 0; i < MetodosPagosAbonos.length; i++) {
-
-                // if (MetodosPagosAbonos[i].Moneda == MonedaDoc) {
-                if (MetodosPagosAbonos[i].Moneda != "COL") { // Moneda del Pago viene en USD
-
-                    PagadoTD += MetodosPagosAbonos[i].Monto;
-                    PagadoT += MetodosPagosAbonos[i].Monto * TipodeCambio.TipoCambio;
-
-                    PagadoD += MetodosPagosAbonos[i].Monto;
-                    //   Pagado += MetodosPagosAbonos[i].Monto * TipodeCambio.TipoCambio;
-                    if (MetodosPagosAbonos[i].Metodo == "Efectivo") {
-
-                        if (MetodosPagosAbonos[i].PagadoCon > 0) {
-
-                            if (MetodosPagosAbonos[i].Moneda != MonedaDoc) { // SI USD = Moneda DOC
-                                vueltoTD += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
-                                vueltoT += ((MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto) * TipodeCambio.TipoCambio;
-
-                                vueltoD += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
-                            } else {
-                                vueltoTD += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
-                                vueltoT += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) * TipodeCambio.TipoCambio;
-
-                                vueltoD += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
-                            }
-
-                            // vuelto += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) * TipodeCambio.TipoCambio;
-                        }
-                    }
-
-                } else {
-
-                    PagadoT += MetodosPagosAbonos[i].Monto;
-                    PagadoTD += MetodosPagosAbonos[i].Monto / TipodeCambio.TipoCambio;
-                    Pagado += MetodosPagosAbonos[i].Monto;
-                    // PagadoD += MetodosPagosAbonos[i].Monto / TipodeCambio.TipoCambio;
-
-                    if (MetodosPagosAbonos[i].Metodo == "Efectivo") {
-
-                        if (MetodosPagosAbonos[i].PagadoCon > 0) {
-                            if (MetodosPagosAbonos[i].Moneda != MonedaDoc) {
-                                vueltoT += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
-                                vueltoTD += ((MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto) / TipodeCambio.TipoCambio;
-
-                                vuelto += (MetodosPagosAbonos[i].PagadoCon) - MetodosPagosAbonos[i].Monto;
-
-                            } else {
-                                vueltoT += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
-                                vueltoTD += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) / TipodeCambio.TipoCambio;
-
-                                vuelto += MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto;
-                            }
-
-                            // vueltoD += (MetodosPagosAbonos[i].PagadoCon - MetodosPagosAbonos[i].Monto) / TipodeCambio.TipoCambio;
-                        }
-                    }
+                    $("#PagadoCon").val(Monto);
                 }
 
 
-            }
+                if (Moneda != "COL") { //Si es USD
+                    if (Moneda != MonedaDoc) {
+                        var TotalC = Monto * TipodeCambio.TipoCambio;
+                        $("#TotalC").val(TotalC); // lo pongo en colones
+                        //var TotalD = Monto / TipodeCambio.TipoCambio; // Tptal en dolares
+                        $("#TotalD").val(Monto);
+                    } else {
+                        var TotalC = Monto * TipodeCambio.TipoCambio; // Tptal en dolares
+                        $("#TotalC").val(TotalC); // lo pongo en colones
+
+                        $("#TotalD").val(Monto);
+                    }
 
 
-            Faltante = Total - PagadoT;
-            FaltanteD = TotalD - PagadoTD;
+                } else { //La moneda que se escogio es colones
 
-            $("#fatPago").text(formatoDecimal(Faltante));
-            $("#pagPago").text(formatoDecimal(Pagado));
-            $("#vueltoPago").text(formatoDecimal(vuelto));
-            $("#vueltoPagoG").text(formatoDecimal(vueltoT));
+                    if (Moneda != MonedaDoc) {
+                        $("#TotalC").val(Monto); // lo pongo en colones
+                        var TotalD = Monto / TipodeCambio.TipoCambio; // Tptal en dolares
+                        $("#TotalD").val(TotalD);
 
+                    } else {
+                        $("#TotalC").val(Monto); // lo pongo en colones
+                        var TotalD = Monto / TipodeCambio.TipoCambio; // Tptal en dolares
+                        $("#TotalD").val(TotalD);
+                    }
 
-            $("#fatPagoD").text(formatoDecimal(FaltanteD));
-            $("#pagPagoD").text(formatoDecimal(PagadoD));
-            $("#vueltoPagoD").text(formatoDecimal(vueltoD));
-            $("#vueltoPagoGD").text(formatoDecimal(vueltoTD));
-
-
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error ' + e
-
-            })
-        }
-    }
-
-    function EliminarPago(i) {
-        try {
-
-            MetodosPagosAbonos.splice(i, 1);
-            calcularPago();
-            RellenaTablaPagos();
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error ' + e
-
-            })
-        }
-    }
-    function onChangeMonedaP() {
-        try {
-
-            RellenaCB();
-            var Moneda = $("#selectMonedaP").val(); //Moneda del pago
-            var Monto = parseFloat($("#MontoPago").val()); //Monto que se pone el input
-            var MonedaDoc = $("#Moneda").val(); //Moneda del documento
-            var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
-            var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
-            var Metodo = $("#MetodoSeleccionado").val();
-
-
-
-
-            if (Metodo == "Efectivo") {
-
-                $("#PagadoCon").val(Monto);
-            }
-
-
-            if (Moneda != "COL") { //Si es USD
-                if (Moneda != MonedaDoc) {
-                    var TotalC = Monto * TipodeCambio.TipoCambio;
-                    $("#TotalC").val(TotalC); // lo pongo en colones
-                    //var TotalD = Monto / TipodeCambio.TipoCambio; // Tptal en dolares
-                    $("#TotalD").val(Monto);
-                } else {
-                    var TotalC = Monto * TipodeCambio.TipoCambio; // Tptal en dolares
-                    $("#TotalC").val(TotalC); // lo pongo en colones
-
-                    $("#TotalD").val(Monto);
                 }
 
 
-            } else { //La moneda que se escogio es colones
 
-                if (Moneda != MonedaDoc) {
-                    $("#TotalC").val(Monto); // lo pongo en colones
-                    var TotalD = Monto / TipodeCambio.TipoCambio; // Tptal en dolares
-                    $("#TotalD").val(TotalD);
 
-                } else {
-                    $("#TotalC").val(Monto); // lo pongo en colones
-                    var TotalD = Monto / TipodeCambio.TipoCambio; // Tptal en dolares
-                    $("#TotalD").val(TotalD);
-                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar imprimir ' + e
 
+                })
             }
-
-
-
-
-        } catch (e) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Ha ocurrido un error al intentar imprimir ' + e
-
-            })
         }
-    }
-</script>
-}
-@using System.Globalization;
-@using Microsoft.AspNetCore.Http
-@using System;
-@using System.Collections.Generic;
-@using System.IO;
-@using System.Linq;
-@using System.Security.Claims;
-@using System.Threading.Tasks;
-@using Microsoft.AspNetCore.Mvc;
-@using Microsoft.AspNetCore.Mvc.RazorPages;
-@using Microsoft.Extensions.Configuration;
-@using Refit;
-@inject IHttpContextAccessor httpContextAccessor
-@using Newtonsoft.Json;
-@{
-    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+    </script>
 }
 
 
@@ -1810,7 +1838,7 @@
                             {
                                 case "01":
                                     {
-                                            <h3 class="text-dark mb-1">Factura</h3>
+                                        <h3 class="text-dark mb-1">Factura</h3>
                                         break;
                                     }
 
@@ -1850,7 +1878,13 @@
 
                                         @foreach (var item in Model.Condiciones)
                                         {
-                                            <option value="@item.id">@item.Nombre</option>
+                                            @if(item.Nombre.ToUpper().Contains("Contado".ToUpper()))
+                                            {
+                                                <option value="@item.id">@item.Nombre</option>
+                                                
+                                            }else if(item.codSAP == Model.Cliente.idCondPago){
+                                                <option value="@item.id">@item.Nombre</option>
+                                            }
                                         }
 
                                     </select>
@@ -1874,83 +1908,90 @@
                                 </div>
                             </div>
                         </div>
-                        <button id="agregaManoObra" class="btn btn-rounded btn-outline-danger" style="margin-top: 27%;" onclick="javascript: MeterManoObra()"> <i class="fas fa-plus "></i> Mano De Obra</button>
+                        @if (!string.IsNullOrEmpty(Roles.Where(a => a == "78").FirstOrDefault()))
+                        {
+                            <button id="agregaManoObra" class="btn btn-rounded btn-outline-danger" style="margin-top: 27%;" onclick="javascript: MeterManoObra()"> <i class="fas fa-plus "></i> Mano De Obra</button>
+
+                        }
                     </div>
                 </div>
 
                 <hr />
-
-                <div class="row">
-                    <div class="col-sm-12">
-                        <label class="col-form-label">Agregar Productos:</label>
-                        <div class="form-group row">
-
-
-                            <label id="id" hidden style="line-height: 32px;">
-                            </label>
-                            <div class="col-sm-6">
-                                <input id="Busqueda" list="prodHijos" class="form-control" type="text" />
-                                <datalist id="prodHijos">
-                                    @foreach (var item in Model.ProductosHijosInsertar.ToList())
-                                    {
-                                        <option value="@item.id _ @item.codSAP "> @item.codSAP - @item.Nombre </option>
-                                    }
-                                </datalist>
-
-                            </div>
-                            <div class="col-sm-3">
-
-                                <button title="Buscar" type="submit" class="btn btn btn-primary" onclick="javascript: onChangeProducto();"> <i class="fa fa-search"></i></button>
-                            </div>
-                        </div>
+                @if (!string.IsNullOrEmpty(Roles.Where(a => a == "78").FirstOrDefault()))
+                {
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="col-form-label">Agregar Productos:</label>
+                            <div class="form-group row">
 
 
-                        <div class="row">
-                            <div class="col-sm-4">
+                                <label id="id" hidden style="line-height: 32px;">
+                                </label>
+                                <div class="col-sm-6">
+                                    <input id="Busqueda" list="prodHijos" class="form-control" type="text" />
+                                    <datalist id="prodHijos">
+                                        @foreach (var item in Model.ProductosHijosInsertar.ToList())
+                                        {
+                                            <option value="@item.id _ @item.codSAP "> @item.codSAP - @item.Nombre </option>
+                                        }
+                                    </datalist>
 
-                                <div class="form-group row">
-                                    <div class="col-sm-12">
-                                        <label class="col-form-label">Nombre:</label>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <label id="Nombre" style="line-height: 32px;">
-                                        </label>
-
-                                    </div>
                                 </div>
+                                <div class="col-sm-3">
 
-
-
-
-                            </div>
-                            <div class="col-sm-4">
-                                <div class="form-group row">
-                                    <div class="col-sm-12">
-                                        <label class="col-form-label">Stock:</label>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <label id="cantidad" style="line-height: 32px;">
-                                        </label>
-
-
-                                    </div>
+                                    <button title="Buscar" type="submit" class="btn btn btn-primary" onclick="javascript: onChangeProducto();"> <i class="fa fa-search"></i></button>
                                 </div>
                             </div>
 
 
-                            <div class="col-sm-4" style="text-align: center;">
+                            <div class="row">
+                                <div class="col-sm-4">
 
-                                <a title="Agregar" id="Agregar" onclick="javascript: InsertarProductoTabla();" style=" color: #fff; width: 25%;" class="btn btn-rounded btn-primary">+</a>
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <label class="col-form-label">Nombre:</label>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label id="Nombre" style="line-height: 32px;">
+                                            </label>
+
+                                        </div>
+                                    </div>
+
+
+
+
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <label class="col-form-label">Stock:</label>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label id="cantidad" style="line-height: 32px;">
+                                            </label>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-sm-4" style="text-align: center;">
+
+                                    <a title="Agregar" id="Agregar" onclick="javascript: InsertarProductoTabla();" style=" color: #fff; width: 25%;" class="btn btn-rounded btn-primary">+</a>
+                                </div>
+
+
                             </div>
 
-
                         </div>
-
                     </div>
-                </div>
-                <div class="row">
-                </div>
-                <hr />
+                    <div class="row">
+                    </div>
+                    <hr />
+                }
+
 
                 <div class="table-responsive-sm">
                     <table class="table table-striped">
