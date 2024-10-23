@@ -955,6 +955,13 @@
                         $("#divProcesando").modal("show");
                     },
                     success: function (json) {
+                        $("#divProcesando").hide();
+
+                        if ($('.modal-backdrop').is(':visible')) {
+
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').hide();
+                        }
                         console.log(json);
                         rellenaProductos(json);
                     },
@@ -999,7 +1006,13 @@
                             RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                         },
                         success: function (json) {
+                            $("#divProcesando").hide();
 
+                            if ($('.modal-backdrop').is(':visible')) {
+
+                                $('body').removeClass('modal-open');
+                                $('.modal-backdrop').hide();
+                            }
                             console.log(json);
                             $("#cardcode").val("");
 
@@ -1013,7 +1026,13 @@
 
                         },
                         complete: function () {
+                            $("#divProcesando").hide();
 
+                            if ($('.modal-backdrop').is(':visible')) {
+
+                                $('body').removeClass('modal-open');
+                                $('.modal-backdrop').hide();
+                            }
                         },
                         error: function (error) {
 
@@ -1053,6 +1072,13 @@
                         $("#divProcesando").modal("show");
                     },
                     success: function (json) {
+                        $("#divProcesando").hide();
+
+                        if ($('.modal-backdrop').is(':visible')) {
+
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').hide();
+                        }
                         console.log(json);
                         rellenaClientes(json);
                     },
