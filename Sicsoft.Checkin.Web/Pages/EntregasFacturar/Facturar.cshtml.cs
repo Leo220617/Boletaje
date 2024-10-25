@@ -106,7 +106,7 @@ namespace Boletaje.Pages.EntregasFacturar
                     var ProductosHijos2 = new List<ProductosHijosViewModel>();
                     var Produc = await service2.ObtenerLista("");
                     Productos = Produc;
-                    foreach (var item in Movimientos.Detalle)
+                    foreach (var item in Movimientos.Detalle.Where(a => a.Garantia == false).ToList())
                     {
                         var Pr = Produc.Where(a => a.codSAP == item.ItemCode).FirstOrDefault();
                         ProductosHijos2.Add(Pr);
@@ -128,8 +128,8 @@ namespace Boletaje.Pages.EntregasFacturar
                     Exoneraciones = await exonera.ObtenerListaEspecial(filtroExo);
                     Factura = new EncFacturasViewModel();
                     Factura.CardCode = Movimientos.CardCode;
-                    Factura.NombreCliente = Movimientos.CardName;
-                    Factura.Correo = Movimientos.EmailPersonaContacto;
+                    Factura.NombreCliente = Cliente.CardName; // Movimientos.CardName;
+                    Factura.Correo = Cliente.E_Mail; //Movimientos.EmailPersonaContacto;
                     Factura.Cedula = Cliente.Cedula;
                     Factura.Fecha = DateTime.Now;
                     Factura.idEntrega = id;
@@ -137,10 +137,10 @@ namespace Boletaje.Pages.EntregasFacturar
                     Factura.Comentarios = Movimientos.Comentarios;
                     Factura.NumLlamada = Movimientos.NumLlamada;
                     Factura.Moneda = Movimientos.Moneda;
-
-                    Factura.DetFactura = new DetFacturasViewModel[Movimientos.Detalle.Count()];
+                    Factura.PorDesc = Movimientos.PorDescuento;
+                    Factura.DetFactura = new DetFacturasViewModel[Movimientos.Detalle.Where(a => a.Garantia == false).Count()];
                     var i = 0;
-                    foreach (var item in Movimientos.Detalle)
+                    foreach (var item in Movimientos.Detalle.Where(a => a.Garantia == false).ToList())
                     {
                         var Detalle = new DetFacturasViewModel();
                         Detalle.idImpuesto = item.idImpuesto;

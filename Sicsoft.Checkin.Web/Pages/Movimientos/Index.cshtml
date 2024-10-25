@@ -144,7 +144,7 @@
 
 
             Swal.fire({
-                title: '¿Desea eliminar ese usuario?',
+                title: '¿Desea eliminar este movimiento?',
                 showDenyButton: true,
                 showCancelButton: false,
                 confirmButtonText: `Aceptar`,
@@ -557,7 +557,16 @@
                                                 }
                                             case 2:
                                                 {
-                                                    <td>Entrega</td>
+                                                    if(item.idGarantia > 0)
+                                                    {
+                                                        <td>Entrega por Garantía</td>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>Entrega</td>
+
+                                                    }
                                                     break;
                                                 }
                                             case 3:
@@ -637,6 +646,13 @@
                                             {
                                                 <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
 
+                                            }else
+                                            {
+                                                if(item.DocEntry <= 0 || item.DocEntry == null)
+                                                {
+                                                    <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
+
+                                                }
                                             }
                                         }
                                         

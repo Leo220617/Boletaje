@@ -56,6 +56,46 @@
 
         });
 
+        function AbrirModalReporte()
+        {
+            try {
+                Swal.fire({
+                    title: 'Selecciona una fecha',
+                    html: `<input type="date" id="fecha" class="swal2-input">`,
+                    confirmButtonText: 'Confirmar',
+                    showCancelButton: true,
+                    preConfirm: () => {
+                        const fecha = document.getElementById('fecha').value;
+                        if (!fecha) {
+                            Swal.showValidationMessage('Por favor selecciona una fecha');
+                        }
+                        return fecha;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const fecha = new Date(result.value + "UTC -6");
+                        const dia = String(fecha.getDate()).padStart(2, '0');
+                        const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
+                        const año = fecha.getFullYear();
+
+                        const fechaFormateada = `${mes}-${dia}-${año}`;
+
+                        // Redirigir a la página Reportes con la fecha como parámetro
+                        window.location.href = `./Facturas/Reportes?Fecha=${fechaFormateada}`;
+                         
+                    }
+                });
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
+
     </script>
 
 }
@@ -137,7 +177,12 @@
                     </div>
 
                 </form>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <button title="Reporte Facturas por Dia" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: AbrirModalReporte()">Reporte Facturas por Dia</button>
 
+                    </div>
+                </div>
             </div>
         </div>
     </div>

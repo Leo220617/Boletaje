@@ -1,0 +1,544 @@
+﻿@page
+@model Boletaje.Pages.Facturas.ReportesModel
+@{
+    ViewData["Title"] = "Reporte de Facturas por Dia";
+}
+@using System.Globalization;
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@inject IHttpContextAccessor httpContextAccessor
+@using Newtonsoft.Json;
+@using System.Globalization;
+@{
+    NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+    formato.CurrencyGroupSeparator = ",";
+    formato.NumberDecimalSeparator = ".";
+
+    NumberFormatInfo formatoCOL = new CultureInfo("es-CR").NumberFormat;
+    formato.CurrencyGroupSeparator = ",";
+    formato.NumberDecimalSeparator = ".";
+
+    var Roles1 = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Facturas</a>
+    </li>
+
+
+}
+
+
+
+
+@section styles {
+
+    <style>
+        .tableFixHead th {
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+    </style>
+
+}
+
+
+@section scripts {
+
+
+    <script>
+        $(document).ready(function () {
+            jQuery(document).ready(function ($) {
+
+            });
+
+
+
+            $(document).ready(function () {
+                $('#tablita').DataTable();
+                $('.js-example-basic-multiple').select2();
+            });
+
+
+        });
+
+        function ImprimirPantalla() {
+            try {
+                var margins = {
+                    top: 10,
+                    bottom: 10,
+                    left: 10,
+                    width: 595
+                };
+
+
+                html = $(".html").html();
+                html = html.replace('Regresar', '');
+                html = html.replace('<button id="print" class="btn btn-warning" type="button" onclick="javascript: ImprimirPantalla()"> <span><i class="fa fa-print"></i> Imprimir</span> </button>', '');
+                html2pdf(html, {
+                    margin: 1,
+                    padding: 0,
+                    filename: 'CierreCajasBoletaje-' + '@Model.FechaR.ToString("dd MMM yyy")' + '.pdf',
+                    image: { type: 'jpeg', quality: 1 },
+                    html2canvas: { scale: 2, logging: true },
+                    jsPDF: { unit: 'in', format: 'A2', orientation: 'P' },
+                    class: ImprimirPantalla
+                });
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+
+        }
+
+
+
+
+    </script>
+
+}
+
+
+
+<div class="html">
+
+
+    <div class="row">
+        <div class=" col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-header p-4">
+                    <a asp-page="/Facturas/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+
+
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <div class="page-header mt-0">
+                                <h2 class="d-inline"><span class="font-size-24">Cierre Caja</span></h2>
+                                <div class="text-left">
+                                    <h5>Fecha <span class="font-size-18">@Model.FechaR.ToString("dd MMM yyy")</span></h5>
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-xs-right">
+                                <button id="print" class="btn btn-warning" type="button" onclick="javascript: ImprimirPantalla()"> <span><i class="fa fa-print"></i> Imprimir</span> </button>
+                            </div>
+                        </div>
+
+
+                        <!-- /.col -->
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-4">
+                        <div class="col-sm-4">
+
+
+                            <label>Totalizados Sistema </label>
+
+
+
+                        </div>
+
+                        <div class="col-sm-8">
+                        </div>
+                        <hr />
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+                                <label>Efectivo Colones</label>
+                                <h4>  @Math.Round(Model.MP.Where(a => a.Metodo == "Efectivo" && a.Moneda == "COL").Sum(a => a.Monto), 2).ToString("C", formatoCOL)  </h4>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+                                <label>Tarjetas Colones</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Tarjeta" && a.Moneda == "COL").Sum(a => a.Monto), 2).ToString("C", formatoCOL)  </h4>
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Efectivo Dólares</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Efectivo" && a.Moneda == "USD").Sum(a => a.Monto), 2).ToString("C", formato)  </h4>
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Tarjetas Dólares</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Tarjeta" && a.Moneda == "USD").Sum(a => a.Monto), 2).ToString("C", formato)   </h4>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+                                <label>Cheques Colones</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Cheque" && a.Moneda == "COL").Sum(a => a.Monto), 2).ToString("C", formatoCOL)   </h4>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+                                <label>Otros Colones</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Otros" && a.Moneda == "COL").Sum(a => a.Monto), 2).ToString("C", formatoCOL)   </h4>
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Cheques Dólares</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Cheque" && a.Moneda == "USD").Sum(a => a.Monto), 2).ToString("C", formato)   </h4>
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Otros Dólares</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Otros" && a.Moneda == "USD").Sum(a => a.Monto), 2).ToString("C", formato)   </h4>
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+                                <label>Transferencias Colones</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Transferencia" && a.Moneda == "COL").Sum(a => a.Monto), 2).ToString("C", formatoCOL)   </h4>
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Transferencias Dólares</label>
+                                <h4>   @Math.Round(Model.MP.Where(a => a.Metodo == "Transferencia" && a.Moneda == "USD").Sum(a => a.Monto), 2).ToString("C", formato)   </h4>
+
+
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                    <br />
+                    <div class="row mb-4">
+
+                        <div class="col-md-6">
+
+
+                            <div class="form-group">
+                                <label>Total Colones</label>
+                                <h4> @Math.Round(Model.MP.Where(a => a.Moneda == "COL").Sum(a => a.Monto), 2).ToString("C", formatoCOL)   </h4>
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Total Dólares</label>
+                                <h4>  @Math.Round(Model.MP.Where(a => a.Moneda == "USD").Sum(a => a.Monto), 2).ToString("C", formato)   </h4>
+                            </div>
+                        </div>
+
+                        <!-- /.col -->
+                        <!-- title row -->
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="box">
+
+                                <div class="box-body">
+                                    <!-- title row -->
+                                    <!-- info row -->
+                                    <div class="row invoice-info">
+                                        <div class="col-md-4 invoice-col">
+
+                                            <address>
+                                                <strong class="text-blue font-size-24">Métodos Pagos </strong>
+
+
+                                            </address>
+                                        </div>
+
+                                        <!-- /.col -->
+                                    </div>
+                                    <!-- /.row -->
+                                    <!-- Table row -->
+                                    <div class="row">
+                                        <div class="col-md-12 table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr class="bg-pale-info">
+                                                        <th class="text-center">Método </th>
+                                                        <th class="text-center">Factura</th>
+                                                        <th class="text-center">Pago</th>
+                                                        <th class="text-center">Banco</th>
+                                                        <th class="text-center">Cuenta</th>
+                                                        <th class="text-center">Referencia</th>
+                                                        <th class="text-center">Moneda</th>
+                                                        <th class="text-center">Tipo</th>
+                                                        <th class="text-center">Total</th>
+
+
+
+
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+
+                                                    @foreach (var item2 in Model.MP.GroupBy(a => a.Metodo))
+                                                    {
+
+                                                        @foreach (var item in item2)
+                                                        {
+                                                            <tr>
+                                                                <td class="text-center">@item.Metodo</td>
+
+                                                                <td class="text-center">@item.idEncabezado</td>
+
+                                                                <td class="text-center">@item.id</td>
+
+                                                                <td class="text-center"> @(Model.CuentasBancarias.Where(a => a.id == item.idCuentaBancaria).FirstOrDefault() == null ? "Cuenta Inexistente" : Model.CuentasBancarias.Where(a => a.id == item.idCuentaBancaria).FirstOrDefault().Banco)</td>
+
+                                                                <td class="text-center"> @(Model.CuentasBancarias.Where(a => a.id == item.idCuentaBancaria).FirstOrDefault() == null ? "Cuenta Inexistente" : Model.CuentasBancarias.Where(a => a.id == item.idCuentaBancaria).FirstOrDefault().Nombre)</td>
+
+                                                                <td class="text-center">@item.NumReferencia</td>
+
+                                                                <td class="text-center"> @item.Moneda </td>
+                                                                <td class="text-center"> Facturación </td>
+
+                                                                <td class="text-right"> @(item.Moneda == "COL" ? @item.Monto.ToString("C", formatoCOL) : @item.Monto.ToString("C", formato))</td>
+
+
+                                                            </tr>
+                                                        }
+
+                                                    }
+
+
+
+
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- /.col -->
+
+                                        <div class="col-md-12  text-right">
+                                            <div>
+
+                                                <p>Total Colones:  <span>   @Math.Round(Model.MP.Where(a => a.Moneda == "COL").Sum(a => a.Monto), 2).ToString("C", formatoCOL)</span> </p>
+
+                                                <p>Total Dólares: <span>   @Math.Round(Model.MP.Where(a => a.Moneda == "USD").Sum(a => a.Monto), 2).ToString("C", formato)</span></p>
+
+
+                                            </div>
+
+
+
+
+
+                                        </div>
+
+                                    </div>
+                                    <!-- /.row -->
+                                    <!-- /.row -->
+
+                                </div>
+                            </div>
+
+
+                            <!-- Default box -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="card">
+
+                <div class="card-body">
+                    <!-- title row -->
+                    <!-- info row -->
+                    <div class="row invoice-info">
+                        <div class="col-md-4 invoice-col">
+
+                            <address>
+                                <strong class="text-blue font-size-24">Facturas </strong>
+
+
+                            </address>
+                        </div>
+
+                        <!-- /.col -->
+                    </div>
+                    <!-- /.row -->
+                    <!-- Table row -->
+                    <div class="row">
+                        <div class="col-md-12 table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr class="bg-pale-info">
+                                        <th class="text-center">Factura</th>
+                                        <th class="text-center">Cliente</th>
+                                        <th class="text-center">Condición de Pago</th>
+                                        <th class="text-center">Moneda</th>
+                                        <th class="text-center">Total</th>
+
+
+
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @{
+                                        var TotalC = 0.00;
+                                        var TotalD = 0.00;
+
+
+                                    }
+                                    @foreach (var item2 in Model.Objeto)
+                                    {
+
+
+                                        <tr>
+                                            <td class="text-center">@item2.id</td>
+
+                                            <td>   @item2.CardCode - @item2.NombreCliente</td>
+
+
+                                            <td> @(Model.Condiciones.Where(a => a.id == item2.idCondicionVenta).FirstOrDefault() == null ? "Condición Inexistente" : Model.Condiciones.Where(a => a.id == item2.idCondicionVenta).FirstOrDefault().Nombre)</td>
+                                            <td class="text-center"> @item2.Moneda </td>
+
+
+
+
+
+                                            <td class="text-right"> @(item2.Moneda == "COL" ? @Math.Round(Convert.ToDecimal(item2.TotalCompra), 2).ToString("C", formatoCOL) : @Math.Round(Convert.ToDecimal(item2.TotalCompra), 2).ToString("C", formato))</td>
+
+
+
+                                            @{
+                                                if (@item2.Moneda == "COL")
+                                                {
+                                                    TotalC += Convert.ToDouble(@item2.TotalCompra);
+                                                }
+                                                else
+                                                {
+                                                    TotalD += Convert.ToDouble(@item2.TotalCompra);
+                                                }
+
+
+                                            }
+
+
+
+
+                                        </tr>
+
+
+                                    }
+
+
+
+
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.col -->
+
+                        <div class="col-md-12  text-right">
+                            <div>
+
+                                <p>Total Colones:  <span>   @Math.Round(Convert.ToDecimal(TotalC), 2).ToString("C", formatoCOL)</span> </p>
+
+                                <p>Total Dólares:  <span>  @Math.Round(Convert.ToDecimal(TotalD), 2).ToString("C", formato)</span></p>
+
+
+                            </div>
+
+
+
+                        </div>
+
+                    </div>
+                    <!-- /.row -->
+                    <!-- /.row -->
+
+                </div>
+            </div>
+
+
+            <!-- Default box -->
+
+        </div>
+    </div>
+</div>

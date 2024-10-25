@@ -195,7 +195,7 @@
                     regenerar = true;
                 }
                 RellenaTabla();
-                ModificaMoneda(true);
+                ModificaMoneda(true,true);
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -342,23 +342,27 @@
                 })
             }
         }
-        function ModificaLinea(i, ban) {
+        function ModificaLinea(i, ban,inicio) {
             try {
                 var TP = TipoCambio.find(a => a.Moneda == "USD"); 
                 var Impuestos = 0;
                 var Descuentos = 0;
                 var TotalLinea = 0;
                 var Subtotal = 0;
-                try {
-                    var checkbox1 = document.getElementById(i + "check");
-                    var checkbox2 = document.getElementById(i + "checkOpcional");
-                    Detalles[i].Garantia = checkbox1.checked;
-                    Detalles[i].Opcional = checkbox2.checked;
-                } catch (e) {
-                    Detalles[i].Garantia = false;
-                    Detalles[i].Opcional = false;
-                    console.log(e);
+                if(inicio != "true")
+                {
+                    try {
+                        var checkbox1 = document.getElementById(i + "check");
+                        var checkbox2 = document.getElementById(i + "checkOpcional");
+                        Detalles[i].Garantia = checkbox1.checked;
+                        Detalles[i].Opcional = checkbox2.checked;
+                    } catch (e) {
+                        Detalles[i].Garantia = false;
+                        Detalles[i].Opcional = false;
+                        console.log(e);
+                    }
                 }
+               
 
 
                 var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
@@ -1013,7 +1017,7 @@
 
         }
 
-        function ModificaMoneda(ban) {
+        function ModificaMoneda(ban,inicio) {
             try {
                 if ($("#Moneda").val() == "COL") {
                     banderaConversion = true;
@@ -1025,12 +1029,26 @@
                 }
                 if (!ban) {
                     for (var i = 0; i < Detalles.length; i++) {
-                        ModificaLinea(i, "true");
+                        if(inicio == true)
+                        {
+                            ModificaLinea(i, "true","true");
+                        }else
+                        {
+                            ModificaLinea(i, "true","false");
+                        }
+                        
 
                     }
                 } else {
                     for (var i = 0; i < Detalles.length; i++) {
-                        ModificaLinea(i, "false");
+                        if (inicio == true)
+                        {
+                            ModificaLinea(i, "false","true");
+                        }else{
+                            ModificaLinea(i, "false");
+
+                        }
+                        
 
                     }
                 }

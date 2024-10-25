@@ -900,7 +900,13 @@
                             RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                         },
                         success: function (json) {
+                            $("#divProcesando").hide();
 
+                            if ($('.modal-backdrop').is(':visible')) {
+
+                                $('body').removeClass('modal-open');
+                                $('.modal-backdrop').hide();
+                            }
                             console.log(json);
                             $("#productos").val('');
 
@@ -955,6 +961,13 @@
                         $("#divProcesando").modal("show");
                     },
                     success: function (json) {
+                        $("#divProcesando").hide();
+
+                        if ($('.modal-backdrop').is(':visible')) {
+
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').hide();
+                        }
                         console.log(json);
                         rellenaProductos(json);
                     },
@@ -1053,6 +1066,13 @@
                         $("#divProcesando").modal("show");
                     },
                     success: function (json) {
+                        $("#divProcesando").hide();
+
+                        if ($('.modal-backdrop').is(':visible')) {
+
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').hide();
+                        }
                         console.log(json);
                         rellenaClientes(json);
                     },

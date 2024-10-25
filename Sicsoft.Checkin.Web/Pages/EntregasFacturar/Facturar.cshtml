@@ -178,7 +178,7 @@
                     Detalles.push(detalle);
 
                 }
-
+                $("#descGeneral").val(parseFloat("@Model.Factura.PorDesc"));
                 RellenaTabla();
                 ModificaMoneda(true);
             } catch (e) {
