@@ -85,6 +85,10 @@ namespace Boletaje.Pages.Movimientos
 
                     DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
 
+
+                    filtro.FechaInicial = DateTime.Now.AddDays(-7);
+                    filtro.FechaFinal = DateTime.Now.AddDays(1);
+
                     filtro.FechaFinal = ultimoDia;
                     if(filtro.FiltroEspecial && filtro.seleccionMultiple.Count == 0)
                     {
