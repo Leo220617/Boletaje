@@ -824,7 +824,7 @@
                                                 title: 'Oops...',
                                                 text: json.mensaje
 
-                                            })
+                                            });
                                             Facturar();
                                         }else if(json.solicitud == true)
                                         {
@@ -838,9 +838,9 @@
                                             Swal.fire({
                                                 icon: 'warning',
                                                 title: 'ATENCION!',
-                                                text:   json.mensaje
+                                                text: json.mensaje
 
-                                            })
+                                            });
 
                                         }
                                         else {
@@ -851,12 +851,17 @@
                                                 $('body').removeClass('modal-open');
                                                 $('.modal-backdrop').hide();
                                             }
+
+                                            const elemento = document.getElementById("divProcesando");
+                                            if (elemento) {
+                                                elemento.style.display = "none"; // Oculta el elemento
+                                            }
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Oops...',
                                                 text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
 
-                                            })
+                                            });
                                         }
 
                                     }

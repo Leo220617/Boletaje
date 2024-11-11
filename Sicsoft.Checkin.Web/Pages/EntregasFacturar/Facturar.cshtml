@@ -546,7 +546,88 @@
             }
 
         }
+        function ImprimirTiqueteC(Documento, DetFactura) {
+            try {
 
+
+
+                var ventana = window.open('', 'PRINT', 'height=400,width=600');
+                var texto = htmlContado;
+                texto = texto.replace("$Fecha", Documento.fecha.split("T")[0] + " " + Documento.fecha.split("T")[1].substring(0, 8));
+                texto = texto.replace("$NumInterno", Documento.id);
+                texto = texto.replace("$CodSuc", "");
+                texto = texto.replace("$NumComprobante", Documento.consecutivoHacienda);
+                texto = texto.replace("$NumFactura", Documento.id);
+                texto = texto.replace("$Comentario", Documento.comentarios);
+
+                var cond = CondicionesPagos.find(a => a.id == $("#condPago").val());
+                texto = texto.replace("$selectCondPago", cond.Nombre);
+
+
+
+
+                texto = texto.replace("$CodCliente", " " + "@Model.Cliente.CardCode");
+
+
+                texto = texto.replace("$NombreCliente", "@Model.Cliente.CardName");
+                texto = texto.replace("$Vendedor", "");
+
+
+                var tabla = "";
+
+                for (var i = 0; i < DetFactura.length; i++) {
+
+
+
+                    tabla += "<tr>" + "<td colspan='3'>  " + DetFactura[i].ItemCode + "-" + DetFactura[i].NomPro + "  </td></tr>";
+
+
+                    tabla += "<tr>";
+
+                    tabla += "<td style='text-align left;'>" + DetFactura[i].Cantidad + " </td>";
+
+                    tabla += "<td style='text-align left;'>" + formatoDecimal(DetFactura[i].PrecioUnitario) + " </td>";
+                    tabla += "<td style='text-align left;'>" + formatoDecimal(DetFactura[i].TotalLinea) + " </td>";
+
+
+
+
+                    tabla += "</tr>";
+
+                }
+                texto = texto.replace("$Tabla", tabla);
+
+                if (Documento.moneda == "COL") {
+                    texto = texto.replace("$SubTotal", "₡" + formatoDecimal(Documento.subtotal));
+                    texto = texto.replace("$TotalDescuento", "₡" + formatoDecimal(Documento.totalDescuento));
+                    texto = texto.replace("$TotalImpuestos", "₡" + formatoDecimal(Documento.totalImpuestos));
+                    texto = texto.replace("$Redondeo", "₡" + "");
+                    texto = texto.replace("$Total", "₡" + formatoDecimal(Documento.totalCompra));
+                } else {
+                    texto = texto.replace("$SubTotal", "$" + formatoDecimal(Documento.subtotal));
+                    texto = texto.replace("$TotalDescuento", "$" + formatoDecimal(Documento.totalDescuento));
+                    texto = texto.replace("$TotalImpuestos", "$" + formatoDecimal(Documento.totalImpuestos));
+                    texto = texto.replace("$Redondeo", "$" + "");
+                    texto = texto.replace("$Total", "$" + formatoDecimal(Documento.totalCompra));
+                }
+
+
+
+
+                ventana.document.write(texto);
+                ventana.document.close();
+                ventana.focus();
+                ventana.print();
+                ventana.close();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
         function Generar(generar) {
             try {
                 var btn = document.getElementById('botonG');
@@ -641,6 +722,7 @@
                                     }
                                     console.log("resultado " + json.mensaje);
                                     if (json.success == true) {
+                                        ImprimirTiqueteC(json.documento, DetFactura);
                                         Swal.fire({
                                             title: "Ha sido generado con éxito",
 

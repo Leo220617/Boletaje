@@ -265,13 +265,14 @@ namespace Boletaje.Pages.EntregasFacturar
                     cantidad++;
                 }
 
-                await service.Agregar(coleccion);
+               var Fac = await service.Agregar(coleccion);
  
 
                 var obj = new
                 {
                     success = true,
-                    mensaje = ""
+                    mensaje = "",
+                    documento = Fac
                 };
 
                 return new JsonResult(obj);
