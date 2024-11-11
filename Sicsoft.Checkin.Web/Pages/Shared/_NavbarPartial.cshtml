@@ -244,6 +244,28 @@
                                     }
 
                                 </li>
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "80").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/ProductosHoras/Index">Horas Productos</a>
+                                        }
+
+                                    }
+
+                                </li>
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "82").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/AprobacionFacturas/Index">Aprobar Facturas</a>
+                                        }
+
+                                    }
+
+                                </li>
                             </ul>
                         </div>
                     </li>

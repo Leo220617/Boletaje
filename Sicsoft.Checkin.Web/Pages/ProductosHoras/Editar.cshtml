@@ -1,0 +1,85 @@
+﻿@page "{id}"
+@model Boletaje.Pages.ProductosHoras.EditarModel
+@{
+    ViewData["Title"] = "Horas por Producto";
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Horas por Producto</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Agregar</a>
+    </li>
+
+}
+@section styles {
+
+
+}
+
+@section scripts {
+
+
+
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Edición de Horas por Producto</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/HorasProductos/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="Input.id" hidden />
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Código Producto</label>
+                                <input type="text" class="form-control form-control-lg" id="codProd" placeholder="ItemCode" maxlength="50" asp-for="Input.ItemCode" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Cantidad Horas Inicial</label>
+                                <input type="number" step="1" class="form-control form-control-lg" id="CantInicial" placeholder="Cantidad Inicial" maxlength="50" asp-for="Input.CantidadInicial" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Cantidad Horas Final</label>
+                                <input type="number" step="1" class="form-control form-control-lg" id="CantFinal" placeholder="Cantidad Inicial" maxlength="50" asp-for="Input.CantidadFinal" required>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

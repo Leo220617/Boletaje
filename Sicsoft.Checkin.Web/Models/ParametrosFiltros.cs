@@ -8,6 +8,7 @@ namespace InversionGloblalWeb.Models
 {
     public class ParametrosFiltros
     {
+        public DateTime FechaBusqueda { get; set; }
 
         public string Texto { get; set; }
         public string CardName { get; set; }

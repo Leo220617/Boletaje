@@ -2051,6 +2051,19 @@
 
                         <div># Serie: @Model.Llamada.SerieFabricante</div>
                         <div>Ubicación: @Model.UbicacionProd</div>
+                        <div>
+                            Factura Revisión:
+                            @if (Model.Llamada.Factura.FirstOrDefault() != null)
+                            {
+                                <a asp-page="/Facturas/Observar" asp-route-id="@Model.Llamada.Factura.FirstOrDefault().id" title="Observar" target="_blank"> @Model.Llamada.Factura.FirstOrDefault().ConsecutivoHacienda</a>
+
+                            }
+                            else
+                            {
+                                <span style="color: red;">Sin Pagar</span>
+                            }
+
+                        </div>
                         <br />
                         @if(Model.Cliente.Exonerado == "1")
                         {

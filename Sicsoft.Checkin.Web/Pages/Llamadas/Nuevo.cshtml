@@ -10,16 +10,18 @@
 @using System.Linq;
 @using System.Security.Claims;
 @using System.Threading.Tasks;
+@using System.Threading.Tasks;
 @using Microsoft.AspNetCore.Mvc;
 @using Microsoft.AspNetCore.Mvc.RazorPages;
 @using Microsoft.Extensions.Configuration;
 @using Refit;
 @using Sicsoft.Checkin.Web.Models;
+@using Newtonsoft.Json;
 @inject IHttpContextAccessor httpContextAccessor
 @{
     var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
 }
-@section breadcrumb{
+@section breadcrumb {
 
     <li class="breadcrumb-item">
         <a asp-page="./Index">Llamadas Servicios</a>
@@ -29,7 +31,7 @@
     </li>
 
 }
-@section styles{
+@section styles {
     <style type="text/css">
         body {
             padding-top: 20px;
@@ -408,11 +410,12 @@
     </style>
 }
 
-@section scripts{
+@section scripts {
 
 
     <script type="text/javascript">
-
+        var Clientes = [];
+        var Condiciones = [];
         /*
             El siguiente codigo en JS Contiene mucho codigo
             de las siguietes 3 fuentes:
@@ -590,8 +593,7 @@
             } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {
                 return false;
 
-            } else if (recibido1.TipoCaso == "0")
-            {
+            } else if (recibido1.TipoCaso == "0") {
                 return false;
             } else if (recibido1.SucRecibo == "0" || recibido1.SucRetiro == "0") {
                 return false;
@@ -610,7 +612,65 @@
             return true;
 
         }
+        function Facturar() {
+            try {
 
+
+                var Cliente = $("#cardcode").val();
+                var id = $("#producto").val();
+
+                if (id == null || id == undefined || id == "0") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Seleccione primero un producto'
+
+                    })
+                } else if (Cliente == null || Cliente == undefined || Cliente == "0") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Seleccione primero un Cliente'
+
+                    })
+                } else {
+
+                    var id2 = id.split("/")[0].trimEnd().trim() + " | " + Cliente.split("/")[0].trimEnd().trim() + " | " + id.split("/")[1].trimEnd().trim();
+
+                    var ClientFacturar = Cliente.split("/")[0].trimEnd().trim();
+
+                    var clientFac = Clientes.find(a => a.CardCode == ClientFacturar);
+                    var condFacContado = Condiciones.find(a => a.Nombre == "Contado");
+                    if (clientFac != undefined) {
+                        window.open(window.location.href.toString().replace("Llamadas/Nuevo", "Llamadas/Facturar/" + id2), "_blank");
+                        // if (clienteFac.idCondPago != condFacContado.codSAP && $("#tp").val() != "3")
+                        // {
+                        //     if (document.getElementById("sinFacturar").checked)
+                        //     {
+
+                        //     }else
+                        //     {
+                        //         window.open(window.location.href.toString().replace("Llamadas/Nuevo", "Llamadas/Facturar/" + id2, "_blank");
+                        //     }
+                        // }else{
+                        //     onGuardar();
+                        // }
+                    } else {
+
+                    }
+
+
+                }
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar guardar ' + e
+
+                })
+            }
+        }
         function onGuardar() {
             try {
                 btn.disabled = true;
@@ -639,6 +699,14 @@
                     bases64I.push(det);
 
                 }
+                var Cliente = $("#cardcode").val();
+                var ClientFacturar = Cliente.split("/")[0].trimEnd().trim();
+
+                var clientFac = Clientes.find(a => a.CardCode == ClientFacturar);
+                var condFacContado = Condiciones.find(a => a.Nombre == "Contado");
+                var CondicionPagoCliente = Condiciones.find(a => a.codSAP == clientFac.idCondPago);
+                var CondCredito = (CondicionPagoCliente == undefined ? false : CondicionPagoCliente.Dias > 0); //clientFac.idCondPago != condFacContado.codSAP;
+
                 var recibido1 =
                 {
                     id: 0,
@@ -667,7 +735,9 @@
                     EmailPersonaContacto: $("#emailPersonaContacto").val(),
                     NumeroPersonaContacto: $("#telefonoPersonaContacto").val(),
                     SinRepuestos: $('#sinRepuestos').prop('checked'),
+                    SinFacturar: $('#sinFacturar').prop('checked'),
                     Prioridad: $("#prioridad").val(),
+                    Credito: CondCredito,
                     Adjuntos: bases64,
                     AdjuntosIdentificacion: bases64I
                 }
@@ -741,12 +811,54 @@
                                         })
 
                                     } else {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Oops...',
-                                            text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+                                        if (json.facturar == true) {
+                                            $("#divProcesando").hide();
 
-                                        })
+                                            if ($('.modal-backdrop').is(':visible')) {
+
+                                                $('body').removeClass('modal-open');
+                                                $('.modal-backdrop').hide();
+                                            }
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Oops...',
+                                                text: json.mensaje
+
+                                            })
+                                            Facturar();
+                                        }else if(json.solicitud == true)
+                                        {
+                                            $("#divProcesando").hide();
+
+                                            if ($('.modal-backdrop').is(':visible')) {
+
+                                                $('body').removeClass('modal-open');
+                                                $('.modal-backdrop').hide();
+                                            }
+                                            Swal.fire({
+                                                icon: 'warning',
+                                                title: 'ATENCION!',
+                                                text:   json.mensaje
+
+                                            })
+
+                                        }
+                                        else {
+                                            $("#divProcesando").hide();
+
+                                            if ($('.modal-backdrop').is(':visible')) {
+
+                                                $('body').removeClass('modal-open');
+                                                $('.modal-backdrop').hide();
+                                            }
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Oops...',
+                                                text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+
+                                            })
+                                        }
+
                                     }
                                 },
 
@@ -802,7 +914,10 @@
                 theme: "classic"
             });
 
+            Clientes = JSON.parse($("#ClientesFacturas").val());
+            Condiciones = JSON.parse($("#CondicionesFacturas").val());
             onChangeStatus();
+
         });
         function onChangeStatus() {
             try {
@@ -1487,6 +1602,9 @@
             </div>
             <div class="card-body">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input hidden id="ClientesFacturas" value="@JsonConvert.SerializeObject(Model.ClientesFac.Clientes)" />
+                <input hidden id="CondicionesFacturas" value="@JsonConvert.SerializeObject(Model.CondicionesPagos)" />
+
                 <div class="row">
                     <div class="col-md-6">
                         <label>Realiza búsqueda por:</label>
@@ -1591,7 +1709,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Tipo de Caso:</label>
-                            <select id="tp" class="form-control" asp-for="Input.TipoCaso" required> 
+                            <select id="tp" class="form-control" asp-for="Input.TipoCaso" required>
                                 @foreach (var item in Model.TP)
                                 {
                                     <option value="@item.idSAP">@item.Nombre</option>
@@ -1721,8 +1839,13 @@
                                 <span class="form-check-sign"></span>
                                 Sin Accesorios
                             </label>
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="sinFacturar">
+                                <span class="form-check-sign"></span>
+                                Sin Facturar
+                            </label>
                         </div>
-                         
+
                     </div>
 
 
@@ -1741,15 +1864,16 @@
 
 
                                 </select>
-                            }else
+                            }
+                            else
                             {
                                 <select id="prioridad" class="form-control" asp-for="Input.Prioridad" required disabled>
-                                    <option value="L" selected>Baja</option> 
+                                    <option value="L" selected>Baja</option>
 
                                 </select>
                             }
 
-                            
+
                         </div>
                     </div>
                 </div>
