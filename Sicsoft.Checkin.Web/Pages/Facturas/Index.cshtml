@@ -1,0 +1,300 @@
+﻿@page
+@model Boletaje.Pages.Facturas.IndexModel
+@{
+    ViewData["Title"] = "Facturas";
+}
+@using System.Globalization;
+@{
+    NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+    formato.CurrencyGroupSeparator = ",";
+    formato.NumberDecimalSeparator = ".";
+
+    var Roles1 = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Facturas</a>
+    </li>
+
+
+}
+
+
+
+
+@section styles {
+
+    <style>
+        .tableFixHead th {
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+    </style>
+
+}
+
+
+@section scripts {
+
+
+    <script>
+        $(document).ready(function () {
+            jQuery(document).ready(function ($) {
+
+            });
+
+
+
+            $(document).ready(function () {
+                $('#tablita').DataTable();
+                $('.js-example-basic-multiple').select2();
+            });
+
+
+        });
+
+        function AbrirModalReporte()
+        {
+            try {
+                Swal.fire({
+                    title: 'Selecciona una fecha',
+                    html: `<input type="date" id="fecha" class="swal2-input">`,
+                    confirmButtonText: 'Confirmar',
+                    showCancelButton: true,
+                    preConfirm: () => {
+                        const fecha = document.getElementById('fecha').value;
+                        if (!fecha) {
+                            Swal.showValidationMessage('Por favor selecciona una fecha');
+                        }
+                        return fecha;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const fecha = new Date(result.value + "UTC -6");
+                        const dia = String(fecha.getDate()).padStart(2, '0');
+                        const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
+                        const año = fecha.getFullYear();
+
+                        const fechaFormateada = `${mes}-${dia}-${año}`;
+
+                        // Redirigir a la página Reportes con la fecha como parámetro
+                        window.location.href = `./Facturas/Reportes?Fecha=${fechaFormateada}`;
+                         
+                    }
+                });
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
+
+    </script>
+
+}
+
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@inject IHttpContextAccessor httpContextAccessor
+
+<div class="row">
+    <div class="col-md-12   ">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Filtro</h4>
+
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="row">
+                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
+                        {
+                            <div class="col-sm-6 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Inicial</label>
+                                    <input class="form-control" id="FecInicial" type="date" asp-for="filtro.FechaInicial">
+                                </div>
+
+
+                            </div>
+
+                            <div class="col-sm-6 pr-1">
+                                <div class="form-group">
+                                    <label>Fecha Final</label>
+                                    <input class="form-control" id="FecFinal" type="date" asp-for="filtro.FechaFinal">
+                                </div>
+                            </div>
+
+
+                        }
+
+
+
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
+
+                        <div class="col-sm-6 pr-1">
+                            <div class="form-group">
+                                <label>No. Llamada</label>
+                                <input class="form-control" id="noLlamada" type="text" asp-for="filtro.Texto">
+                            </div>
+
+
+                        </div>
+                        <div class="col-sm-6 pl-1" style="text-align:center; margin-top:2%;">
+
+                             
+
+                        </div>
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
+                        <div class="col-sm-6 pr-1">
+                        </div>
+                        <div class="col-sm-6 pl-1" style="text-align: right;">
+                            <button title="Buscar" type="submit" class="btn btn-rounded btn-outline-primary"> <i class="fas fa-search"></i></button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <button title="Reporte Facturas por Dia" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: AbrirModalReporte()">Reporte Facturas por Dia</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Facturas</h5>
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered first">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Llamada</th> 
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Subtotal</th>
+                                <th>Impuestos</th>
+                                <th>Descuento</th>
+                                <th>Total</th>
+                                <th>Consecutivo Hacienda</th> 
+                                <th>Procesado SAP</th>
+                                <th>Fecha Procesado</th>
+                                <th>Acción</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Objeto)
+                            {
+
+
+                                <tr>
+
+
+
+                                    <td>@item.id</td>
+                                    <td>@item.NumLlamada</td>
+                                   
+
+                                    <td>@item.CardCode - @item.NombreCliente</td>
+                                    <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+
+                                    <td align="right">@decimal.Round(item.Subtotal, 2).ToString("N", formato)</td>
+                                    <td align="right">@decimal.Round(item.TotalImpuestos, 2).ToString("N", formato)</td>
+
+                                    <td align="right">@decimal.Round(item.TotalDescuento, 2).ToString("N", formato)</td>
+                                    <td align="right">@decimal.Round(item.TotalCompra, 2).ToString("N", formato)</td>
+                                    <td>@item.ConsecutivoHacienda</td>
+                                    @if(item.ProcesadoSAP)
+                                    {
+                                        <td><span class="mr-2"><span class="badge-dot badge-success"></span>Procesado</span></td>
+                                        <td>@item.FechaProcesado.ToString("dd/MM/yyyy hh:MM")</td>
+
+                                    }else
+                                    {
+                                        <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Procesar</span></td>
+                                        <td>N/A</td>
+                                    }
+
+
+
+
+                                    <td>
+                                        
+                                        <a asp-page="./Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
+
+                                        &nbsp;
+
+                                       
+
+                                    </td>
+                                </tr>
+
+
+
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Llamada</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Subtotal</th>
+                                <th>Impuestos</th>
+                                <th>Descuento</th>
+                                <th>Total</th>
+                                <th>Consecutivo Hacienda</th> 
+                                <th>Procesado SAP</th>
+                                <th>Fecha Procesado</th>
+                                <th>Acción</th>
+
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

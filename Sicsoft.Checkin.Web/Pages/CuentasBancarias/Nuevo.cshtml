@@ -1,0 +1,106 @@
+﻿@page
+@model Boletaje.Pages.CuentasBancarias.NuevoModel
+@{
+    ViewData["Title"] = "Cuentas Bancarias";
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Cuentas Bancarias</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Agregar</a>
+    </li>
+
+}
+@section styles {
+
+
+}
+
+@section scripts {
+
+
+
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Registro de Cuentas Bancarias</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/CuentasBancarias/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Cuenta SAP</label>
+                                <input type="text" class="form-control form-control-lg" id="codsap" placeholder="Cod. SAP" asp-for="Input.CuentaSAP" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" id="nombre" class="form-control form-control-lg" asp-for="Input.Nombre" required placeholder="Nombre">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="banco">Banco</label>
+                                <input type="text" id="banco" class="form-control form-control-lg" asp-for="Input.Banco" required placeholder="Eje: BCR, BN">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="nombre">Moneda</label>
+                                <select class="form-control select2" asp-for="Input.Moneda">
+                                    <option value="COL" selected>COL</option>
+                                    <option value="USD">USD</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="banco">Tipo</label>
+                                <select class="form-control select2" asp-for="Input.Tipo">  
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Tarjeta">Tarjeta</option>
+                                    <option value="Transferencia">Transferencia</option> 
+                                    <option value="Pago a Cuenta">Pago a Cuenta</option>  
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

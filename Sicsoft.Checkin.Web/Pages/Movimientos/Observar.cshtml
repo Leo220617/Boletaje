@@ -9,7 +9,7 @@
         <a asp-page="./Index">BackOffice</a>
     </li>
     <li class="breadcrumb-item active">
-        <a>Generar Movimiento</a>
+        <a>Observar Movimiento</a>
     </li>
 
 }
@@ -530,7 +530,17 @@
 
                         <div># Serie: @Model.Llamada.SerieFabricante</div>
                         <div>Ubicación: @Model.UbicacionProd</div>
+                        <div>Factura Revisión:  
+                            @if (Model.Llamada.Factura.FirstOrDefault() != null)
+                            {
+                                <a asp-page="/Facturas/Observar" asp-route-id="@Model.Llamada.Factura.FirstOrDefault().id" class="btn btn-rounded btn-outline-primary" title="Observar" target="_blank"> @Model.Llamada.Factura.FirstOrDefault().ConsecutivoHacienda</a>
 
+                            }else
+                            {
+                                <span style="color: red;">Sin Pagar</span>
+                            }
+
+                        </div>
 
                     </div>
                 </div>

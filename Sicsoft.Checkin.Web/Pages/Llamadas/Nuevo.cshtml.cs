@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace Boletaje.Pages.Llamadas
 {
@@ -28,6 +29,8 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<StatusViewModel, int> status;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<AsuntosViewModel, int> asuntos;
+        private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
+        private readonly ICrudApi<AprobacionesFacturasViewModel, int> aprobacion;
 
 
 
@@ -38,7 +41,8 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public ClientesViewModel Clientes { get; set; }
 
-      
+        [BindProperty]
+        public ClientesViewModel ClientesFac { get; set; }
 
         [BindProperty]
         public ProductosViewModel Productos { get; set; }
@@ -73,10 +77,16 @@ namespace Boletaje.Pages.Llamadas
         public AsuntosViewModel[] Asuntos { get; set; }
 
         [BindProperty]
+        public CondicionesPagosViewModel[] CondicionesPagos { get; set; }
+
+        [BindProperty]
         public string EmpiezaPor { get; set; }
 
+
+
         public NuevoModel(IConfiguration configuration, ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
-            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos)
+            ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp,
+            ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<AprobacionesFacturasViewModel, int> aprobacion)
         {
             this.service = service;
             this.clientes = clientes;
@@ -88,7 +98,8 @@ namespace Boletaje.Pages.Llamadas
             this.tp = tp;
             this.asuntos = asuntos;
             this.configuration = configuration;
-            
+            this.conds = conds;
+            this.aprobacion = aprobacion;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -100,7 +111,9 @@ namespace Boletaje.Pages.Llamadas
                     return RedirectToPage("/NoPermiso");
                 }
 
-                 EmpiezaPor = configuration["BusquedaPor"].ToString();
+                EmpiezaPor = configuration["BusquedaPor"].ToString();
+                CondicionesPagos = await conds.ObtenerLista("");
+
                 Asuntos = await asuntos.ObtenerLista("");
                 //
                 // Productos = await prods.ObtenerListaEspecial("");
@@ -111,6 +124,7 @@ namespace Boletaje.Pages.Llamadas
                 Status = await status.ObtenerLista("");
                 Input = new LlamadasViewModel();
                 Input.Horas = 0;
+                ClientesFac = await clientes.ObtenerListaEspecial("");
                 if (EmpiezaPor == "C")
                 {
                     Clientes = await clientes.ObtenerListaEspecial("");
@@ -126,7 +140,7 @@ namespace Boletaje.Pages.Llamadas
 
                 }
 
-               
+
 
                 return Page();
             }
@@ -239,7 +253,7 @@ namespace Boletaje.Pages.Llamadas
                     //).FirstOrDefault());
                     //}
 
-                    foreach(var item in objetos.Clientes)
+                    foreach (var item in objetos.Clientes)
                     {
                         objeto.Add(item);
                     }
@@ -330,6 +344,63 @@ namespace Boletaje.Pages.Llamadas
                     // Por ejemplo, puedes deserializarla a un objeto C# utilizando Newtonsoft.Json
                     recibido = Newtonsoft.Json.JsonConvert.DeserializeObject<LlamadasViewModel>(jsonString);
                 }
+                var item = recibido.ItemCode;
+                if (recibido.Credito)
+                {
+                    ParametrosFiltros filtroAprobacion = new ParametrosFiltros();
+                    filtroAprobacion.ItemCode = item.Split("/")[0].Replace(" ", "");
+                    filtroAprobacion.FechaBusqueda = DateTime.Now.Date;
+                    filtroAprobacion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
+                    filtroAprobacion.Texto = item.Split("/")[1].Replace(" ", "");
+                    filtroAprobacion.NoFacturado = true;
+
+                    AprobacionesFacturasViewModel apf = new AprobacionesFacturasViewModel();
+                    apf.CardCode = filtroAprobacion.CardCode;
+                    apf.ItemCode = filtroAprobacion.ItemCode;
+                    apf.Serie = filtroAprobacion.Texto;
+                    apf.Fecha = DateTime.Now.Date;
+                    apf.Aprobada = true;
+                    apf.idLoginAprobador = -1;
+                    apf.FechaAprobacion = DateTime.Now;
+                    await aprobacion.Agregar(apf);
+                }
+
+                if (recibido.SinFacturar)
+                {
+                    ParametrosFiltros filtroAprobacion = new ParametrosFiltros();
+                    filtroAprobacion.ItemCode = item.Split("/")[0].Replace(" ", "");
+                    filtroAprobacion.FechaBusqueda = DateTime.Now.Date;
+                    filtroAprobacion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
+                    filtroAprobacion.Texto = item.Split("/")[1].Replace(" ", "");
+                    filtroAprobacion.NoFacturado = true; //Si esta aprobada
+
+
+                    var Aprobacion = await aprobacion.ObtenerLista(filtroAprobacion);
+
+                    if (Aprobacion.FirstOrDefault() == null)
+                    {
+                        AprobacionesFacturasViewModel apf = new AprobacionesFacturasViewModel();
+                        apf.CardCode = filtroAprobacion.CardCode;
+                        apf.ItemCode = filtroAprobacion.ItemCode;
+                        apf.Serie = filtroAprobacion.Texto;
+                        apf.Fecha = DateTime.Now.Date;
+                        apf.Aprobada = false;
+                        apf.idLoginAprobador = 0;
+                        apf.FechaAprobacion = DateTime.Now;
+                        await aprobacion.Agregar(apf);
+
+                        var obj2 = new
+                        {
+                            success = false,
+                            mensaje = "Se creo la solicitud de aprobación, favor notificar a administrador de backoffice",
+                            solicitud = true,
+                            facturar = false
+                        };
+
+                        return new JsonResult(obj2);
+                    }
+
+                }
                 coleccion.id = 0;
                 coleccion.TipoLlamada = recibido.TipoLlamada;
                 coleccion.Status = recibido.Status;
@@ -344,6 +415,7 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.Firma = recibido.Firma;
                 coleccion.Horas = recibido.Horas;
                 coleccion.SinRepuestos = recibido.SinRepuestos;
+                coleccion.SinFacturar = recibido.SinFacturar;
                 coleccion.Prioridad = recibido.Prioridad;
                 coleccion.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
                 try
@@ -373,7 +445,7 @@ namespace Boletaje.Pages.Llamadas
                     throw new Exception($"{ex.Message}");
                 }
 
-                var item = recibido.ItemCode;
+
                 coleccion.ItemCode = item.Split("/")[0].Replace(" ", "");
                 coleccion.SerieFabricante = item.Split("/")[1].Replace(" ", "");
                 coleccion.PersonaContacto = recibido.PersonaContacto;
@@ -413,7 +485,9 @@ namespace Boletaje.Pages.Llamadas
                 var obj = new
                 {
                     success = true,
-                    mensaje = ""
+                    mensaje = "",
+                    solicitud = false,
+                    facturar = false
                 };
 
                 return new JsonResult(obj);
@@ -423,12 +497,29 @@ namespace Boletaje.Pages.Llamadas
             {
 
                 Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
-                var obj = new
+                if (error.Message.Contains("Facturar"))
                 {
-                    success = false,
-                    mensaje = "Error en el exception: -> " + error.Message//ex.Content.ToString()
-                };
-                return new JsonResult(obj);
+                    var obj = new
+                    {
+                        success = false,
+                        mensaje = "Error en el exception: -> " + error.Message,
+                        solicitud = false,
+                        facturar = true
+                    };
+                    return new JsonResult(obj);
+                }
+                else
+                {
+                    var obj = new
+                    {
+                        success = false,
+                        mensaje = "Error en el exception: -> " + error.Message,
+                        solicitud = false,
+                        facturar = false
+                    };
+                    return new JsonResult(obj);
+                }
+
             }
             catch (Exception ex)
             {
@@ -438,7 +529,9 @@ namespace Boletaje.Pages.Llamadas
                 var obj = new
                 {
                     success = false,
-                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString()
+                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString(),
+                    solicitud = false,
+                    facturar = false
                 };
                 return new JsonResult(obj);
             }

@@ -22,6 +22,8 @@ namespace Boletaje.Models
         public decimal Impuestos { get; set; }
         public decimal TotalLinea { get; set; }
         public bool Garantia { get; set; }
-        public bool Opcional { get; set; }   
+        public bool Opcional { get; set; }
+        public int idDocumentoExoneracion { get; set; }
+
     }
 }

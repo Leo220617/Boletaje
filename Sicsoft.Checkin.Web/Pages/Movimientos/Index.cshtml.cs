@@ -75,21 +75,9 @@ namespace Boletaje.Pages.Movimientos
                 {
 
 
-                    filtro.FechaInicial = DateTime.Now;
-
-                    filtro.FechaInicial = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
-
-
-                    DateTime primerDia = new DateTime(filtro.FechaInicial.Year, filtro.FechaInicial.Month, 1);
-
-
-                    DateTime ultimoDia = primerDia.AddMonths(1).AddDays(-1);
-
-
                     filtro.FechaInicial = DateTime.Now.AddDays(-7);
                     filtro.FechaFinal = DateTime.Now.AddDays(1);
-
-                    filtro.FechaFinal = ultimoDia;
+ 
                     if(filtro.FiltroEspecial && filtro.seleccionMultiple.Count == 0)
                     {
                         filtro.Codigo2 = Status.Where(a => a.idSAP == "48").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "48").FirstOrDefault().idSAP);
@@ -136,7 +124,7 @@ namespace Boletaje.Pages.Movimientos
             catch (Exception ex)
             {
 
-                ModelState.AddModelError(string.Empty, ex.Message.ToString());
+              ModelState.AddModelError(string.Empty, ex.Message.ToString());
 
 
                 return Page();

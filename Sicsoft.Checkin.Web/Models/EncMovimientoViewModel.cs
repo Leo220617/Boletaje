@@ -36,6 +36,7 @@ namespace Boletaje.Models
         public int idGarantia { get; set; }
         public int idTiemposEntregas { get; set; }
         public int idDiasValidos { get; set; }
+        public bool Facturado { get; set; }
         public DetMovimientoViewModel[] Detalle { get; set; }
     }
 }

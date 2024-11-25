@@ -442,6 +442,8 @@
                                 <th>Status</th>
                                 <th>Lugar Reparación</th>
                                 <th>PIN</th>
+                                <th>Factura Revisión</th>
+
 
                                 <th width="150">Acción</th>
 
@@ -456,7 +458,7 @@
                                     <td> @item.CardCode -  @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" : Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName)</td>
                                     <td>
                                         @item.ItemCode - @item.SerieFabricante - @(
-                                    Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault().itemName
+                                    Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode && a.manufSN == item.SerieFabricante).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode && a.manufSN == item.SerieFabricante).FirstOrDefault().itemName
                                     )
                                     </td>
                                     <td>@item.Asunto </td>
@@ -476,6 +478,14 @@
                                     }else
                                     {
                                         <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Validar</span></td>
+                                    }
+
+                                    @if(item.Factura.FirstOrDefault() == null)
+                                    {
+                                        <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Pagar</span></td>
+                                    }else
+                                    {
+                                        <td> <a asp-page="/Facturas/Observar" asp-route-id="@item.Factura.FirstOrDefault().id" title="Observar" class="btn btn-rounded btn-outline-primary" target="_blank"> @item.Factura.FirstOrDefault().ConsecutivoHacienda</a></td>
                                     }
                                     <td>
 
@@ -516,6 +526,8 @@
                                 <th>Status</th>
                                 <th>Lugar Reparación</th>
                                 <th>PIN</th>
+                                <th>Factura Revisión</th>  
+
                                 <th>Acción</th>
 
                             </tr>

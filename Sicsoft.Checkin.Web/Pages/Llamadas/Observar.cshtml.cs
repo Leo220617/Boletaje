@@ -125,7 +125,7 @@ namespace Boletaje.Pages.Llamadas
                 filtUbi.Texto = Input.ItemCode;
                 Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
                 Productos = await prods.ObtenerListaEspecial("");
-                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode).FirstOrDefault().itemName;
+                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode && a.manufSN == Input.SerieFabricante).FirstOrDefault().itemName;
                 UbicacionProd = (Ubicaciones.FirstOrDefault() != null ? Ubicaciones.FirstOrDefault().Ubicacion : " ");
                 TP = await tp.ObtenerLista("");
                 Garantias = await garantias.ObtenerLista("");

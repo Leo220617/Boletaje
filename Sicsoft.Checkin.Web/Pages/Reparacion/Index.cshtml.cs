@@ -134,6 +134,11 @@ namespace Boletaje.Pages.Reparacion
                         {
                             filtro.seleccionMultiple.Add(filtro.Codigo3);
                         }
+                        filtro.Codigo3 = Status.Where(a => a.idSAP == "57").FirstOrDefault() == null ? 0 : Convert.ToInt32(Status.Where(a => a.idSAP == "57").FirstOrDefault().idSAP);
+                        if (filtro.Codigo3 != 0)
+                        {
+                            filtro.seleccionMultiple.Add(filtro.Codigo3);
+                        }
                     }
 
 

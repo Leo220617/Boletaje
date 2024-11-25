@@ -1,0 +1,546 @@
+﻿@page "{id}"
+@model Boletaje.Pages.Facturas.ObservarModel
+@{
+    ViewData["Title"] = "Observar Factura";
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Facturas</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Observar Factura</a>
+    </li>
+
+}
+@using Newtonsoft.Json;
+@section styles {
+    <style>
+        .input {
+            width: 40%;
+        }
+
+        .input2 {
+            width: 70%;
+        }
+    </style>
+
+}
+@section scripts {
+
+
+    <script>
+        var Detalles = [];
+        var Errores = [];
+        var Condiciones = [];
+
+        $(document).ready(function () {
+
+            jQuery(document).ready(function ($) {
+                $(document).ready(function () {
+
+                    Condiciones = JSON.parse($("#CondicionesFacturas").val());
+
+                    var detalles = JSON.parse($("#Detalle").val());
+                    var Impuestos = JSON.parse($("#Impuestos").val());
+
+                    for (var i = 0; i < detalles.length; i++) {
+                        var detalle = {
+                            id: detalles[i].id,
+                            NumLinea: i + 1,
+                            idEncabezado: 0,
+                            idImpuesto: detalles[i].idImpuesto,
+                            ItemCode: detalles[i].ItemCode,
+                            ItemName: detalles[i].NomPro,
+                            PrecioUnitario: detalles[i].PrecioUnitario,
+                            Cantidad: detalles[i].Cantidad,
+                            PorDescuento: detalles[i].PorDescuento,
+                            Descuento: (detalles[i].PrecioUnitario * detalles[i].Cantidad) * (detalles[i].PorDescto / 100),
+                            Impuestos: (detalles[i].PrecioUnitario * detalles[i].Cantidad) * (Impuestos.find(a => a.id == detalles[i].idImpuesto).Tarifa / 100),
+                            TotalLinea: 0
+                        };
+                        detalle.TotalLinea = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) + detalle.Impuestos;
+                        Detalles.push(detalle);
+                      
+
+                    }
+
+                });
+            });
+
+
+            ModificaMoneda();
+        });
+        function ModificaMoneda() {
+            if ($("#Moneda").val() == "COL") {
+                $(".moneda").text("₡");
+            } else {
+                $(".moneda").text("$")
+            }
+        }
+        function ImprimirTiqueteC() {
+            try {
+
+
+
+                var ventana = window.open('', 'PRINT', 'height=400,width=600');
+                var texto = htmlContado;
+                texto = texto.replace("$Fecha", '@Model.Input.Fecha.ToString("dd/MMMM/yyyy")');
+                texto = texto.replace("$NumInterno", '@Model.Input.id');
+                texto = texto.replace("$CodSuc", "");
+                texto = texto.replace("$NumComprobante", '@Model.Input.ConsecutivoHacienda');
+                texto = texto.replace("$NumFactura", '@Model.Input.id');
+                texto = texto.replace("$Comentario", '@Model.Input.Comentarios');
+
+                var cond = Condiciones.find(a => a.id == "@Model.Input.idCondicionVenta");
+                texto = texto.replace("$selectCondPago", cond.Nombre);
+
+
+
+
+                texto = texto.replace("$CodCliente", " " + "@Model.Cliente.CardCode");
+
+
+                texto = texto.replace("$NombreCliente", "@Model.Cliente.CardName");
+                texto = texto.replace("$Vendedor", "");
+
+
+                var tabla = "";
+
+                for (var i = 0; i < Detalles.length; i++) {
+
+
+
+                    tabla += "<tr>" + "<td colspan='3'>  " + Detalles[i].ItemCode + "-" + Detalles[i].ItemName + "  </td></tr>";
+
+
+                    tabla += "<tr>";
+
+                    tabla += "<td style='text-align left;'>" + Detalles[i].Cantidad + " </td>";
+
+                    tabla += "<td style='text-align left;'>" + formatoDecimal(Detalles[i].PrecioUnitario) + " </td>";
+                    tabla += "<td style='text-align left;'>" + formatoDecimal(Detalles[i].TotalLinea) + " </td>";
+
+
+
+
+                    tabla += "</tr>";
+
+                }
+                texto = texto.replace("$Tabla", tabla);
+
+              
+
+                if ("@Model.Input.Moneda" == "COL") {
+                    texto = texto.replace("$SubTotal", "₡" + $("#SubtotalGeneral").text());
+                    texto = texto.replace("$TotalDescuento", "₡" + $("#DescGeneral").text());
+                    texto = texto.replace("$TotalImpuestos", "₡" + $("#ImpGeneral").text());
+                    texto = texto.replace("$Redondeo", "₡" + "");
+                    texto = texto.replace("$Total", "₡" + $("#TotalGeneral").text());
+                } else {
+                    texto = texto.replace("$SubTotal", "$" + $("#SubtotalGeneral").text());
+                    texto = texto.replace("$TotalDescuento", "$" + $("#DescGeneral").text());
+                    texto = texto.replace("$TotalImpuestos", "$" + $("#ImpGeneral").text());
+                    texto = texto.replace("$Redondeo", "$" + "");
+                    texto = texto.replace("$Total", "$" + $("#TotalGeneral").text());
+                }
+
+
+
+
+                ventana.document.write(texto);
+                ventana.document.close();
+                ventana.focus();
+                ventana.print();
+                ventana.close();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
+        function ImprimeEtiqueta(boleta, cliente) {
+
+            var Diagnostico = "";
+
+            var html = htmlOferta;
+            html = html.replace("DocEntry", "@Model.Input.ConsecutivoHacienda");
+            html = html.replace("Fecha", '@Model.Input.Fecha.ToString("dd/MMMM/yyyy")');
+            html = html.replace("NombreClienteR", "@Model.Input.NombreCliente");
+            html = html.replace("TelefonoCliente", "@Model.Llamada.NumeroPersonaContacto");
+
+
+            Diagnostico += "@Model.Llamada.Comentarios \n";
+
+
+
+
+
+            if ($("#Moneda").val() == "COL") {
+
+                html = html.replace("SubtotalR", "₡" + $("#SubtotalGeneral").text());
+                html = html.replace("Descuento", "₡" + $("#DescGeneral").text());
+
+                html = html.replace("Impuestos", "₡" + $("#ImpGeneral").text());
+                html = html.replace("TotalR", "₡" + $("#TotalGeneral").text());
+
+
+
+            } else {
+
+                html = html.replace("SubtotalR", "$" + $("#SubtotalGeneral").text());
+                html = html.replace("Descuento", "$" + $("#DescGeneral").text());
+
+                html = html.replace("Impuestos", "$" + $("#ImpGeneral").text());
+                html = html.replace("TotalR", "$" + $("#TotalGeneral").text());
+            }
+
+            html = html.replace("PorDesc", $("#DescuentoPorcentar").text());
+            html = html.replace("COTIZACION", "FACTURA");
+            var inyectado = "";
+
+            for (var i = 0; i < Detalles.length; i++) {
+                if (i == 0) {
+                    inyectado = htmlInyectadoOferta.replace("NumLinea", (i + 1)).replace("ItemCode", Detalles[i].ItemCode).replace("ItemName", Detalles[i].ItemName).replace("Cantidad", Detalles[i].Cantidad).replace("PrecioUnitario", Detalles[i].PrecioUnitario).replace("TotalLinea", Detalles[i].TotalLinea);
+                } else {
+                    inyectado += htmlInyectadoOferta.replace("NumLinea", (i + 1)).replace("ItemCode", Detalles[i].ItemCode).replace("ItemName", Detalles[i].ItemName).replace("Cantidad", Detalles[i].Cantidad).replace("PrecioUnitario", Detalles[i].PrecioUnitario).replace("TotalLinea", Detalles[i].TotalLinea);
+
+                } 
+            }
+            
+            html = html.replace("INYECTADO", inyectado);
+
+
+
+            var item = html;
+
+            var opt = {
+                margin: 0,
+                pagebreak: { mode: 'avoid-all', before: '#page2el' },
+
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }
+            };
+
+            //var opt = {
+            //    margin: 1,
+            //    pagebreak: { mode: 'avoid-all', before: '#page2el' },
+
+            //    image: { type: 'jpeg', quality: 0.98 },
+            //    html2canvas: { scale: 2 },
+            //    jsPDF: { format: 'letter', orientation: 'portrait' }
+            //};
+
+ 
+                html2pdf().set(opt)
+                    .from(item)
+                    .save("Factura.pdf");
+           
+
+
+
+        }
+ 
+    </script>
+}
+@using System.Globalization;
+@{
+    NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+    formato.CurrencyGroupSeparator = ",";
+    formato.NumberDecimalSeparator = ".";
+
+
+}
+@using System.Globalization;
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@inject IHttpContextAccessor httpContextAccessor
+@using Newtonsoft.Json;
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
+ 
+<div class="row">
+    <div class=" col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header p-4">
+                <a asp-page="/Facturas/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+                <input hidden id="Detalle" value="@JsonConvert.SerializeObject(Model.Input.DetFactura)" /> 
+
+                <input hidden id="idGeneral" value="@Model.Input.id" />
+                <input hidden id="Detalle" value="@JsonConvert.SerializeObject(Model.Input.DetFactura)" />
+                <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
+
+                <input hidden id="CondicionesFacturas" value="@JsonConvert.SerializeObject(Model.Condiciones)" />
+
+
+
+                <div class="float-right">
+                    <h3 class="mb-0">Llamada #@Model.Input.NumLlamada</h3>
+                    Fecha: @Model.Input.Fecha.ToString("dd/MMMM/yyyy")
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+
+                        @{
+                            switch (Model.Input.TipoDocumento)
+                            {
+                                case "01":
+                                    {
+                                        <h3 class="text-dark mb-1">Factura Electrónica</h3>
+                                        break;
+                                    }
+                               
+                            }
+                        }
+                        <div>Clave: @Model.Input.ClaveHacienda</div>
+                        <div>Consecutivo: @Model.Input.ConsecutivoHacienda</div>
+
+                        <div>CardCode: @Model.Input.CardCode</div>
+                        <div>Cliente: @Model.Input.NombreCliente</div>
+                        <div>Telefono: @Model.Cliente.Phone1</div>
+                        <div>Persona Contacto: @Model.Llamada.PersonaContacto</div>
+                        <div>Email: @Model.Input.Correo</div>
+
+                        <div class="row col-sm-4">
+
+                            <div class="form-group">
+                                <label>Moneda</label>
+                                <select disabled="disabled" id="Moneda" class="form-control" asp-for="Input.Moneda" required onchange="javascript: ModificaMoneda()">
+                                    <option value="COL">Colones</option>
+                                    <option value="USD">Dólares</option>
+
+                                </select>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <h3 class="text-dark mb-1">Información del Producto</h3>
+                        <div>Cod Articulo: @Model.Llamada.ItemCode</div>
+                        <div>Descripción: @Model.ProductoPadre.Nombre</div>
+
+                        <div># Serie: @Model.Llamada.SerieFabricante</div> 
+
+
+                    </div>
+                </div>
+                <div class="table-responsive-sm">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="center">#</th>
+                                <th>Producto</th>
+                                <th>Stock</th>
+                                <th class="center">Precio Unitario</th>
+                                <th class="center">Cantidad</th>
+                                <th class="center">Impuestos</th>
+                                <th class="center"># Exoneración</th>
+
+                                <th class="center">% Descuento</th>
+
+                                <th class="center">Descuentos</th>
+                                <th class="center">Total</th> 
+
+                            </tr>
+                        </thead>
+                        <tbody id="tbody">
+                            @{
+                                int i = 1;
+                            }
+                            @{
+                                foreach (var item in Model.Input.DetFactura)
+                                {
+                                    <tr>
+                                        @{
+                                            var Imp = Model.Impuestos.Where(a => a.id == item.idImpuesto).FirstOrDefault() == null ? 0 : Model.Impuestos.Where(a => a.id == item.idImpuesto).FirstOrDefault().Tarifa;
+                                        }
+                                        <td align="center">@i</td>
+                                        <td align="left" class="strong">@item.ItemCode -  @item.NomPro </td>
+                                        <td align="left"><b> @(Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault() == null ? "0" : Model.Productos.Where(a => a.codSAP == item.ItemCode).FirstOrDefault().Stock.ToString("N", formato)) </b></td>
+                                        <td align="right"> @decimal.Round(item.PrecioUnitario, 2).ToString("N", formato)</td>
+                                        <td align="center"> @decimal.Round(item.Cantidad, 2).ToString("N", formato)</td>
+                                        <td align="right"> @decimal.Round(item.TotalImpuestos, 2).ToString("N", formato)</td>
+                                        @{
+                                            var idDocumento = item.idDocumentoExoneracion.ToString();
+                                        }
+                                        <td align="right"> @(Model.Exoneraciones.Exoneraciones.Where(a => a.DocEntry == idDocumento).FirstOrDefault() == null ? "" : Model.Exoneraciones.Exoneraciones.Where(a => a.DocEntry == idDocumento).FirstOrDefault().NumeroDocumento)</td>
+
+                                        <td align="center"> @decimal.Round(item.PorDescto, 2).ToString("N", formato) %</td>
+                                        <td align="center"> @decimal.Round(item.TotalDescuento, 2).ToString("N", formato) </td>
+                                        <td align="right"> @decimal.Round(item.TotalLinea, 2).ToString("N", formato)</td>
+                                        <td align="center">
+                                            
+
+                                        </td>
+
+                                    </tr>
+
+                                     
+                                    i++;
+                                }
+
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-sm-5">
+                    </div>
+                    <div class="col-lg-4 col-sm-5 ml-auto">
+                        <table class="table table-clear">
+                            <tbody>
+                                <tr>
+                                    <td align="left">
+                                        <strong class="text-dark">Subtotal</strong>
+                                    </td>
+                                    <td align="right">
+                                        <span class="moneda"></span>
+
+                                        <strong style="font-weight: inherit;" id="SubtotalGeneral">@decimal.Round(Model.Input.Subtotal, 2).ToString("N", formato)</strong>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left">
+                                        <strong class="text-dark">Descuento</strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong hidden style="font-weight: inherit;" id="DescuentoPorcentar">@decimal.Round(Model.Input.PorDesc, 2).ToString("N", formato)</strong>
+                                        <span class="moneda"></span>
+                                        <strong style="font-weight: inherit;" id="DescGeneral">@decimal.Round(Model.Input.TotalDescuento, 2).ToString("N", formato)</strong>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td align="left">
+                                        <strong class="text-dark">Impuestos</strong>
+                                    </td>
+                                    <td align="right">
+                                        <span class="moneda"></span>
+
+                                        <strong style="font-weight: inherit;" id="ImpGeneral">@decimal.Round(Model.Input.TotalImpuestos, 2).ToString("N", formato)</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left">
+                                        <strong class="text-dark">Total</strong>
+                                    </td>
+                                    <td align="right">
+                                        <span class="moneda"></span>
+
+                                        <strong class="text-dark" id="TotalGeneral">@decimal.Round(Model.Input.TotalCompra, 2).ToString("N", formato)</strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Comentarios</label>
+
+                        <textarea id="comentarios" maxlength="500" class="form-control" asp-for="Input.Comentarios" readonly></textarea>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+ 
+ 
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta()">PDF</button>
+            <button title="Tiquete" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimirTiqueteC()">Tiquete Factura</button>
+
+            @if (Model.Input.MetodosPagos.Count() > 0)
+            {
+                <button type="button" class="btn btn-rounded btn-outline-success" data-toggle="modal" data-target="#modalPagos">
+                    Métodos de Pago
+                </button>
+            }
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" data-backdrop="false" id="modalPagos" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 100%; max-width: 200%;  ">
+            <div class="modal-header">
+                <h5 class="modal-title">Métodos de Pago</h5>
+                <button type="button" class="close" data-dismiss="modal" style="margin: -2rem -2rem -1rem auto">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Table row -->
+                <div class="row">
+                    <div class="col-12 table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+
+
+                                    <th>Método</th>
+                                    <th class="text-right">Moneda</th>
+
+                                    <th class="text-right">BIN</th>
+                                    <th class="text-right">Referencia</th>
+                                    <th class="text-right">Cheque</th>
+
+                                    <th class="text-right">Total</th>
+
+                                </tr>
+                            </thead>
+                            <tbody id="">
+                                @foreach (var item in Model.Input.MetodosPagos)
+                                {
+                                    <tr>
+                                        <td align="left">@item.Metodo</td>
+                                        <td align="center">@item.Moneda</td>
+
+                                        <td align="center">@item.BIN</td>
+                                        <td align="center">@item.NumReferencia</td>
+                                        <td align="center">@item.NumCheque</td>
+                                        <td align="right">@item.Monto.ToString("N", formato)</td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- /.modal -->

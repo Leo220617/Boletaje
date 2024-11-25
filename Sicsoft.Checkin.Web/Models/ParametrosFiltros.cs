@@ -8,6 +8,7 @@ namespace InversionGloblalWeb.Models
 {
     public class ParametrosFiltros
     {
+        public DateTime FechaBusqueda { get; set; }
 
         public string Texto { get; set; }
         public string CardName { get; set; }
@@ -24,6 +25,10 @@ namespace InversionGloblalWeb.Models
         public DateTime FechaFinal { get; set; }
         public bool FiltroEspecial { get; set; }
         public bool PIN { get; set; }
+        public bool NoFacturado { get; set; }
+        public int DocEntryGenerado { get; set; }
+        public bool FiltrarFacturado { get; set; }
+
         public List<int> seleccionMultiple { get; set; } = new List<int>();
     }
 }

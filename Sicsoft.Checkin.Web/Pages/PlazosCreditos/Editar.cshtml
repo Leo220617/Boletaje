@@ -1,0 +1,85 @@
+﻿@page "{id}"
+@model Boletaje.Pages.PlazosCreditos.EditarModel
+@{
+    ViewData["Title"] = "Editar Plazos de Creditos";
+}
+
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Plazos de Creditos</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Edición de Plazos de Creditos</a>
+    </li>
+
+}
+
+@section styles {
+
+
+}
+@section scripts {
+
+
+
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="title">Edición de Plazos de Creditos</h5>
+                    </div>
+
+                    <div class="col-sm-6" style="text-align: right">
+
+                        <a asp-page="/PlazosCreditos/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="Input.id" hidden />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Cod SAP</label>
+                                <input type="text" class="form-control form-control-lg" id="codsap" placeholder="Cod. SAP" asp-for="Input.codSAP" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" id="nombre" class="form-control form-control-lg" asp-for="Input.Nombre" required placeholder="Nombre">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="dias">Días</label>
+                                <input type="number" id="dias" class="form-control form-control-lg" asp-for="Input.Dias" required placeholder="Dias">
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" id="Guardar" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
