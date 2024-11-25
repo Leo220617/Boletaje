@@ -40,6 +40,8 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<DiagnosticosViewModel, int> serviceD;
         private readonly ICrudApi<ErroresViewModel, int> serviceError;
         private readonly ICrudApi<ExoneracionesViewModel, int> exonera;
+        private readonly ICrudApi<ProductosGarantiasViewModel, int> prodHoras;
+        private readonly ICrudApi<EncFacturasViewModel, int> facturas;
 
 
         [BindProperty]
@@ -119,11 +121,15 @@ namespace Boletaje.Pages.Movimientos
         public LlamadasViewModel InputLlamada { get; set; }
         [BindProperty]
         public ExoneracionesViewModel Exoneraciones { get; set; }
+
+        [BindProperty]
+        public decimal CantidadHoras { get; set; }
+
         public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods,
             ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, 
             ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<CondicionesPagosViewModel, int> conds,
             ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<DiasValidosViewModel, int> dvalid, ICrudApi<DiagnosticosViewModel, int> serviceD
-            , ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<ExoneracionesViewModel, int> exonera)
+            , ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<ExoneracionesViewModel, int> exonera, ICrudApi<ProductosGarantiasViewModel, int> prodHoras, ICrudApi<EncFacturasViewModel, int> facturas)
         {
             this.service = service;
             this.clientes = clientes;
@@ -146,7 +152,8 @@ namespace Boletaje.Pages.Movimientos
             this.serviceError = serviceError;
             this.serviceD = serviceD;
             this.exonera = exonera;
-
+            this.prodHoras = prodHoras;
+            this.facturas = facturas;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -255,6 +262,19 @@ namespace Boletaje.Pages.Movimientos
                 filtro2.Codigo1 = Llamada.id;
                 Actividades = await actividades.ObtenerLista(filtro2);
                 Usuarios = await login.ObtenerLista("");
+
+                ParametrosFiltros filtroProdHoras = new ParametrosFiltros();
+                filtroProdHoras.ItemCode = Llamada.ItemCode;
+                var CantidadHoras2 = await prodHoras.ObtenerLista(filtroProdHoras);
+
+                CantidadHoras = CantidadHoras2.FirstOrDefault() == null ? 0 : CantidadHoras2.FirstOrDefault().CantidadFinal;
+                filtroProdHoras.Texto = Llamada.DocEntry.ToString();
+                var Facturas = await facturas.ObtenerLista(filtroProdHoras);
+
+                var CantidadFacturado = Facturas.Where(a => a.idEntrega == 0).FirstOrDefault() == null ? 0 : Facturas.Where(a => a.idEntrega == 0).FirstOrDefault().DetFactura.Count() == 0 ? 0 : Facturas.Where(a => a.idEntrega == 0).FirstOrDefault().DetFactura.FirstOrDefault().Cantidad;
+
+
+                CantidadHoras = CantidadHoras - CantidadFacturado;
 
                 return Page();
             }

@@ -22,7 +22,7 @@ namespace Boletaje.Pages.Facturas
         private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
         private readonly ICrudApi<ImpuestosViewModel, int> imp;
         private readonly ICrudApi<ExoneracionesViewModel, int> exonera;
-
+        private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
 
 
         [BindProperty]
@@ -45,10 +45,13 @@ namespace Boletaje.Pages.Facturas
         public ImpuestosViewModel[] Impuestos { get; set; }
 
         [BindProperty]
+        public CondicionesPagosViewModel[] Condiciones { get; set; }
+
+        [BindProperty]
         public ExoneracionesViewModel Exoneraciones { get; set; }
 
         public ObservarModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<UsuariosViewModel, int> login,
-            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<ImpuestosViewModel, int> imp, ICrudApi<ExoneracionesViewModel, int> exonera)
+            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<ImpuestosViewModel, int> imp, ICrudApi<ExoneracionesViewModel, int> exonera, ICrudApi<CondicionesPagosViewModel, int> conds)
         {
             this.service = service;
             this.clientes = clientes;
@@ -58,6 +61,7 @@ namespace Boletaje.Pages.Facturas
             this.prodsPadre = prodsPadre;
             this.imp = imp;
             this.exonera = exonera;
+            this.conds = conds;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -67,6 +71,7 @@ namespace Boletaje.Pages.Facturas
 
 
                 Input = await service.ObtenerPorId(id);
+                Condiciones = await conds.ObtenerLista("");
                 Llamada = await serviceLlamada.ObtenerPorDocEntry(Convert.ToInt32(Input.NumLlamada));
                 Clientes = await clientes.ObtenerListaEspecial("");
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault();

@@ -129,7 +129,7 @@ namespace Boletaje.Pages.Llamadas
                 filtUbi.Texto = Input.ItemCode;
                 Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
                 Productos = await prods.ObtenerListaEspecial("");
-                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode).FirstOrDefault().itemName  ;
+                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode && a.manufSN == Input.SerieFabricante).FirstOrDefault().itemName  ;
                 UbicacionProd = (Ubicaciones.FirstOrDefault() != null ? Ubicaciones.FirstOrDefault().Ubicacion : " ");
                 TP = await tp.ObtenerLista("");
                 Garantias = await garantias.ObtenerLista("");
@@ -321,12 +321,30 @@ namespace Boletaje.Pages.Llamadas
             {
 
                 Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
-                var obj = new
+
+                if (error.Message.Contains("entregas sin facturar"))
                 {
-                    success = false,
-                    mensaje = "Error en el exception: -> " + error.Message //ex.Content.ToString()
-                };
-                return new JsonResult(obj);
+                    var numero2 = Convert.ToInt32(error.Message.Split("#:")[1]);
+                    var obj = new
+                    {
+                        success = false,
+                        mensaje = "Error en el exception: -> " + error.Message,
+                        facturar = true,
+                        numero = numero2
+                    };
+                    return new JsonResult(obj);
+                }
+                else
+                {
+                    var obj = new
+                    {
+                        success = false,
+                        mensaje = "Error en el exception: -> " + error.Message,
+                        facturar = false
+                    };
+                    return new JsonResult(obj);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -379,12 +397,30 @@ namespace Boletaje.Pages.Llamadas
             {
 
                 Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
-                var obj = new
+                
+                if (error.Message.Contains("entregas sin facturar"))
                 {
-                    success = false,
-                    mensaje = "Error en el exception: -> " + error.Message
-                };
-                return new JsonResult(obj);
+                    var numero2 = Convert.ToInt32(error.Message.Split("#:")[1]);
+                    var obj = new
+                    {
+                        success = false,
+                        mensaje = "Error en el exception: -> " + error.Message, 
+                        facturar = true,
+                        numero = numero2
+                    };
+                    return new JsonResult(obj);
+                }
+                else
+                {
+                    var obj = new
+                    {
+                        success = false,
+                        mensaje = "Error en el exception: -> " + error.Message, 
+                        facturar = false
+                    };
+                    return new JsonResult(obj);
+                }
+              
             }
             catch (Exception ex)
             {
@@ -394,7 +430,8 @@ namespace Boletaje.Pages.Llamadas
                 var obj = new
                 {
                     success = false,
-                    mensaje =  ex.Message //+ " -> " + ex.StackTrace.ToString()
+                    mensaje =  ex.Message ,
+                    facturar = false
                 };
                 return new JsonResult(obj);
             }

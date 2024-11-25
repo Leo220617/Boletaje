@@ -32,10 +32,14 @@
     <script>
         var Detalles = [];
         var Errores = [];
+        var Condiciones = [];
+
         $(document).ready(function () {
 
             jQuery(document).ready(function ($) {
                 $(document).ready(function () {
+
+                    Condiciones = JSON.parse($("#CondicionesFacturas").val());
 
                     var detalles = JSON.parse($("#Detalle").val());
                     var Impuestos = JSON.parse($("#Impuestos").val());
@@ -74,7 +78,90 @@
                 $(".moneda").text("$")
             }
         }
+        function ImprimirTiqueteC() {
+            try {
 
+
+
+                var ventana = window.open('', 'PRINT', 'height=400,width=600');
+                var texto = htmlContado;
+                texto = texto.replace("$Fecha", '@Model.Input.Fecha.ToString("dd/MMMM/yyyy")');
+                texto = texto.replace("$NumInterno", '@Model.Input.id');
+                texto = texto.replace("$CodSuc", "");
+                texto = texto.replace("$NumComprobante", '@Model.Input.ConsecutivoHacienda');
+                texto = texto.replace("$NumFactura", '@Model.Input.id');
+                texto = texto.replace("$Comentario", '@Model.Input.Comentarios');
+
+                var cond = Condiciones.find(a => a.id == "@Model.Input.idCondicionVenta");
+                texto = texto.replace("$selectCondPago", cond.Nombre);
+
+
+
+
+                texto = texto.replace("$CodCliente", " " + "@Model.Cliente.CardCode");
+
+
+                texto = texto.replace("$NombreCliente", "@Model.Cliente.CardName");
+                texto = texto.replace("$Vendedor", "");
+
+
+                var tabla = "";
+
+                for (var i = 0; i < Detalles.length; i++) {
+
+
+
+                    tabla += "<tr>" + "<td colspan='3'>  " + Detalles[i].ItemCode + "-" + Detalles[i].ItemName + "  </td></tr>";
+
+
+                    tabla += "<tr>";
+
+                    tabla += "<td style='text-align left;'>" + Detalles[i].Cantidad + " </td>";
+
+                    tabla += "<td style='text-align left;'>" + formatoDecimal(Detalles[i].PrecioUnitario) + " </td>";
+                    tabla += "<td style='text-align left;'>" + formatoDecimal(Detalles[i].TotalLinea) + " </td>";
+
+
+
+
+                    tabla += "</tr>";
+
+                }
+                texto = texto.replace("$Tabla", tabla);
+
+              
+
+                if ("@Model.Input.Moneda" == "COL") {
+                    texto = texto.replace("$SubTotal", "₡" + $("#SubtotalGeneral").text());
+                    texto = texto.replace("$TotalDescuento", "₡" + $("#DescGeneral").text());
+                    texto = texto.replace("$TotalImpuestos", "₡" + $("#ImpGeneral").text());
+                    texto = texto.replace("$Redondeo", "₡" + "");
+                    texto = texto.replace("$Total", "₡" + $("#TotalGeneral").text());
+                } else {
+                    texto = texto.replace("$SubTotal", "$" + $("#SubtotalGeneral").text());
+                    texto = texto.replace("$TotalDescuento", "$" + $("#DescGeneral").text());
+                    texto = texto.replace("$TotalImpuestos", "$" + $("#ImpGeneral").text());
+                    texto = texto.replace("$Redondeo", "$" + "");
+                    texto = texto.replace("$Total", "$" + $("#TotalGeneral").text());
+                }
+
+
+
+
+                ventana.document.write(texto);
+                ventana.document.close();
+                ventana.focus();
+                ventana.print();
+                ventana.close();
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error ' + e
+
+                })
+            }
+        }
         function ImprimeEtiqueta(boleta, cliente) {
 
             var Diagnostico = "";
@@ -197,6 +284,7 @@
                 <input hidden id="Detalle" value="@JsonConvert.SerializeObject(Model.Input.DetFactura)" />
                 <input hidden id="Impuestos" value="@JsonConvert.SerializeObject(Model.Impuestos)" />
 
+                <input hidden id="CondicionesFacturas" value="@JsonConvert.SerializeObject(Model.Condiciones)" />
 
 
 
@@ -385,6 +473,8 @@
     <div class="col-md-12">
         <div class="form-group">
             <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta()">PDF</button>
+            <button title="Tiquete" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimirTiqueteC()">Tiquete Factura</button>
+
             @if (Model.Input.MetodosPagos.Count() > 0)
             {
                 <button type="button" class="btn btn-rounded btn-outline-success" data-toggle="modal" data-target="#modalPagos">
@@ -392,6 +482,7 @@
                 </button>
             }
         </div>
+
     </div>
 </div>
 

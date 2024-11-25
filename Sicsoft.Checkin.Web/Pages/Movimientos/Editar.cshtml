@@ -441,6 +441,18 @@
                 TotalLinea = (Subtotal - Descuentos) + Impuestos;
 
                 if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()) || ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0] == undefined) {
+                    if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()))
+                    {
+                        if (parseFloat("@Model.CantidadHoras") > parseFloat($("#" + i + "Cantidad").val())) {
+                            $("#" + i + "Cantidad").val(parseFloat("@Model.CantidadHoras"));
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'La cantidad no puede ser menor a la ya pactada para este equipo'
+
+                            })
+                        }
+                    }
                     Detalles[i].Cantidad = $("#" + i + "Cantidad").val();
 
                 } else {
@@ -1082,7 +1094,7 @@
                     ItemCode: ManoObra.codSAP,
                     ItemName: ManoObra.Nombre,
                     PrecioUnitario: Precio,
-                    Cantidad: 1,
+                    Cantidad: parseFloat("@Model.CantidadHoras"),
                     PorDescuento: 0,
                     Descuento: 0,
                     Impuestos: 0,
@@ -2055,7 +2067,7 @@
                             Factura Revisión:
                             @if (Model.Llamada.Factura.FirstOrDefault() != null)
                             {
-                                <a asp-page="/Facturas/Observar" asp-route-id="@Model.Llamada.Factura.FirstOrDefault().id" title="Observar" target="_blank"> @Model.Llamada.Factura.FirstOrDefault().ConsecutivoHacienda</a>
+                                <a asp-page="/Facturas/Observar" class="btn btn-rounded btn-outline-primary" asp-route-id="@Model.Llamada.Factura.FirstOrDefault().id" title="Observar" target="_blank"> @Model.Llamada.Factura.FirstOrDefault().ConsecutivoHacienda</a>
 
                             }
                             else

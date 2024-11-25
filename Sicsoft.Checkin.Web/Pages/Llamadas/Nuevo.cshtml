@@ -583,7 +583,10 @@
 
     <script>
         var btn = document.getElementById('Guardar');
-
+        window.addEventListener('beforeunload', function(event) { 
+            var message = 'Estás intentando salir de la página. ¿Estás seguro?'; 
+            event.returnValue = message; 
+        });
         function ValidaForm(recibido1) {
             if (recibido1.PersonaContacto == undefined || recibido1.PersonaContacto == "") {
                 return false;
@@ -811,6 +814,7 @@
                                         })
 
                                     } else {
+                                        btn.disabled = false;
                                         if (json.facturar == true) {
                                             $("#divProcesando").hide();
 
@@ -825,6 +829,7 @@
                                                 text: json.mensaje
 
                                             });
+                                           
                                             Facturar();
                                         }else if(json.solicitud == true)
                                         {

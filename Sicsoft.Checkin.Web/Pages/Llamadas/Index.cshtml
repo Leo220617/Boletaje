@@ -458,7 +458,7 @@
                                     <td> @item.CardCode -  @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" : Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName)</td>
                                     <td>
                                         @item.ItemCode - @item.SerieFabricante - @(
-                                    Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode).FirstOrDefault().itemName
+                                    Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode && a.manufSN == item.SerieFabricante).FirstOrDefault() == null ? "" : Model.Productos.Productos.Where(a => a.itemCode == item.ItemCode && a.manufSN == item.SerieFabricante).FirstOrDefault().itemName
                                     )
                                     </td>
                                     <td>@item.Asunto </td>
