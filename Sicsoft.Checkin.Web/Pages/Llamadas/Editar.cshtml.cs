@@ -33,9 +33,11 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<EncReparacionViewModel, int> serviceE;
         private readonly ICrudApi<HistoricoViewModel, int> historico;
         private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
+        private readonly ICrudApi<UsuariosViewModel, int> login;
 
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
         private readonly ICrudApi<LogModificacionesViewModel, int> logs;
+        private readonly ICrudApi<ActividadesViewModel, int> actividades;
 
 
 
@@ -46,7 +48,7 @@ namespace Boletaje.Pages.Llamadas
         public string Producto { get; set; }
 
         [BindProperty]
-        public string UbicacionProd { get; set; } 
+        public string UbicacionProd { get; set; }
         [BindProperty]
         public HistoricoViewModel Historico { get; set; }
 
@@ -89,9 +91,15 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public LogModificacionesViewModel[] Logs { get; set; }
 
+        [BindProperty]
+        public ActividadesViewModel[] Actividades { get; set; }
+        [BindProperty]
+        public UsuariosViewModel[] Usuarios { get; set; }
+
         public EditarModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
             ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<AsuntosViewModel, int> asuntos, ICrudApi<EncReparacionViewModel, int> serviceE,
-            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<LogModificacionesViewModel, int> logs)
+            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<LogModificacionesViewModel, int> logs, ICrudApi<ActividadesViewModel, int> actividades,
+            ICrudApi<UsuariosViewModel, int> login)
         {
             this.service = service;
             this.clientes = clientes;
@@ -107,6 +115,8 @@ namespace Boletaje.Pages.Llamadas
             this.ubicaciones = ubicaciones;
             this.historicoDetallado = historicoDetallado;
             this.logs = logs;
+            this.actividades = actividades;
+            this.login = login;
         }
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -120,6 +130,10 @@ namespace Boletaje.Pages.Llamadas
                 Asuntos = await asuntos.ObtenerLista("");
 
                 Input = await service.ObtenerPorId(id);
+                ParametrosFiltros filtro2 = new ParametrosFiltros();
+                filtro2.Codigo1 = Input.id;
+                Actividades = await actividades.ObtenerLista(filtro2);
+                Usuarios = await login.ObtenerLista("");
                 var filtro = new ParametrosFiltros();
                 filtro.Codigo1 = id;
                 Logs = await logs.ObtenerLista(filtro);
@@ -129,7 +143,7 @@ namespace Boletaje.Pages.Llamadas
                 filtUbi.Texto = Input.ItemCode;
                 Ubicaciones = await ubicaciones.ObtenerLista(filtUbi);
                 Productos = await prods.ObtenerListaEspecial("");
-                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode && a.manufSN == Input.SerieFabricante).FirstOrDefault().itemName  ;
+                Producto = Productos.Productos.Where(a => a.itemCode == Input.ItemCode && a.manufSN == Input.SerieFabricante).FirstOrDefault().itemName;
                 UbicacionProd = (Ubicaciones.FirstOrDefault() != null ? Ubicaciones.FirstOrDefault().Ubicacion : " ");
                 TP = await tp.ObtenerLista("");
                 Garantias = await garantias.ObtenerLista("");
@@ -165,7 +179,7 @@ namespace Boletaje.Pages.Llamadas
                     filtHistDet.CardCode = Input.SerieFabricante.ToString();
                     filtHistDet.CardName = Input.ItemCode.ToString();
                     HistoricoDetallado = await historicoDetallado.ObtenerListaEspecial(filtHistDet);
-                    if(HistoricoDetallado.Historico == null)
+                    if (HistoricoDetallado.Historico == null)
                     {
                         HistoricoDetallado.Historico = new HistoricoDetalladoViewModel.historicoDet[1];
                         HistoricoDetallado.Historico[0] = new HistoricoDetalladoViewModel.historicoDet();
@@ -191,7 +205,7 @@ namespace Boletaje.Pages.Llamadas
                     HistoricoDetallado.Historico[0].Articulo = "";
                     HistoricoDetallado.Historico[0].Descripcion = "";
                     HistoricoDetallado.Historico[0].Garantia = 0;
-                    HistoricoDetallado.Historico[0].Facturado = 0; 
+                    HistoricoDetallado.Historico[0].Facturado = 0;
 
                 }
 
@@ -209,7 +223,7 @@ namespace Boletaje.Pages.Llamadas
             try
             {
                 Input.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
-         
+
                 await service.Editar(Input);
                 return RedirectToPage("./Index");
             }
@@ -261,11 +275,11 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.SucRetiro = recibido.SucRetiro;
                 coleccion.Comentarios = recibido.Comentarios;
                 coleccion.Tecnico = recibido.Tecnico;
-              //  coleccion.Firma = recibido.Firma;
+                //  coleccion.Firma = recibido.Firma;
                 coleccion.Horas = recibido.Horas;
 
                 coleccion.TratadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
-            //    coleccion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
+                //    coleccion.CardCode = recibido.CardCode.Split("/")[0].Replace(" ", "");
                 //var item = recibido.ItemCode;
                 //coleccion.ItemCode = item.Split("/")[0].Replace(" ", "");
                 //coleccion.SerieFabricante = item.Split("/")[1].Replace(" ", "");
@@ -301,7 +315,7 @@ namespace Boletaje.Pages.Llamadas
                     }
                 }
 
-                if(coleccion.Status == -1 && coleccion.FechaSISO == null)
+                if (coleccion.Status == -1 && coleccion.FechaSISO == null)
                 {
                     throw new Exception("No se puede cerrar una llamada sin Fecha SISO");
                 }
@@ -344,7 +358,7 @@ namespace Boletaje.Pages.Llamadas
                     };
                     return new JsonResult(obj);
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -377,7 +391,7 @@ namespace Boletaje.Pages.Llamadas
                     LlamadasViewModel llamada = new LlamadasViewModel();
                     llamada.id = log.idLlamada;
                     llamada.PIN = true;
-                     
+
                     await service.Editar(llamada);
                 }
                 else
@@ -397,14 +411,14 @@ namespace Boletaje.Pages.Llamadas
             {
 
                 Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
-                
+
                 if (error.Message.Contains("entregas sin facturar"))
                 {
                     var numero2 = Convert.ToInt32(error.Message.Split("#:")[1]);
                     var obj = new
                     {
                         success = false,
-                        mensaje = "Error en el exception: -> " + error.Message, 
+                        mensaje = "Error en el exception: -> " + error.Message,
                         facturar = true,
                         numero = numero2
                     };
@@ -415,12 +429,12 @@ namespace Boletaje.Pages.Llamadas
                     var obj = new
                     {
                         success = false,
-                        mensaje = "Error en el exception: -> " + error.Message, 
+                        mensaje = "Error en el exception: -> " + error.Message,
                         facturar = false
                     };
                     return new JsonResult(obj);
                 }
-              
+
             }
             catch (Exception ex)
             {
@@ -430,11 +444,98 @@ namespace Boletaje.Pages.Llamadas
                 var obj = new
                 {
                     success = false,
-                    mensaje =  ex.Message ,
+                    mensaje = ex.Message,
                     facturar = false
                 };
                 return new JsonResult(obj);
             }
         }
+
+        public async Task<IActionResult> OnPostGenerarActividad(ActividadesViewModel recibido)
+        {
+            try
+            {
+
+
+                ActividadesViewModel coleccion = new ActividadesViewModel();
+                coleccion.id = 0;
+                coleccion.idLlamada = recibido.idLlamada;
+                coleccion.TipoActividad = recibido.TipoActividad;
+                coleccion.Detalle = recibido.Detalle;
+                coleccion.UsuarioCreador = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
+                coleccion.idLogin = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == ClaimTypes.NameIdentifier).Select(s1 => s1.Value).FirstOrDefault());
+
+
+
+                await actividades.Agregar(coleccion);
+
+                var obj = new
+                {
+                    success = true,
+                    mensaje = ""
+                };
+
+                return new JsonResult(obj);
+
+            }
+            catch (ApiException ex)
+            {
+
+                Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + error.Message
+                };
+                return new JsonResult(obj);
+            }
+            catch (Exception ex)
+            {
+
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Message + " -> " + ex.StackTrace.ToString()
+                };
+                return new JsonResult(obj);
+            }
+        }
+
+        public async Task<IActionResult> OnGetEnviarActividadSAP(string idB)
+        {
+            try
+            {
+
+                var Actividad = new ActividadesViewModel();
+                Actividad.id = Convert.ToInt32(idB);
+                var objetos = await actividades.EnviarSAP(Actividad);
+
+
+
+
+                return new JsonResult(objetos);
+            }
+            catch (ApiException ex)
+            {
+                Errores error = JsonConvert.DeserializeObject<Errores>(ex.Content.ToString());
+
+
+                return new JsonResult(error);
+            }
+            catch (Exception ex)
+            {
+
+
+                var obj = new
+                {
+                    success = false,
+                    mensaje = "Error en el exception: -> " + ex.Message
+                };
+                return new JsonResult(obj);
+            }
+        }
+
     }
 }

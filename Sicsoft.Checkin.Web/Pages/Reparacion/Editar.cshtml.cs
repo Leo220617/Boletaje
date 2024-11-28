@@ -361,9 +361,9 @@ namespace Boletaje.Pages.Reparacion
                     cantidad++;
                 }
                 // Si esta pidiendo repuestos y la llamada no esta en taller
-                if(coleccion.EncReparacion.TipoReparacion == 1 && coleccion.EncReparacion.StatusLlamada != 47 )
+                if(coleccion.EncReparacion.TipoReparacion == 1 && (coleccion.EncReparacion.StatusLlamada != 47))
                 {
-                    throw new Exception("Debes colocar el status en taller para solicitar repuestos");
+                    throw new Exception("Debes colocar el status en taller  para solicitar repuestos");
                 }
 
                 await serviceColeccion.Agregar(coleccion);

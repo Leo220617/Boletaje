@@ -440,6 +440,8 @@
                                 <th>Sucursal</th>
 
                                 <th>Status</th>
+                                <th>Tipo de Caso</th>
+
                                 <th>Lugar Reparación</th>
                                 <th>PIN</th>
                                 <th>Factura Revisión</th>
@@ -464,10 +466,13 @@
                                     <td>@item.Asunto </td>
                                     @{
                                         var status = item.Status.ToString();
+                                        var tp = item.TipoCaso.ToString();
                                     }
                                     <td>@(Model.Sucursales.Where(a => a.id == item.SucRetiro).FirstOrDefault() == null ? "" : Model.Sucursales.Where(a => a.id == item.SucRetiro).FirstOrDefault().Nombre) </td>
 
                                     <td>@(Model.Status.Where(a => a.idSAP == status).FirstOrDefault() == null ? "" : Model.Status.Where(a => a.idSAP == status).FirstOrDefault().Nombre) </td>
+                                    <td>@(Model.TipoCaso.Where(a => a.idSAP == tp).FirstOrDefault() == null ? "" : Model.TipoCaso.Where(a => a.idSAP == tp).FirstOrDefault().Nombre) </td>
+
                                     <td>@(item.LugarReparacion == 1 ? "Taller" : "Visita")</td>
 
                                     @if(item.PIN)
@@ -524,6 +529,8 @@
 
                                 <th>Sucursal</th>
                                 <th>Status</th>
+                                <th>Tipo de Caso</th>
+
                                 <th>Lugar Reparación</th>
                                 <th>PIN</th>
                                 <th>Factura Revisión</th>  

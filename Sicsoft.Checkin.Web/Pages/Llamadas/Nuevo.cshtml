@@ -901,6 +901,7 @@
                 //$("#formTipos").submit();
             } catch (e) {
                 $("#divProcesando").modal("hide");
+                btn.disabled = false;
 
                 Swal.fire({
                     icon: 'error',
