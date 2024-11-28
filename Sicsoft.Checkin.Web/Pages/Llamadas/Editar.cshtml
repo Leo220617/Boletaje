@@ -1229,6 +1229,228 @@
 
 
     </script>
+    <script>
+        function enviarActividadSAP(id) {
+            try {
+                var modale = $("#divProcesando");
+                $.ajax({
+                    type: 'GET',
+
+                    url: '@Url.Page("Editar", "EnviarActividadSAP")',
+                    dataType: 'json',
+                    data: { idB: id },
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (json) {
+
+                        modale.modal("hide");
+                        $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
+                        $('.modal-backdrop').remove();//eliminamos el backdrop del modal
+
+
+                        console.log(json);
+                        if (json.procesadaSAP) {
+                            Swal.fire({
+                                title: "Ha sido enviado con éxito",
+
+                                icon: 'success',
+                                showCancelButton: false,
+                                customClass: {
+                                    confirmButton: 'swalBtnColor',
+
+                                },
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Ha ocurrido un error al intentar enviar a SAP, revisa la bitacora de errores'
+
+                            })
+                        }
+
+
+                    },
+
+                    beforeSend: function (xhr) {
+                        modale.modal("show");
+                    },
+                    complete: function () {
+                        modale.modal("hide");
+
+                    },
+                    error: function (error) {
+                        modale.modal("hide");
+                    }
+                });
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+
+        }
+
+        var btn = document.getElementById('Guardar');
+
+        function onclickModal() {
+            $('#modal-xl').modal('show');
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+        }
+
+        function ValidaFormActividad(recibido1) {
+            if (recibido1.idLlamada == undefined || recibido1.idLlamada == "") {
+                return false;
+            } else if (recibido1.Detalle == undefined || recibido1.Detalle == "") {
+                return false;
+
+            }
+
+
+
+
+            return true;
+
+        }
+
+        function onGuardarActividad() {
+            try {
+                btn.disabled = true;
+
+
+                var recibido1 =
+                {
+                    id: 0,
+                    idLlamada: $("#idLlamadaActividad").val(),
+                    TipoActividad: $("#tipoActividad").val(),
+                    Detalle: $("#DetalleActividad").val(),
+
+                }
+
+                if (!ValidaFormActividad(recibido1)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Faltan datos por rellenar '
+
+                    })
+                } else {
+                    Swal.fire({
+                        title: '¿Desea guardar los cambios?',
+                        showDenyButton: true,
+                        showCancelButton: false,
+                        confirmButtonText: `Aceptar`,
+                        denyButtonText: `Cancelar`,
+                        customClass: {
+                            confirmButton: 'swalBtnColor',
+                            denyButton: 'swalDeny'
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var recibidos = recibido1;
+
+                            $.ajax({
+                                type: 'POST',
+
+                                url: '@Url.Page("Editar", "GenerarActividad")',
+                                dataType: 'json',
+                                data: { recibido: recibidos },
+                                headers: {
+                                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                                },
+                                success: function (json) {
+
+                                    $("#divProcesando").hide();
+
+                                    if ($('.modal-backdrop').is(':visible')) {
+
+                                        $('body').removeClass('modal-open');
+                                        $('.modal-backdrop').hide();
+                                    }
+                                    console.log("resultado " + json.mensaje);
+                                    if (json.success == true) {
+                                        Swal.fire({
+                                            title: "Ha sido generado con éxito",
+
+                                            icon: 'success',
+                                            showCancelButton: false,
+
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'swalBtnColor',
+
+                                            },
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+
+                                                location.reload();
+                                            }
+                                        })
+
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Oops...',
+                                            text: 'Ha ocurrido un error al intentar guardar ' + json.mensaje
+
+                                        })
+                                    }
+                                },
+
+                                beforeSend: function (xhr) {
+
+                                    $("#divProcesando").modal("show");
+                                },
+                                complete: function () {
+                                    $("#divProcesando").modal("hide");
+
+                                },
+                                error: function (error) {
+                                    $("#divProcesando").modal("hide");
+
+                                    btn.disabled = false;
+
+                                }
+                            });
+                        } else {
+                            $("#divProcesando").modal("hide");
+
+                            btn.disabled = false;
+                        }
+                    }
+                    )
+                }
+
+
+                btn.disabled = false;
+            } catch (e) {
+                $("#divProcesando").modal("hide");
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error al intentar guardar ' + e
+
+                })
+                btn.disabled = false;
+
+            }
+
+
+
+        }
+
+    </script>
 }
 
 
@@ -2004,6 +2226,177 @@
         </div>
     </div>
 </form>
+
+
+<br />
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Listado de Actividades de la llamada # @Model.Input.DocEntry</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <a class="btn btn-rounded btn-outline-primary" title="Agregar" onclick="javascript: onclickModal()">+  Agregar</a>
+
+                        <input hidden id="idLlamadaActividad" asp-for="Input.id" />
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered first">
+                        <thead>
+                            <tr>
+                                <th>No. Actividad</th>
+                                <th>Tipo</th>
+                                <th>Fecha Creación</th>
+                                <th>Usuario Creador</th>
+
+                                <th>Detalle</th>
+                                <th>Acción</th>
+
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Actividades)
+                            {
+                                <tr>
+                                    <td>@item.DocEntry</td>
+
+                                    @{
+                                        switch (item.TipoActividad)
+                                        {
+                                            case 1:
+                                                {
+                                                    <td> Llamada Telefónica</td>
+
+                                                    break;
+                                                }
+                                            case 2:
+                                                {
+                                                    <td> Reunión</td>
+
+                                                    break;
+                                                }
+                                            case 3:
+                                                {
+                                                    <td> Tarea</td>
+
+                                                    break;
+                                                }
+                                            case 4:
+                                                {
+                                                    <td>Nota</td>
+
+                                                    break;
+                                                }
+                                            case 5:
+                                                {
+                                                    <td> Campaña</td>
+
+                                                    break;
+                                                }
+                                            case 6:
+                                                {
+                                                    <td> Otros</td>
+
+                                                    break;
+                                                }
+
+                                        }
+                                    }
+
+
+                                    <td>
+
+                                        @item.FechaCreacion
+                                    </td>
+                                    @{
+                                        var cardCode = item.idLogin;
+                                    }
+                                    <td>@(Model.Usuarios.Where(a => a.id == cardCode).FirstOrDefault() == null ? "" : Model.Usuarios.Where(a => a.id == cardCode).FirstOrDefault().Nombre) </td>
+
+                                    <td>@item.Detalle </td>
+                                    <td>
+
+                                        @if (!item.ProcesadaSAP)
+                                        {
+
+                                            <a onclick="javascript: enviarActividadSAP('@item.id')" title="Enviar a SAP"> <img src="~/sap.png" style="width: 20%;height: 25%;border-radius: 30%; cursor: pointer;" /></a>
+                                        }&nbsp;
+                                    </td>
+                                </tr>
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>No. Actividad</th>
+                                <th>Tipo</th>
+                                <th>Fecha Creación</th>
+                                <th>Usuario Creador</th>
+
+                                <th>Detalle</th>
+                                <th>Acción</th>
+
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modal-xl">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Agregar Actividad</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Tipo de Actividad:</label>
+                            <select id="tipoActividad" class="form-control" required>
+                                <option value="1">Llamada Telefónica</option>
+                                <option value="2">Reunión</option>
+                                <option value="3">Tarea</option>
+                                <option value="4">Nota</option>
+                                <option value="5">Campaña</option>
+                                <option value="6">Otros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label> Detalle:</label>
+                            <textarea class="form-control form-control-lg" id="DetalleActividad"></textarea>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="Guardar" onclick="javascript: onGuardarActividad()" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
 <!-- The Modal -->
 <div id="myModal" class="modal">
 

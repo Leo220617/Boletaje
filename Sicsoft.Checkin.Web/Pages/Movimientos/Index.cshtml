@@ -648,7 +648,8 @@
 
                                             }else
                                             {
-                                                if(item.DocEntry <= 0 || item.DocEntry == null)
+                                                if(item.Facturado == false)
+                                                //if(item.DocEntry <= 0 || item.DocEntry == null)
                                                 {
                                                     <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
 

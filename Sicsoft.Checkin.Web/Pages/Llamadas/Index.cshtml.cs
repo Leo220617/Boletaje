@@ -22,6 +22,8 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<LlamadasViewModel, int> service;
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<StatusViewModel, int> serviceStatus;
+        private readonly ICrudApi<TiposCasosViewModel, int> tipoCaso;
+
         private readonly ICrudApi<ProductosViewModel, int> prods;
         private readonly ICrudApi<SucursalesViewModel, int> sucursales;
 
@@ -30,6 +32,8 @@ namespace Boletaje.Pages.Llamadas
         public SucursalesViewModel[] Sucursales { get; set; }
         [BindProperty]
         public StatusViewModel[] Status { get; set; }
+        [BindProperty]
+        public TiposCasosViewModel[] TipoCaso { get; set; }
         [BindProperty]
         public LlamadasViewModel[] Objeto { get; set; }
         [BindProperty]
@@ -40,13 +44,14 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public ProductosViewModel Productos { get; set; }
 
-        public IndexModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> serviceStatus, ICrudApi<ProductosViewModel, int> prods, ICrudApi<SucursalesViewModel, int> sucursales)
+        public IndexModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<StatusViewModel, int> serviceStatus, ICrudApi<ProductosViewModel, int> prods, ICrudApi<SucursalesViewModel, int> sucursales, ICrudApi<TiposCasosViewModel, int> tipoCaso)
         {
             this.service = service;
             this.clientes = clientes;
             this.serviceStatus = serviceStatus;
             this.prods = prods;
             this.sucursales = sucursales;
+            this.tipoCaso = tipoCaso;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -97,6 +102,7 @@ namespace Boletaje.Pages.Llamadas
                 }
                 Objeto = await service.ObtenerLista(filtro);
                 Status = await serviceStatus.ObtenerLista("");
+                TipoCaso = await tipoCaso.ObtenerLista("");
                 Productos = await prods.ObtenerListaEspecial("");
                 Sucursales = await sucursales.ObtenerLista("");
 

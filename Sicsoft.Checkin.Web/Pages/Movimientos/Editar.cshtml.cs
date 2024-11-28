@@ -347,8 +347,8 @@ namespace Boletaje.Pages.Movimientos
 
                     coleccion.Detalle[cantidad - 1].PrecioUnitario = item.PrecioUnitario;
                     coleccion.Detalle[cantidad - 1].Cantidad = item.Cantidad;
-                    coleccion.Detalle[cantidad - 1].PorDescuento = item.PorDescuento;
-                    coleccion.Detalle[cantidad - 1].Descuento = item.Descuento;
+                    coleccion.Detalle[cantidad - 1].PorDescuento = 0;//item.PorDescuento;
+                    coleccion.Detalle[cantidad - 1].Descuento = 0;//item.Descuento;
                     coleccion.Detalle[cantidad - 1].Impuestos = item.Impuestos;
                     coleccion.Detalle[cantidad - 1].TotalLinea = item.TotalLinea;
                     coleccion.Detalle[cantidad - 1].Garantia = item.Garantia;
