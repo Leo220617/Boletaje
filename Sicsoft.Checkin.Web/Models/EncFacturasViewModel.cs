@@ -29,6 +29,8 @@ namespace Boletaje.Models
         public string ConsecutivoHacienda { get; set; }
         public int CreadoPor { get; set; }
         public decimal PorDesc { get; set; }
+        public string ItemCode { get; set; }
+        public string Serie { get; set; }
         public EncMovimientoViewModel Entrega { get; set; }
         public DetFacturasViewModel[] DetFactura { get; set; }
         public MetodosPagosViewModel[] MetodosPagos { get; set; }
