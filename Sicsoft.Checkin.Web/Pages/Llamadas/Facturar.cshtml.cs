@@ -247,7 +247,8 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.TotalDescuento = recibido.TotalDescuento;
                 coleccion.TotalCompra = recibido.TotalCompra;
                 coleccion.PorDesc = recibido.PorDesc;
-
+                coleccion.ItemCode = recibido.ItemCode;
+                coleccion.Serie = recibido.SerieFacturar;
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)
                 {
