@@ -186,6 +186,21 @@ namespace Boletaje.Pages.Movimientos
                 return new JsonResult(false);
             }
         }
+        public async Task<IActionResult> OnGetDevolucion(int id)
+        {
+            try
+            {
+
+
+                await service.Devolucion(id);
+
+                return new JsonResult(true);
+            }
+            catch (ApiException ex)
+            {
+                return new JsonResult(false);
+            }
+        }
 
     }
 
