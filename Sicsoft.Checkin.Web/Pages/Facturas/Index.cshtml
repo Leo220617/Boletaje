@@ -218,6 +218,8 @@
                                 <th>Consecutivo Hacienda</th> 
                                 <th>Procesado SAP</th>
                                 <th>Fecha Procesado</th>
+                                <th>Sucursal</th>
+
                                 <th>Acción</th>
 
                             </tr>
@@ -256,6 +258,7 @@
                                     }
 
 
+                                    <td>@(item.idSucursal == 0 ? "Sin sucursal" : Model.Sucursales.Where(a => a.id == item.idSucursal).FirstOrDefault() == null ? "" : Model.Sucursales.Where(a => a.id == item.idSucursal).FirstOrDefault().Nombre)</td>
 
 
                                     <td>
@@ -288,6 +291,8 @@
                                 <th>Consecutivo Hacienda</th> 
                                 <th>Procesado SAP</th>
                                 <th>Fecha Procesado</th>
+                                <th>Sucursal</th>
+
                                 <th>Acción</th>
 
                             </tr>

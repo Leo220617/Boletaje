@@ -17,13 +17,19 @@ namespace Boletaje.Pages.CuentasBancarias
     public class NuevoModel : PageModel
     {
         private readonly ICrudApi<CuentasBancariasViewModel, int> service;
+        private readonly ICrudApi<SucursalesViewModel, int> suc;
+
 
         [BindProperty]
         public CuentasBancariasViewModel Input { get; set; }
 
-        public NuevoModel(ICrudApi<CuentasBancariasViewModel, int> service)
+        [BindProperty]
+        public SucursalesViewModel[] Sucursales { get; set; }
+
+        public NuevoModel(ICrudApi<CuentasBancariasViewModel, int> service, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
+            this.suc = suc;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -34,6 +40,7 @@ namespace Boletaje.Pages.CuentasBancarias
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                Sucursales = await suc.ObtenerLista("");
                 return Page();
             }
             catch (Exception ex)

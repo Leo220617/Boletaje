@@ -20,6 +20,8 @@ namespace Boletaje.Pages.Facturas
         private readonly ICrudApi<EncFacturasViewModel, int> service;
         private readonly ICrudApi<CuentasBancariasViewModel, int> cuentasB; 
         private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
+        private readonly ICrudApi<SucursalesViewModel, int> suc;
+
 
         [BindProperty]
         public EncFacturasViewModel[] Objeto { get; set; }
@@ -32,17 +34,21 @@ namespace Boletaje.Pages.Facturas
 
         [BindProperty]
         public DateTime FechaR { get; set; }
-     
+        [BindProperty]
+        public SucursalesViewModel[] Sucursales { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string Sucursal { get; set; }
         [BindProperty]
         public CuentasBancariasViewModel[] CuentasBancarias { get; set; }
-        public ReportesModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<CuentasBancariasViewModel, int> cuentasB, ICrudApi<CondicionesPagosViewModel, int> conds)
+        public ReportesModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<CuentasBancariasViewModel, int> cuentasB, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
             this.cuentasB = cuentasB; 
             this.conds = conds;
+            this.suc = suc;
         }
 
         public async Task<IActionResult> OnGetAsync(DateTime Fecha)
@@ -62,8 +68,14 @@ namespace Boletaje.Pages.Facturas
 
                 filtro.FechaInicial = Fecha.Date;
                 filtro.FechaFinal = filtro.FechaInicial.Date;
-                
 
+                var Suc = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
+                if (Suc > 0)
+                {
+                    filtro.Codigo2 = Suc;
+                     var  Sucursal1 = await suc.ObtenerPorId(Suc);
+                    Sucursal = Sucursal1 == null ? "Sin Sucursal" : Sucursal1.Nombre;
+                }
                 Objeto = await service.ObtenerLista(filtro);
                 MP = new List<MetodosPagosViewModel>();
                 foreach(var item in Objeto)

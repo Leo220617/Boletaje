@@ -18,17 +18,19 @@ namespace Boletaje.Pages.CuentasBancarias
     public class IndexModel : PageModel
     {
         private readonly ICrudApi<CuentasBancariasViewModel, int> service;
+        private readonly ICrudApi<SucursalesViewModel, int> suc;
 
         [BindProperty]
         public CuentasBancariasViewModel[] Objeto { get; set; }
-
+        [BindProperty]
+        public SucursalesViewModel[] Sucursales { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
-        public IndexModel(ICrudApi<CuentasBancariasViewModel, int> service)
+        public IndexModel(ICrudApi<CuentasBancariasViewModel, int> service, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
-
+            this.suc = suc;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -41,7 +43,7 @@ namespace Boletaje.Pages.CuentasBancarias
                 }
 
                 Objeto = await service.ObtenerLista(filtro);
-
+                Sucursales = await suc.ObtenerLista("");
                 return Page();
             }
             catch (ApiException ex)

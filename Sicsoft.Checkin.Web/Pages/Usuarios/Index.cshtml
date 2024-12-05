@@ -175,6 +175,7 @@
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Estado</th>
+                                <th>Sucursal</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
@@ -198,12 +199,12 @@
                                         <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Inactivo</span></td>
                                     }
 
+                                    <td>@(item.idSucursal == 0 ? "Sin sucursal" : Model.Sucursales.Where(a => a.id == item.idSucursal).FirstOrDefault() == null ? "" : Model.Sucursales.Where(a => a.id == item.idSucursal).FirstOrDefault().Nombre)</td>
                                     <td>
 
                                         <a asp-page="./Editar" asp-route-id="@item.id" title="Editar" class="btn btn-rounded btn-outline-warning"> Editar</a> &nbsp;
                                         <a onclick="javascript: onClickModal('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Cambiar Estado</a>
                                     </td>
-
                                 </tr>
                             }
 
@@ -215,6 +216,8 @@
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Estado</th>
+                                <th>Sucursal</th>
+
                                 <th>Acción</th>
                             </tr>
                         </tfoot>

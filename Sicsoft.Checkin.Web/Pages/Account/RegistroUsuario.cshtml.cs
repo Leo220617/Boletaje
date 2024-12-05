@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Boletaje.Models;
 using InversionGloblalWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,6 +17,8 @@ namespace Sicsoft.CostaRica.Checkin.Web.Pages.Account
     {
         private readonly ICrudApi<LoginUsuario, int> service;
         private readonly ICrudApi<UsuariosViewModel, int> users;
+        private readonly ICrudApi<SucursalesViewModel, int> suc;
+
         private readonly ICrudApi<RolesViewModel, int> roles;
 
         [BindProperty]
@@ -27,19 +30,23 @@ namespace Sicsoft.CostaRica.Checkin.Web.Pages.Account
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
 
-        public RegistroUsuarioModel(ICrudApi<LoginUsuario, int> service, ICrudApi<RolesViewModel, int> roles, ICrudApi<UsuariosViewModel, int> users)
+        [BindProperty]
+        public SucursalesViewModel[] Sucursales { get; set; }
+
+        public RegistroUsuarioModel(ICrudApi<LoginUsuario, int> service, ICrudApi<RolesViewModel, int> roles, ICrudApi<UsuariosViewModel, int> users, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
             this.roles = roles;
             this.users = users;
+            this.suc = suc;
         }
         public async Task<IActionResult> OnGetAsync()
         {
             try
             {
                 Roles = await roles.ObtenerLista("");
-                 
-                
+
+                Sucursales = await suc.ObtenerLista("");
                
             }
             catch (Exception)

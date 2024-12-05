@@ -3,6 +3,7 @@
     public class CuentasBancariasViewModel
     {
         public int id { get; set; }
+        public int idSucursal { get; set; }
         public string Nombre { get; set; }
         public string CuentaSAP { get; set; }
         public bool Estado { get; set; }
