@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Boletaje.Models;
 using InversionGloblalWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -18,6 +19,8 @@ namespace InversionGloblalWeb.Pages.Usuarios
         private readonly IConfiguration configuration;
         private readonly ICrudApi<UsuariosViewModel, int> service;
         private readonly ICrudApi<RolesViewModel, int> roles;
+        private readonly ICrudApi<SucursalesViewModel, int> suc;
+
 
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
@@ -30,11 +33,14 @@ namespace InversionGloblalWeb.Pages.Usuarios
 
         [BindProperty]
         public RolesViewModel[] Roles { get; set; }
+        [BindProperty]
+        public SucursalesViewModel[] Sucursales { get; set; }
 
-        public IndexModel(ICrudApi<UsuariosViewModel, int> service, ICrudApi<RolesViewModel, int> roles)
+        public IndexModel(ICrudApi<UsuariosViewModel, int> service, ICrudApi<RolesViewModel, int> roles, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
             this.roles = roles;
+            this.suc = suc; 
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -45,7 +51,7 @@ namespace InversionGloblalWeb.Pages.Usuarios
                 Objeto = await service.ObtenerLista(filtro);
                 Objeto2 = Objeto;
                 Roles = await roles.ObtenerLista("");
-
+                Sucursales = await suc.ObtenerLista("");
                 return Page();
             }
             catch (ApiException ex)

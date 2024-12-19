@@ -56,7 +56,8 @@ namespace Boletaje.Pages.Status
 
 
                 await service.Editar(Input);
-                return Redirect("./Index");
+                return RedirectToPage("./Index");
+
             }
             catch (Exception ex)
             {

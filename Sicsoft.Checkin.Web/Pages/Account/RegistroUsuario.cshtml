@@ -289,7 +289,7 @@
                     </div>
                     <div class="row">
 
-                        <div class="col-md-4 pr-1">
+                        <div class="col-md-3 pr-1">
                             <div class="form-group">
                                 <label for="nom">Dimensión:</label>
                                 <select class="form-control" asp-for="Input.NumeroDimension" required>
@@ -308,16 +308,32 @@
 
                             </div>
                         </div>
-                        <div class="col-md-4 pl-1">
+                        <div class="col-md-3 pl-1">
                             <div class="form-group">
                                 <label for="Norma">Norma de Reparto</label>
                                 <input type="text" id="Norma" class="form-control form-control-lg" asp-for="Input.NormaReparto" required placeholder="Norma de Reparto">
                             </div>
                         </div>
-                        <div class="col-md-4 pl-1">
+                        <div class="col-md-3 pl-1">
                             <div class="form-group">
                                 <label for="pin">PIN</label>
                                 <input type="text" id="pin" class="form-control form-control-lg" asp-for="Input.PIN" required placeholder="XXXX" maxlength="4">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label for="nom">Sucursal:</label>
+                                <select class="form-control" asp-for="Input.idSucursal" required>
+                                    <option value="0" selected>Sin sucursal</option>
+
+                                    @foreach(var item in Model.Sucursales)
+                                    {
+                                        <option value="@item.id">@item.id - @item.Nombre</option>
+                                    }
+                                      
+
+                                </select>
+
                             </div>
                         </div>
                     </div>

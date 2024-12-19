@@ -101,6 +101,8 @@ namespace Sicsoft.Checkin.Web.Servicios
 
         [Post("/Eliminar")]
         Task Eliminar(int id);
+        [Post("/Devolucion")]
+        Task Devolucion(int id);
 
         [Post("/Eliminar")]
         Task AprobarFactura(int id, int idLoginAceptador);

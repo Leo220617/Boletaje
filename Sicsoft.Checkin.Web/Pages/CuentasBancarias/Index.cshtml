@@ -102,7 +102,7 @@
                                 <th>Cod. SAP</th>
                                 <th>Nombre</th>
                                 <th>Método</th>
-
+                                <th>Sucursal</th>
                                 <th>Acción</th>
 
                             </tr>
@@ -115,6 +115,7 @@
                                     <td>@item.CuentaSAP</td>
                                     <td>@item.Nombre</td>
                                     <td>@item.Tipo</td>
+                                    <td>@(Model.Sucursales.Where(a => a.id == item.idSucursal).FirstOrDefault() == null ? "Sin Sucursal" : Model.Sucursales.Where(a => a.id == item.idSucursal).FirstOrDefault().Nombre)</td>
                                     <td>
 
                                         <a asp-page="./Editar" asp-route-id="@item.id" title="Editar" class="btn btn-rounded btn-outline-warning"> Editar</a> &nbsp;
@@ -131,6 +132,7 @@
                                 <th>Cod. SAP</th>
                                 <th>Nombre</th>
                                 <th>Método</th>
+                                <th>Sucursal</th>
 
                                 <th>Acción</th>
 

@@ -15,5 +15,8 @@ namespace Boletaje.Models
 
         [StringLength(500)]
         public string Nombre { get; set; }
+
+        public bool Taller { get; set; }
+
     }
 }

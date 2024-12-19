@@ -130,15 +130,13 @@
                 Errores = JSON.parse($("#Errores").val());
                 Exoneraciones = JSON.parse($("#Exoneraciones").val());
                 for (var i = 0; i < ProductosHijos.length; i++) {
-                    if(ProductosHijos[i] != undefined)
-                    {
-                        if (ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)) > 0)
-                        {
+                    if (ProductosHijos[i] != undefined) {
+                        if (ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)) > 0) {
                             ProductosHijosInsertar.splice(ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)), 1);
 
                         }
                     }
-                    
+
                 }
 
                 if (ProductoPadre.Precio == 0) {
@@ -195,7 +193,7 @@
                     regenerar = true;
                 }
                 RellenaTabla();
-                ModificaMoneda(true,true);
+                ModificaMoneda(true, true);
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -342,15 +340,14 @@
                 })
             }
         }
-        function ModificaLinea(i, ban,inicio,modificatodo) {
+        function ModificaLinea(i, ban, inicio, modificatodo) {
             try {
-                var TP = TipoCambio.find(a => a.Moneda == "USD"); 
+                var TP = TipoCambio.find(a => a.Moneda == "USD");
                 var Impuestos = 0;
                 var Descuentos = 0;
                 var TotalLinea = 0;
                 var Subtotal = 0;
-                if(inicio != "true")
-                {
+                if (inicio != "true") {
                     try {
                         var checkbox1 = document.getElementById(i + "check");
                         var checkbox2 = document.getElementById(i + "checkOpcional");
@@ -362,7 +359,7 @@
                         console.log(e);
                     }
                 }
-               
+
 
 
                 var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
@@ -418,11 +415,10 @@
                 ganancia = (gananciaBruta / parseFloat($("#" + i + "PrecioU").val())) * 100;
 
                 Detalles[i].PrecioUnitario = $("#" + i + "PrecioU").val();
-                if (parseFloat($("#descGeneral").val()) > 0)
-                {
+                if (parseFloat($("#descGeneral").val()) > 0) {
                     $("#" + i + "PorDesc").val($("#descGeneral").val());
                 }
-                Descuentos =  ($("#" + i + "PorDesc").val() / 100) * Subtotal;
+                Descuentos = ($("#" + i + "PorDesc").val() / 100) * Subtotal;
                 var idImpuesto = ImpuestosS.find(a => a.id == $("#" + i + "impSelector").val());
                 var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
                 var calculoIMP = IMP.Tarifa;
@@ -445,8 +441,7 @@
                 TotalLinea = (Subtotal - Descuentos) + Impuestos;
 
                 if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()) || ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0] == undefined) {
-                    if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()))
-                    {
+                    if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase())) {
                         if (parseFloat("@Model.CantidadHoras") > parseFloat($("#" + i + "Cantidad").val())) {
                             $("#" + i + "Cantidad").val(parseFloat("@Model.CantidadHoras"));
                             Swal.fire({
@@ -482,11 +477,10 @@
 
                 }
                 banderaConversion = banderaConverAntes;
-                if(modificatodo != true)
-                {
+                if (modificatodo != true) {
                     ModificaTodo();
                 }
-               
+
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -513,8 +507,7 @@
                 // }
                 for (var i = 0; i < Detalles.length; i++) {
 
-                    if (PorDescuento > 0)
-                    {
+                    if (PorDescuento > 0) {
                         $("#" + i + "PorDesc").val(PorDescuento);
                         ModificaLinea(i, false, false, true);
                     }
@@ -541,7 +534,7 @@
                 // if (PorDescuento > 0) {
                 //     Descuentos = SubTotal * (PorDescuento / 100);
                 //     Impuestos = (SubTotal - Descuentos) * 0.13;
-                     
+
                 //     Total = (SubTotal - Descuentos) + Impuestos;
                 // }
 
@@ -564,7 +557,7 @@
         function Validar(Detalles) {
             try {
                 var bandera = true;
-                    var TP = TipoCambio.find(a => a.Moneda == "USD");
+                var TP = TipoCambio.find(a => a.Moneda == "USD");
                 for (var i = 0; i < Detalles.length; i++) {
                     var producto = ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0];
                     if (producto == undefined) {
@@ -575,7 +568,7 @@
                     if ($("#Moneda").val() == "USD") {
                         gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - (producto.Costo / TP.TipoCambio);
                     } else {
-                         
+
                         gananciaBruta = (parseFloat($("#" + i + "PrecioU").val())) - producto.Costo;
                     }
                     //gananciaBruta = parseFloat($("#" + i + "PrecioU").val()) - producto.Costo;
@@ -585,7 +578,7 @@
                         bandera = false;
                     }
 
-                    if (Detalles[i].TotalLinea < 1 && Detalles[i].Garantia == false) { 
+                    if (Detalles[i].TotalLinea < 1 && Detalles[i].Garantia == false) {
                         bandera = false;
                     }
                 }
@@ -855,7 +848,7 @@
                                         },
                                     }).then((result) => {
                                         if (result.isConfirmed) {
-                                             
+
                                             var recibidos = JSON.stringify(recibido);
                                             var jsonString = JSON.stringify(recibido);
                                             // Comprimir la cadena JSON utilizando gzip
@@ -1049,7 +1042,7 @@
 
         }
 
-        function ModificaMoneda(ban,inicio) {
+        function ModificaMoneda(ban, inicio) {
             try {
                 if ($("#Moneda").val() == "COL") {
                     banderaConversion = true;
@@ -1061,26 +1054,23 @@
                 }
                 if (!ban) {
                     for (var i = 0; i < Detalles.length; i++) {
-                        if(inicio == true)
-                        {
-                            ModificaLinea(i, "true","true");
-                        }else
-                        {
-                            ModificaLinea(i, "true","false");
+                        if (inicio == true) {
+                            ModificaLinea(i, "true", "true");
+                        } else {
+                            ModificaLinea(i, "true", "false");
                         }
-                        
+
 
                     }
                 } else {
                     for (var i = 0; i < Detalles.length; i++) {
-                        if (inicio == true)
-                        {
-                            ModificaLinea(i, "false","true");
-                        }else{
+                        if (inicio == true) {
+                            ModificaLinea(i, "false", "true");
+                        } else {
                             ModificaLinea(i, "false");
 
                         }
-                        
+
 
                     }
                 }
@@ -1124,17 +1114,16 @@
                 };
 
                 if (Detalles.find(a => a.ItemCode == ManoObra.codSAP) == undefined) {
-                    if (parseFloat("@Model.CantidadHoras") > 0)
-                    {
+                    if (parseFloat("@Model.CantidadHoras") > 0) {
                         Detalles.push(detalle);
                         RellenaTabla();
 
-                        var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
-                        ModificaLinea(posicion, "false");
                     }
-                   
+
                 }
-                
+                var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
+                ModificaLinea(posicion, "false");
+
 
             } catch (e) {
                 Swal.fire({
@@ -1661,10 +1650,18 @@
 
                             </div>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Observaciones Ult. Reparación:</label>
                                 <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
+
+                            </div>
+                            <a href="#" onclick="javascript: onAbrirModalDetallado() ">Ver más detallado</a>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Comentarios Llamada:</label>
+                                <textarea class="form-control form-control-lg" asp-for="Llamada.Comentarios" readonly> </textarea>
 
                             </div>
                             <a href="#" onclick="javascript: onAbrirModalDetallado() ">Ver más detallado</a>
@@ -1974,7 +1971,7 @@
                         <div class="form-group">
                             <label>Tipo de Caso:</label>
                             <select id="tipoCaso" class="form-control" required asp-for="Llamada.TipoCaso">
-                             @*    <option value="0">Seleccione</option> *@
+                                @*    <option value="0">Seleccione</option> *@
 
 
                                 @foreach (var item in Model.TP)
@@ -2039,17 +2036,17 @@
                             {
                                 case 1:
                                     {
-                                                    <h3 class="text-dark mb-1">Oferta de Venta</h3>
+                                        <h3 class="text-dark mb-1">Oferta de Venta</h3>
                                         break;
                                     }
                                 case 2:
                                     {
-                                                    <h3 class="text-dark mb-1">Entrega</h3>
+                                        <h3 class="text-dark mb-1">Entrega</h3>
                                         break;
                                     }
                                 case 3:
                                     {
-                                                    <h3 class="text-dark mb-1">Cotización BackOffice</h3>
+                                        <h3 class="text-dark mb-1">Cotización BackOffice</h3>
                                         break;
                                     }
                             }
@@ -2105,7 +2102,7 @@
 
                         </div>
                         <br />
-                        @if(Model.Cliente.Exonerado == "1")
+                        @if (Model.Cliente.Exonerado == "1")
                         {
                             <div><span class="badge">CLIENTE EXONERADO</span></div>
 
@@ -2351,37 +2348,37 @@
                                         {
                                             case 1:
                                                 {
-                                                                <td> Llamada Telefónica</td>
+                                                    <td> Llamada Telefónica</td>
 
                                                     break;
                                                 }
                                             case 2:
                                                 {
-                                                                <td> Reunión</td>
+                                                    <td> Reunión</td>
 
                                                     break;
                                                 }
                                             case 3:
                                                 {
-                                                                <td> Tarea</td>
+                                                    <td> Tarea</td>
 
                                                     break;
                                                 }
                                             case 4:
                                                 {
-                                                                <td>Nota</td>
+                                                    <td>Nota</td>
 
                                                     break;
                                                 }
                                             case 5:
                                                 {
-                                                                <td> Campaña</td>
+                                                    <td> Campaña</td>
 
                                                     break;
                                                 }
                                             case 6:
                                                 {
-                                                                <td> Otros</td>
+                                                    <td> Otros</td>
 
                                                     break;
                                                 }
@@ -2459,7 +2456,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label> Detalle:</label>
-                            <textarea class="form-control form-control-lg" id="DetalleActividad"></textarea> 
+                            <textarea class="form-control form-control-lg" id="DetalleActividad"></textarea>
 
                         </div>
                     </div>

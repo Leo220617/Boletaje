@@ -372,9 +372,11 @@ namespace Boletaje.Pages.Reparacion
                 {
                     var Status = recibido.StatusLlamada;
                     var Horas = recibido.HorasLlamada;
+                    var TP = recibido.TipoCasoLlamada;
                     InputLlamada = await serviceL.ObtenerPorId(recibido.idLlamada);
                     InputLlamada.Status = Status;
                     InputLlamada.Horas = Horas;
+                    InputLlamada.TipoCaso = TP;
                     await serviceL.Editar(InputLlamada);
                 }
                 catch (Exception ex)

@@ -19,19 +19,24 @@ namespace Boletaje.Pages.Facturas
     {
         private readonly ICrudApi<EncFacturasViewModel, int> service;
         private readonly ICrudApi<ClientesViewModel, int> clientes;
+        private readonly ICrudApi<SucursalesViewModel, int> suc;
+
 
         [BindProperty]
         public EncFacturasViewModel[] Objeto { get; set; }
+        [BindProperty]
+        public SucursalesViewModel[] Sucursales { get; set; }
         [BindProperty]
         public ClientesViewModel Clientes { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public ParametrosFiltros filtro { get; set; }
 
-        public IndexModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes)
+        public IndexModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
             this.clientes = clientes;
+            this.suc = suc;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -43,7 +48,7 @@ namespace Boletaje.Pages.Facturas
                 {
                     return RedirectToPage("/NoPermiso");
                 }
-
+                Sucursales = await suc.ObtenerLista("");
                 DateTime time = new DateTime();
                  
                 if (string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
@@ -68,7 +73,7 @@ namespace Boletaje.Pages.Facturas
 
                     filtro.FechaFinal = ultimoDia;
 
-                     
+                    
 
                 }
                  
@@ -77,8 +82,12 @@ namespace Boletaje.Pages.Facturas
                 {
                     filtro.CardCode = filtro.CardCode.Split("/")[0];
                 }
-                filtro.CardName = ""; 
-
+                filtro.CardName = "";
+                var Suc = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
+                if (Suc > 0)
+                {
+                    filtro.Codigo2 = Suc;
+                }
                 Objeto = await service.ObtenerLista(filtro);  
 
                 return Page();

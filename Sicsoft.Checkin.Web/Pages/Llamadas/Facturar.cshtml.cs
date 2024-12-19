@@ -124,7 +124,9 @@ namespace Boletaje.Pages.Llamadas
                 PlazosCreditos = await plazos.ObtenerLista("");
                 Condiciones = await conds.ObtenerLista("");
                 Impuestos = await impuestos.ObtenerLista("");
-                CuentasBancarias = await cuentasB.ObtenerLista("");
+                ParametrosFiltros filtrocuentas = new ParametrosFiltros();
+                filtrocuentas.Codigo1 = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
+                CuentasBancarias = await cuentasB.ObtenerLista(filtrocuentas);
                 ParametrosFiltros filtroHoras = new ParametrosFiltros();
                 filtroHoras.ItemCode = ItemCode;
                 ProdHoras = await prodHoras.ObtenerLista(filtroHoras);
@@ -229,6 +231,7 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.MetodosPagos = new MetodosPagosViewModel[recibido.Metodos.Length];
 
                 coleccion.idEntrega = recibido.idEntrega;
+                coleccion.idSucursal = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
                 coleccion.CreadoPor = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "CodVendedor").Select(s1 => s1.Value).FirstOrDefault());
                 coleccion.idCondicionVenta = recibido.idCondicionVenta;
                 coleccion.idPlazoCredito = recibido.idPlazoCredito;

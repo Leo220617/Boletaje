@@ -49,18 +49,29 @@
                     <input asp-for="Input.id" hidden />
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Cod SAP</label>
                                 <input type="text" class="form-control form-control-lg" id="codsap" placeholder="Cod. SAP" asp-for="Input.idSAP" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label for="nombre">Nombre</label>
                                 <input type="text" id="nombre" class="form-control form-control-lg" asp-for="Input.Nombre" required placeholder="Nombre">
                             </div>
                         </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" type="checkbox" asp-for="Input.Taller">
+                                    <span class="form-check-sign"></span>
+                                    Taller
+                                </label>
+                            </div>
+
+                        </div>
+
 
                     </div>
 

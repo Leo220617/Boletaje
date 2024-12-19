@@ -50,6 +50,7 @@ namespace Boletaje.Pages.Status
             {
                 await service.Agregar(Input);
                 return RedirectToPage("./Index");
+
             }
             catch (ApiException ex)
             {

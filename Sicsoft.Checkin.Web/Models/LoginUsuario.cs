@@ -9,7 +9,7 @@ namespace Sicsoft.CostaRica.Checkin.Web.Models
     public class LoginUsuario
     {
         public int id { get; set; }
-
+        public int idSucursal { get; set; }
         public int? idRol { get; set; }
 
         [StringLength(200)]

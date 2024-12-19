@@ -16,14 +16,17 @@ namespace Boletaje.Pages.CuentasBancarias
     public class EditarModel : PageModel
     {
         private readonly ICrudApi<CuentasBancariasViewModel, int> service;
+        private readonly ICrudApi<SucursalesViewModel, int> suc;
 
         [BindProperty]
         public CuentasBancariasViewModel Input { get; set; }
 
-        public EditarModel(ICrudApi<CuentasBancariasViewModel, int> service)
+        [BindProperty]
+        public SucursalesViewModel[] Sucursales { get; set; }
+        public EditarModel(ICrudApi<CuentasBancariasViewModel, int> service, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
-
+            this.suc = suc;
 
         }
 
@@ -38,6 +41,7 @@ namespace Boletaje.Pages.CuentasBancarias
                 }
 
                 Input = await service.ObtenerPorId(id);
+                Sucursales = await suc.ObtenerLista("");
 
                 return Page();
             }

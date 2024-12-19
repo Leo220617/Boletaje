@@ -645,19 +645,8 @@
                     var clientFac = Clientes.find(a => a.CardCode == ClientFacturar);
                     var condFacContado = Condiciones.find(a => a.Nombre == "Contado");
                     if (clientFac != undefined) {
-                        window.open(window.location.href.toString().replace("Llamadas/Nuevo", "Llamadas/Facturar/" + id2), "_blank");
-                        // if (clienteFac.idCondPago != condFacContado.codSAP && $("#tp").val() != "3")
-                        // {
-                        //     if (document.getElementById("sinFacturar").checked)
-                        //     {
-
-                        //     }else
-                        //     {
-                        //         window.open(window.location.href.toString().replace("Llamadas/Nuevo", "Llamadas/Facturar/" + id2, "_blank");
-                        //     }
-                        // }else{
-                        //     onGuardar();
-                        // }
+                        window.open(window.location.href.toString().replace("Llamadas/Nuevo", "Llamadas/Facturar/" + id2), "_blank", 'width=800,height=600');
+                         
                     } else {
 
                     }

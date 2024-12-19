@@ -98,7 +98,9 @@ namespace Boletaje.Pages.EntregasFacturar
                 PlazosCreditos = await plazos.ObtenerLista("");
                 Condiciones = await conds.ObtenerLista("");
                 Impuestos = await impuestos.ObtenerLista("");
-                CuentasBancarias = await cuentasB.ObtenerLista("");
+                ParametrosFiltros filtrocuentas = new ParametrosFiltros();
+                filtrocuentas.Codigo1 = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
+                CuentasBancarias = await cuentasB.ObtenerLista(filtrocuentas);
                 
 
                 if (Movimientos != null)
@@ -225,6 +227,7 @@ namespace Boletaje.Pages.EntregasFacturar
                 coleccion.TotalDescuento = recibido.TotalDescuento;
                 coleccion.TotalCompra = recibido.TotalCompra;
                 coleccion.PorDesc = recibido.PorDesc;
+                coleccion.idSucursal = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
 
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)

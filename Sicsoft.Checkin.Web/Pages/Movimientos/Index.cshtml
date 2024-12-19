@@ -136,7 +136,32 @@
         }
 
 
+        function onClickModalDevolucion(id) {
 
+            ids = id;
+
+
+            Swal.fire({
+                title: '¿Desea devolver este movimiento?',
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: `Aceptar`,
+                denyButtonText: `Cancelar`,
+                customClass: {
+                    confirmButton: 'swalBtnColor',
+                    denyButton: 'swalDeny'
+                },
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+
+                    Devolver();
+
+                }
+            })
+
+
+        }
 
         function onClickModalEliminar(id) {
 
@@ -237,7 +262,51 @@
             })
         }
 
+        function Devolver() {
 
+
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Page("Index", "Devolucion")',
+                data: { id: ids },
+                success: function (result) {
+
+                    if (result == false) {
+                        ids = 0;
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Ha ocurrido un error al intentar devolver en SAP'
+
+                        })
+                    } else {
+                        Swal.fire({
+                            title: "Ha sido devuelto con éxito",
+
+                            icon: 'success',
+                            showCancelButton: false,
+                            customClass: {
+                                confirmButton: 'swalBtnColor',
+
+                            },
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        })
+                    }
+                },
+                beforeSend: function () {
+
+                },
+                complete: function () {
+
+                }
+            })
+        }
         function Aprobar(id) {
 
 
@@ -519,7 +588,7 @@
                                 <th>Descuento</th>
                                 <th>Total</th>
                                 <th>Aprobada</th>
-
+                                <th>Devuelta</th>
                                 <th>Acción</th>
 
                             </tr>
@@ -601,7 +670,25 @@
 
                                         }
                                     }
+                                    @if (item.DocEntryDevolucion > 0)
+                                    {
+                                        <td>
+                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Devuelta</span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        if (item.TipoMovimiento != 2)
+                                        {
+                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>No Aplica</span></td>
 
+                                        }
+                                        else
+                                        {
+                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Devolver</span></td>
+
+                                        }
+                                    }
                                     <td>
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "63").FirstOrDefault()))
                                         {
@@ -683,6 +770,17 @@
                                                 }
                                             }
                                         }
+                                        
+                                        &nbsp;
+                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "84").FirstOrDefault()))
+                                        {
+                                            @if ((item.TipoMovimiento == 2) && item.DocEntry > 0 && item.DocEntryDevolucion == 0 && item.Facturado == false)
+                                            {
+
+                                                <a onclick="javascript: onClickModalDevolucion('@item.id')" title="Generar Devolucion" class="btn btn-rounded btn-outline-danger">Devolución</a>
+                                            
+                                            }
+                                        }
                                         &nbsp;
                                         @{
                                             var NumLlamada = 0;
@@ -725,6 +823,7 @@
                                 <th>Descuento</th>
                                 <th>Total</th>
                                 <th>Aprobada</th>
+                                <th>Devuelta</th>
 
                                 <th>Acción</th>
 
