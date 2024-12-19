@@ -294,15 +294,15 @@
         <div class="card">
             <div class="card-header">
                 <div class="row">
-                    <div class="col-md-4">
-                        <h5>Listado de Actividades de la llamada # @Model.Input.DocEntry</h5>
+                    <div class="col-md-6">
+                        <h5>Listado de Actividades de la llamada # @Model.Input.DocEntry - @Model.Input.CardCode / @(Model.Clientes.Clientes.Where(a => a.CardCode == Model.Input.CardCode).FirstOrDefault() == null ? "" : Model.Clientes.Clientes.Where(a => a.CardCode == Model.Input.CardCode).FirstOrDefault().CardName)</h5>
                     </div>
                     <div class="col-md-4">
                         <a class="btn btn-rounded btn-outline-primary" title="Agregar" onclick="javascript: onclickModal()">+  Agregar</a>
 
                         <input hidden id="idLlamada" asp-for="Input.id" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
 
                         <a asp-page="/Llamadas/Index" class="nav-link text-dark" style="text-decoration: underline;"><i class="fas fa-reply "></i>  Regresar</a>
 
@@ -414,6 +414,25 @@
                         </tfoot>
                     </table>
                 </div>
+            
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Comentarios Generales:</label>
+                            <textarea class="form-control form-control-lg" asp-for="ComentariosGenerales" readonly> </textarea>
+
+                        </div>
+                        
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Diagnósticos:</label>
+                            <textarea class="form-control form-control-lg" asp-for="Errores" readonly> </textarea>
+
+                        </div> 
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>

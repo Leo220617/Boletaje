@@ -588,7 +588,7 @@
                                 <th>Descuento</th>
                                 <th>Total</th>
                                 <th>Aprobada</th>
-
+                                <th>Devuelta</th>
                                 <th>Acción</th>
 
                             </tr>
@@ -670,7 +670,25 @@
 
                                         }
                                     }
+                                    @if (item.DocEntryDevolucion > 0)
+                                    {
+                                        <td>
+                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Devuelta</span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        if (item.TipoMovimiento != 2)
+                                        {
+                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>No Aplica</span></td>
 
+                                        }
+                                        else
+                                        {
+                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Devolver</span></td>
+
+                                        }
+                                    }
                                     <td>
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "63").FirstOrDefault()))
                                         {
@@ -756,7 +774,7 @@
                                         &nbsp;
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "84").FirstOrDefault()))
                                         {
-                                            @if ((item.TipoMovimiento == 2) && item.DocEntry > 0 && item.DocEntryDevolucion == 0)
+                                            @if ((item.TipoMovimiento == 2) && item.DocEntry > 0 && item.DocEntryDevolucion == 0 && item.Facturado == false)
                                             {
 
                                                 <a onclick="javascript: onClickModalDevolucion('@item.id')" title="Generar Devolucion" class="btn btn-rounded btn-outline-danger">Devolución</a>
@@ -805,6 +823,7 @@
                                 <th>Descuento</th>
                                 <th>Total</th>
                                 <th>Aprobada</th>
+                                <th>Devuelta</th>
 
                                 <th>Acción</th>
 

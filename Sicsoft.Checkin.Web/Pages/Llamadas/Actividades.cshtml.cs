@@ -19,8 +19,15 @@ namespace Boletaje.Pages.Llamadas
     {
         private readonly IConfiguration configuration;
         private readonly ICrudApi<LlamadasViewModel, int> service;
+        private readonly ICrudApi<ClientesViewModel, int> clientes;
+
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login;
+
+        private readonly ICrudApi<EncMovimientoViewModel, int> movimientos;
+        private readonly ICrudApi<DiagnosticosViewModel, int> serviceD;
+        private readonly ICrudApi<ErroresViewModel, int> serviceError;
+
 
         [BindProperty]
         public LlamadasViewModel Input { get; set; }
@@ -31,12 +38,26 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
 
+        [BindProperty]
+        public ClientesViewModel Clientes { get; set; }
 
-        public ActividadesModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login)
+        [BindProperty]
+        public string Errores { get; set; }
+
+        [BindProperty]
+        public string ComentariosGenerales { get; set; }
+
+
+        public ActividadesModel(ICrudApi<LlamadasViewModel, int> service, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<ClientesViewModel, int> clientes,
+            ICrudApi<EncMovimientoViewModel, int> movimientos, ICrudApi<DiagnosticosViewModel, int> serviceD, ICrudApi<ErroresViewModel, int> serviceError)
         {
             this.service = service;
             this.actividades = actividades;
             this.login = login;
+            this.clientes = clientes;
+            this.movimientos = movimientos;
+            this.serviceD = serviceD;
+            this.serviceError = serviceError;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -56,9 +77,46 @@ namespace Boletaje.Pages.Llamadas
                 filtro.Codigo1 = id;
                 Actividades = await actividades.ObtenerLista(filtro);
                 Usuarios = await login.ObtenerLista("");
+                Clientes = await clientes.ObtenerListaEspecial("");
+
+                ParametrosFiltros filtroMov = new ParametrosFiltros();
+                filtroMov.FiltroEspecial = true;
+                filtroMov.Texto = Input.DocEntry.ToString();
+                var Movimientos = await movimientos.ObtenerLista(filtroMov); 
+                var Error = await serviceError.ObtenerLista("");
+
+                if (Movimientos.Where(a => a.TipoMovimiento == 2).OrderByDescending(a => a.id).FirstOrDefault() != null)
+                {
+                    var Cotizacion = Movimientos.Where(a => a.TipoMovimiento == 2).OrderByDescending(a => a.id).FirstOrDefault();
+                    ComentariosGenerales = Cotizacion.Comentarios;
+                    foreach (var item in Cotizacion.Detalle)
+                    {
+                        Errores += (Error.Where(a => a.id == item.idError).FirstOrDefault() != null ? Error.Where(a => a.id == item.idError).FirstOrDefault().Descripcion + " -> " + Error.Where(a => a.id == item.idError).FirstOrDefault().Diagnostico +" \n" : "") ;
+                    }
+                }
+                else if(Movimientos.Where(a => a.TipoMovimiento == 3 && a.Aprobada == true).FirstOrDefault() != null)
+                {
+                    var Cotizacion = Movimientos.Where(a => a.TipoMovimiento == 3 && a.Aprobada == true).FirstOrDefault();
+                    ComentariosGenerales = Cotizacion.Comentarios;
+
+                    foreach (var item in Cotizacion.Detalle)
+                    {
+                        Errores += (Error.Where(a => a.id == item.idError).FirstOrDefault() != null ? Error.Where(a => a.id == item.idError).FirstOrDefault().Descripcion + " -> " + Error.Where(a => a.id == item.idError).FirstOrDefault().Diagnostico + " \n" : "") + " \n";
+                    }
+                }else if (Movimientos.Where(a => a.TipoMovimiento == 3).OrderByDescending(a => a.id).FirstOrDefault() != null)
+                {
+                    var Cotizacion = Movimientos.Where(a => a.TipoMovimiento == 3).OrderByDescending(a => a.id).FirstOrDefault();
+                    ComentariosGenerales = Cotizacion.Comentarios;
+
+                    foreach (var item in Cotizacion.Detalle)
+                    {
+                        Errores += (Error.Where(a => a.id == item.idError).FirstOrDefault() != null ? Error.Where(a => a.id == item.idError).FirstOrDefault().Descripcion + " -> " + Error.Where(a => a.id == item.idError).FirstOrDefault().Diagnostico + " \n" : "") + " \n";
+                    }
+                }
 
 
-                return Page();
+
+                    return Page();
             }
             catch (Exception ex)
             {

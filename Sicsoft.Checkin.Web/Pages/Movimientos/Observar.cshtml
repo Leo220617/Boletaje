@@ -279,13 +279,20 @@
 
                     </div>
                     </div>*@
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Observaciones Ult. Reparación:</label>
                                 <textarea class="form-control form-control-lg" asp-for="Historico.Historico.FirstOrDefault().Obse_Ultima_Repara" readonly> </textarea>
 
                             </div>
                             <a href="#" onclick="javascript: onAbrirModalDetallado() ">Ver más detallado</a>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Comentarios Llamada:</label>
+                                <textarea class="form-control form-control-lg" asp-for="Llamada.Comentarios" readonly> </textarea>
+
+                            </div> 
                         </div>
                     </div>
                 </div>

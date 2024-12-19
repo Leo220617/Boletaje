@@ -869,6 +869,7 @@
                     Tipo: tipo,
                     Status: status,
                     StatusLlamada: $("#statusLlamada").val(),
+                    TipoCasoLlamada: $("#TPLlamada").val(),
                     HorasLlamada: $("#horasLlamada").val(),
                     idLlamada: $("#idLlamada").val(),
                     comentarios: comentarios,
@@ -2227,13 +2228,48 @@
                                 <label>Estado de la Llamada:</label>
                                 <input asp-for="InputLlamada.id" id="idLlamada" hidden />
                                 <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required> 
-                                    @foreach (var item in Model.Status.Where(a =>   a.idSAP == "47"   || a.idSAP == "48" || a.idSAP == "55" || a.idSAP == "45"))
+                                    @foreach (var item in Model.Status.Where(a => a.Taller ))// a.idSAP == "47"   || a.idSAP == "48" || a.idSAP == "55" || a.idSAP == "45"))
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
                                     }
                                 </select>
                             </div>
                         </div>
+
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Tipo de Caso (Actual):</label>
+
+                                <select id="tipoCasoLlamadaActual" class="form-control" required disabled>
+
+                                    @foreach (var item in Model.TP)
+                                    {
+                                        @if (Model.InputLlamada.TipoCaso.ToString() == item.idSAP)
+                                        {
+                                            <option value="@item.idSAP" selected>@item.Nombre</option>
+
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.idSAP">@item.Nombre</option>
+
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Tipo de Caso:</label>
+                                <select id="TPLlamada" class="form-control" asp-for="InputLlamada.TipoCaso" required>
+                                    @foreach (var item in Model.TP.Where(a => a.Taller)) //.Where(a => a.idSAP == "1" || a.idSAP == "2" || a.idSAP == "9"))
+                                    {
+                                        <option value="@item.idSAP">@item.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="col-md-2 pl-1">
                             <div class="form-group">
                                 <label>Horas:</label>
