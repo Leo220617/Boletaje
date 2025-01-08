@@ -24,6 +24,7 @@ namespace Boletaje.Models
         public string BodegaFinal { get; set; }
         public int StatusLlamada { get; set; }
         public DateTime FechaSISO { get; set; }
+        public string PrioridadAtencion { get; set; }
         public DetReparacionViewModel[] Detalle { get; set; }
         public AdjuntosViewModel[] Adjuntos { get; set; }
         public AdjuntosIdentificacionViewModel[] AdjuntosIdentificacion { get; set; }

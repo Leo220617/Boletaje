@@ -27,6 +27,8 @@ namespace Boletaje.Pages.Bodega
         private readonly ICrudApi<StatusViewModel, int> status;
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login;
+        private readonly ICrudApi<FacturasAprobadasViewModel, int> fa;
+
         [BindProperty]
 
         public StatusViewModel[] Status { get; set; }
@@ -58,9 +60,13 @@ namespace Boletaje.Pages.Bodega
         public ActividadesViewModel[] Actividades { get; set; }
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
+        [BindProperty]
+        public string DocNumOfertaAprobada { get; set; }
+
+
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<ProductosHijosViewModel, int> prodHijos,
             ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<StatusViewModel, int> status, ICrudApi<ActividadesViewModel, int> actividades,
-            ICrudApi<UsuariosViewModel, int> login)
+            ICrudApi<UsuariosViewModel, int> login, ICrudApi<FacturasAprobadasViewModel, int> fa)
         {
             this.service = service;
             this.prods = prods;
@@ -72,6 +78,7 @@ namespace Boletaje.Pages.Bodega
             this.status = status; 
             this.actividades = actividades; 
             this.login = login;
+            this.fa = fa;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -110,6 +117,11 @@ namespace Boletaje.Pages.Bodega
                 filtro2.Codigo1 = Llamada.id;
                 Actividades = await actividades.ObtenerLista(filtro2);
                 Usuarios = await login.ObtenerLista("");
+
+                ParametrosFiltros filtroOFerta = new ParametrosFiltros();
+                filtroOFerta.CardCode = Llamada.DocEntry.ToString();
+                var facApro = await fa.ObtenerListaEspecial(filtroOFerta);
+                DocNumOfertaAprobada = facApro.Oferta.FirstOrDefault() == null ? "" : facApro.Oferta.FirstOrDefault().DocNum;
                 return Page();
             }
             catch (Exception ex)
@@ -152,6 +164,10 @@ namespace Boletaje.Pages.Bodega
                 var Llamada = await llamada.ObtenerPorDocEntry(Encabezado.idLlamada);
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault() == null ? "" : Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault().CardCode + " - " + Clientes.Clientes.Where(a => a.CardCode == Llamada.CardCode).FirstOrDefault().CardName;
 
+                ParametrosFiltros filtroOFerta = new ParametrosFiltros();
+                filtroOFerta.CardCode = Llamada.DocEntry.ToString();
+                var facApro = await fa.ObtenerListaEspecial(filtroOFerta);
+                DocNumOfertaAprobada = facApro.Oferta.FirstOrDefault() == null ? "" : facApro.Oferta.FirstOrDefault().DocNum;
                 return Page();
             }
             catch (Exception ex)

@@ -454,7 +454,7 @@
                         <tbody>
                             @foreach (var item in Model.Objeto)
                             {
-                                <tr>
+                                <tr style="@(!string.IsNullOrEmpty(item.PrioridadAtencion) ?   item.PrioridadAtencion == "1" ? "background-color: #ff877e" : "" : "")">
                                     <td>@item.DocEntry</td>
 
                                     <td> @item.CardCode -  @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" : Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName)</td>

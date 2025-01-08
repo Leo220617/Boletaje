@@ -598,7 +598,7 @@
                             {
 
 
-                                <tr style="@( !string.IsNullOrEmpty(Roles1.Where(a => a == "59").FirstOrDefault()) ? ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2 ) && Model.RequiereAprobacion == 1)  && item.DocEntry == 0 ? item.AprobadaSuperior == true  ? "background-color: #c3f9ea" : "background-color: #ffdfd0" : "": "")">
+                                <tr style="@( !string.IsNullOrEmpty(Roles1.Where(a => a == "59").FirstOrDefault()) ? ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2 ) && Model.RequiereAprobacion == 1)  && item.DocEntry == 0 ? item.AprobadaSuperior == true  ? "background-color: #c3f9ea" : "background-color: #ffdfd0" : !string.IsNullOrEmpty(item.PrioridadAtencion) ? item.PrioridadAtencion == "1" ?  "background-color: #ff877e" : "": "": "")">
 
 
 

@@ -63,7 +63,7 @@ namespace Boletaje.Models
         public string Prioridad { get; set; }
         public bool SinFacturar { get; set; }
         public bool Credito { get; set; }
-
+        public string PrioridadAtencion { get; set; }
         public List<EncFacturasViewModel> Factura { get; set; }
         public List<AdjuntosViewModel> Adjuntos { get; set; }
         public List<AdjuntosIdentificacionViewModel> AdjuntosIdentificacion { get; set; }

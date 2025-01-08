@@ -1114,16 +1114,20 @@
                 };
 
                 if (Detalles.find(a => a.ItemCode == ManoObra.codSAP) == undefined) {
-                    if (parseFloat("@Model.CantidadHoras") > 0) {
+                    if (parseFloat("@Model.CantidadHoras") > 0 ) {
                         Detalles.push(detalle);
                         RellenaTabla();
-
+                        var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
+                        ModificaLinea(posicion, "false");
                     }
+                    
+                }else
+                {
+                    var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
+                    ModificaLinea(posicion, "false");
 
                 }
-                var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
-                ModificaLinea(posicion, "false");
-
+               
 
             } catch (e) {
                 Swal.fire({
@@ -1577,7 +1581,7 @@
     var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
 }
 
-@if (!string.IsNullOrEmpty(Roles.Where(a => a == "56").FirstOrDefault()) && (Model.Input.TipoMovimiento == 1 || Model.Input.TipoMovimiento == 3))
+@if (!string.IsNullOrEmpty(Roles.Where(a => a == "56").FirstOrDefault()))//&& (Model.Input.TipoMovimiento == 1 || Model.Input.TipoMovimiento == 3))
 {
     <div class="row">
         <div class="col-md-12">
@@ -2036,17 +2040,17 @@
                             {
                                 case 1:
                                     {
-                                        <h3 class="text-dark mb-1">Oferta de Venta</h3>
+                                            <h3 class="text-dark mb-1">Oferta de Venta</h3>
                                         break;
                                     }
                                 case 2:
                                     {
-                                        <h3 class="text-dark mb-1">Entrega</h3>
+                                            <h3 class="text-dark mb-1">Entrega</h3>
                                         break;
                                     }
                                 case 3:
                                     {
-                                        <h3 class="text-dark mb-1">Cotización BackOffice</h3>
+                                            <h3 class="text-dark mb-1">Cotización BackOffice</h3>
                                         break;
                                     }
                             }
@@ -2348,37 +2352,37 @@
                                         {
                                             case 1:
                                                 {
-                                                    <td> Llamada Telefónica</td>
+                                                        <td> Llamada Telefónica</td>
 
                                                     break;
                                                 }
                                             case 2:
                                                 {
-                                                    <td> Reunión</td>
+                                                        <td> Reunión</td>
 
                                                     break;
                                                 }
                                             case 3:
                                                 {
-                                                    <td> Tarea</td>
+                                                        <td> Tarea</td>
 
                                                     break;
                                                 }
                                             case 4:
                                                 {
-                                                    <td>Nota</td>
+                                                        <td>Nota</td>
 
                                                     break;
                                                 }
                                             case 5:
                                                 {
-                                                    <td> Campaña</td>
+                                                        <td> Campaña</td>
 
                                                     break;
                                                 }
                                             case 6:
                                                 {
-                                                    <td> Otros</td>
+                                                        <td> Otros</td>
 
                                                     break;
                                                 }
