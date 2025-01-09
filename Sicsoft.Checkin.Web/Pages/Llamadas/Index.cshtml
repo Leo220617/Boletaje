@@ -4,7 +4,7 @@
     ViewData["Title"] = "Llamadas de Servicio";
 }
 
-@section breadcrumb{
+@section breadcrumb {
 
     <li class="breadcrumb-item">
         <a asp-page="./Index">Llamadas de Servicio</a>
@@ -23,13 +23,21 @@
 }
 
 
-@section styles{
+@section styles {
 
     <style>
         .tableFixHead th {
             position: sticky;
             top: 0;
             background: white;
+        }
+
+        .badge {
+            background-color: #ffed00;
+            color: black;
+            padding: 4px 8px;
+            text-align: center;
+            border-radius: 5px;
         }
     </style>
 
@@ -38,7 +46,7 @@
 }
 
 
-@section scripts{
+@section scripts {
 
 
     <script>
@@ -47,6 +55,13 @@
 
             });
 
+
+            $('table.first2').DataTable({
+                "order": [
+                    [0, "desc"], // Ordenar por la columna 0 en orden descendente.
+                    [1, "desc"]   // Luego, ordenar por la columna 1 en orden ascendente.
+                ]
+            });
 
 
         });
@@ -295,14 +310,14 @@
                         <h4 class="card-title">Filtro</h4>
 
                     </div>
-                  @*   <div class="col-sm-6">
-                        <div class="form-check"> 
-                            <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" onclick="check()" id="check1">
-                                <span class="form-check-sign"></span>
-                                Buscar por Boleta y Nombre Cliente
-                            </label>
-                        </div>
+                    @*   <div class="col-sm-6">
+                    <div class="form-check">
+                    <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" onclick="check()" id="check1">
+                    <span class="form-check-sign"></span>
+                    Buscar por Boleta y Nombre Cliente
+                    </label>
+                    </div>
 
                     </div> *@
                 </div>
@@ -352,14 +367,14 @@
                                     <label class="form-check-label">
                                         <input asp-for="filtro.PIN" class="form-check-input" type="checkbox" onclick="check()" id="check1">
                                         <span class="form-check-sign"></span>
-                                       PIN validado
+                                        PIN validado
                                     </label>
                                 </div>
                             </div>
 
                         }
 
-                       
+
 
                         <div class="col-sm-12">
                             <br />
@@ -380,7 +395,7 @@
                                 <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="filtro.CardCode" onchange="javascript: cambiarProducto();" autocomplete="off">
 
                                 <datalist id="cardcodes">
-                             
+
                                     @foreach (var item in Model.Clientes.Clientes)
                                     {
                                         <option value="@item.CardCode/@item.CardName"> @item.CardCode - @item.CardName </option>
@@ -389,7 +404,7 @@
 
 
                             </div>
-                            
+
                         </div>
                         <div class="col-sm-12">
                             <br />
@@ -417,8 +432,12 @@
         <div class="card">
             <div class="card-header">
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-4">
                         <h5>Llamadas de Servicio</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <div><span class="badge">Prioridad ALTA</span></div>
+
                     </div>
                     <div class="col-md-4">
                         <a asp-page="Nuevo" class="btn btn-rounded btn-outline-primary" title="Agregar">+  Agregar</a>
@@ -429,9 +448,11 @@
 
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered first">
+                    <table class="table table-striped table-bordered first2">
                         <thead>
                             <tr>
+                                <th hidden>Prioridad</th>
+
                                 <th>No. Llamada</th>
 
                                 <th>Cliente</th>
@@ -452,9 +473,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model.Objeto)
+                            @foreach (var item in Model.Objeto.OrderByDescending(a => a.PrioridadAtencion))
                             {
-                                <tr style="@(!string.IsNullOrEmpty(item.PrioridadAtencion) ?   item.PrioridadAtencion == "1" ? "background-color: #ff877e" : "" : "")">
+                                <tr style="@(!string.IsNullOrEmpty(item.PrioridadAtencion) ?   item.PrioridadAtencion == "1" ? "background-color: #ffed00" : "" : "")">
+                                    <td hidden>@item.PrioridadAtencion</td>
+
                                     <td>@item.DocEntry</td>
 
                                     <td> @item.CardCode -  @(Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? "Cliente inexistente" : Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName)</td>
@@ -475,20 +498,22 @@
 
                                     <td>@(item.LugarReparacion == 1 ? "Taller" : "Visita")</td>
 
-                                    @if(item.PIN)
+                                    @if (item.PIN)
                                     {
                                         <td>
                                             <span class="mr-2"><span class="badge-dot badge-success"></span>Validado</span>
                                         </td>
-                                    }else
+                                    }
+                                    else
                                     {
                                         <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Validar</span></td>
                                     }
 
-                                    @if(item.Factura.FirstOrDefault() == null)
+                                    @if (item.Factura.FirstOrDefault() == null)
                                     {
                                         <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Pagar</span></td>
-                                    }else
+                                    }
+                                    else
                                     {
                                         <td> <a asp-page="/Facturas/Observar" asp-route-id="@item.Factura.FirstOrDefault().id" title="Observar" class="btn btn-rounded btn-outline-primary" target="_blank"> @item.Factura.FirstOrDefault().ConsecutivoHacienda</a></td>
                                     }
@@ -505,7 +530,7 @@
                                         @{
                                             var NombreCliente = item.CardCode + " - " + (@Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault() == null ? @item.CardCode : @Model.Clientes.Clientes.Where(a => a.CardCode == item.CardCode).FirstOrDefault().CardName);
                                         }
-                                        
+
                                         <button title="PDF" type="button" class="btn btn-rounded btn-outline-danger" onclick="javascript: ImprimeEtiqueta('@item.DocEntry', '@NombreCliente')">PDF</button>
                                         &nbsp;
                                         <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
@@ -520,6 +545,8 @@
                         </tbody>
                         <tfoot>
                             <tr>
+                                <th hidden>Prioridad</th>
+
                                 <th>No. Llamada</th>
 
 
@@ -533,7 +560,7 @@
 
                                 <th>Lugar Reparación</th>
                                 <th>PIN</th>
-                                <th>Factura Revisión</th>  
+                                <th>Factura Revisión</th>
 
                                 <th>Acción</th>
 

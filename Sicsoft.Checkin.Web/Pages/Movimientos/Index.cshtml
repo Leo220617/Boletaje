@@ -32,6 +32,14 @@
             top: 0;
             background: white;
         }
+
+        .badge {
+            background-color: #ffed00;
+            color: black;
+            padding: 4px 8px;
+            text-align: center;
+            border-radius: 5px;
+        }
     </style>
 
 }
@@ -52,7 +60,12 @@
                 $('#tablita').DataTable();
                 $('.js-example-basic-multiple').select2();
             });
-
+            $('table.first2').DataTable({
+                "order": [
+                    [0, "desc"], // Ordenar por la columna 0 en orden descendente.
+                    [1, "desc"]   // Luego, ordenar por la columna 1 en orden ascendente.
+                ]
+            });
 
         });
         var ids = 0;
@@ -565,15 +578,18 @@
                         <h5>BackOffice</h5>
                     </div>
                     <div class="col-md-4">
+                        <div><span class="badge">Prioridad ALTA</span></div>
+
                     </div>
                 </div>
             </div>
 
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered first">
+                    <table class="table table-striped table-bordered first2">
                         <thead>
                             <tr>
+                                <th hidden>Prioridad</th>
                                 <th>ID</th>
                                 <th>Llamada</th>
                                 <th>Estado Llamada</th>
@@ -598,10 +614,10 @@
                             {
 
 
-                                <tr style="@( !string.IsNullOrEmpty(Roles1.Where(a => a == "59").FirstOrDefault()) ? ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2 ) && Model.RequiereAprobacion == 1)  && item.DocEntry == 0 ? item.AprobadaSuperior == true  ? "background-color: #c3f9ea" : "background-color: #ffdfd0" : !string.IsNullOrEmpty(item.PrioridadAtencion) ? item.PrioridadAtencion == "1" ?  "background-color: #ff877e" : "": "": "")">
+                                <tr style="@( !string.IsNullOrEmpty(Roles1.Where(a => a == "59").FirstOrDefault()) ? ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2 ) && Model.RequiereAprobacion == 1)  && item.DocEntry == 0 ? item.AprobadaSuperior == true  ? "background-color: #c3f9ea" : "background-color: #ffdfd0" : !string.IsNullOrEmpty(item.PrioridadAtencion) ? item.PrioridadAtencion == "1" ?  "background-color: #ffed00" : "": "": "")">
 
 
-
+                                    <td hidden>@item.PrioridadAtencion</td>
                                     <td>@item.id</td>
                                     <td>@item.NumLlamada</td>
                                     @{
@@ -809,6 +825,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
+                                <th hidden>Prioridad</th>
                                 <th>ID</th>
                                 <th>Llamada</th>
                                 <th>Estado Llamada</th>
