@@ -146,7 +146,8 @@
                 RolAceptacion = true;
                 $("#Moneda").val("@Model.Factura.Moneda");
                 console.log(detalles);
-                $("#descGeneral").val(parseFloat($("#PorDescto").val().replace(",", ".")));//val(parseFloat("@Model.Factura.PorDesc"));
+                $("#descGeneral").val(parseFloat(JSON.parse($("#PorDescto").val())));
+
 
                 for (var i = 0; i < detalles.length; i++) {
                     var IMP = ImpuestosS.find(a => a.id == detalles[i].idImpuesto);
@@ -485,40 +486,93 @@
             }
 
         }
-        function DeducirMontos(repite) {
+        function calcularTotalConDescuento(descuento, subtotalGeneral) {
             try {
-                if (repite != "true") {
-                    TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
+                let total = 0;
+                Detalles.forEach(detalle => {
+                    const subtotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) -
+                        descuento * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
+                    const impuestosLinea = subtotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA por línea
+                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                            impuestosLinea -= TarifaExonerado;
 
-                }
-                // Variables iniciales
-                const subtotal = parseFloat($("#SubtotalGeneral").text());
-                const totalDeseado = TotalDeseadoGlobal;
-                const montoImpuesto = parseFloat($("#ImpGeneral").text()); // Suponiendo un monto de impuesto conocido
+                        }
+                    }
 
+                    total += subtotalLinea + impuestosLinea;
+                });
+                return total;
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
 
-                // Cálculo del descuento
-                const descuento = subtotal + montoImpuesto - totalDeseado;
-                const porcentajeDescuento = (descuento / subtotal) * 100;
-                if (parseFloat(porcentajeDescuento.toFixed(2)) < 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Ha ocurrido un error: El porcentaje de descuento no puede quedar negativo '
+                })
+            }
 
-                    });
-                } else {
-                    $("#descGeneral").val(parseFloat(porcentajeDescuento.toFixed(2)));
-                    $("#DescGeneral").text(parseFloat(descuento.toFixed(2)));
-                    var cantidadPermitidos = 5;
-                    var i = 0;
-                    ModificaTodo();
-                    while (totalDeseado != parseFloat($("#TotalGeneral").val()) && i < cantidadPermitidos) {
-                        DeducirMontos("true");
-                        i++;
+        }
+
+        function DeducirMontos() {
+            try {
+                TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
+                let subtotalGeneral = 0;
+                Detalles.forEach(detalle => {
+                    subtotalGeneral += detalle.PrecioUnitario * detalle.Cantidad;
+                });
+
+                // Buscar el descuento necesario
+                let descuentoMin = 0;
+                let descuentoMax = subtotalGeneral;
+                let descuentoNecesario = 0;
+                const tolerancia = 0.01; // Para evitar problemas de redondeo
+
+                while (descuentoMax - descuentoMin > tolerancia) {
+                    const descuentoMedio = (descuentoMin + descuentoMax) / 2;
+                    const totalCalculado = calcularTotalConDescuento(descuentoMedio, subtotalGeneral);
+
+                    if (totalCalculado > TotalDeseadoGlobal) {
+                        descuentoMin = descuentoMedio;
+                    } else {
+                        descuentoMax = descuentoMedio;
                     }
                 }
-              
+
+                descuentoNecesario = (descuentoMin + descuentoMax) / 2;
+
+                // Actualizar los detalles con el descuento calculado
+                Detalles.forEach(detalle => {
+                    const descuentoProporcional = descuentoNecesario * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                    detalle.Descuento = descuentoProporcional;
+                    detalle.TotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) - descuentoProporcional;
+                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
+                    detalle.Impuestos = detalle.TotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA
+
+                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                            detalle.Impuestos -= TarifaExonerado;
+
+                        }
+                    }
+
+                    detalle.PorDescuento = (descuentoProporcional / (detalle.PrecioUnitario * detalle.Cantidad)) * 100;
+                });
+
+                const porcentajeDescuento = (descuentoNecesario / subtotalGeneral) * 100;
+                $("#descGeneral").val(parseFloat(porcentajeDescuento.toFixed(6)));
+                $("#DescGeneral").text(parseFloat(descuentoNecesario.toFixed(2)));
 
 
             } catch (e) {
@@ -1942,9 +1996,8 @@
                 <input hidden id="ProductosHijosInsertar" value="@JsonConvert.SerializeObject(Model.ProductosHijosInsertar)" />
                 <input hidden id="CB" value="@JsonConvert.SerializeObject(Model.CuentasBancarias)" />
                 <input hidden id="Exoneraciones" value="@JsonConvert.SerializeObject(Model.Exoneraciones.Exoneraciones)" />
-                <input hidden id="CondicionesPagos" value="@JsonConvert.SerializeObject(Model.Condiciones)" />
-                <input hidden id="PorDescto" asp-for="Factura.PorDesc" />
-
+                <input hidden id="CondicionesPagos" value="@JsonConvert.SerializeObject(Model.Condiciones)" /> 
+                <input hidden id="PorDescto" value="@JsonConvert.SerializeObject(Model.Factura.PorDesc)" />
 
 
 

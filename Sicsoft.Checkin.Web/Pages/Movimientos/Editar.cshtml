@@ -122,7 +122,8 @@
         }
         function Recuperar() {
             try {
-                $("#descGeneral").val(parseFloat($("#PorDescto").val().replace(",", ".")));
+              
+                $("#descGeneral").val(parseFloat(JSON.parse($("#PorDescto").val())));
                 var detalles = JSON.parse($("#Detalle").val());
                 ManoObra = JSON.parse($("#ManoObra").val());
                 ImpuestosS = JSON.parse($("#Impuestos").val());
@@ -543,7 +544,7 @@
                 // }
 
                 var TotalAntesRedondeo = Total;
-               // Total = redondearAl5(Total, $("#Moneda").val());
+                // Total = redondearAl5(Total, $("#Moneda").val());
                 redondeo = Total - TotalAntesRedondeo;
 
                 $("#SubtotalGeneral").text(SubTotal.toFixed(2));
@@ -562,41 +563,96 @@
             }
 
         }
-        function DeducirMontos(repite) {
+
+        function calcularTotalConDescuento(descuento, subtotalGeneral) {
+            try
+            {
+                let total = 0;
+                Detalles.forEach(detalle => {
+                    const subtotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) -
+                        descuento * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
+                    const impuestosLinea = subtotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA por línea
+                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                            impuestosLinea -= TarifaExonerado;
+
+                        }
+                    }
+
+                    total += subtotalLinea + impuestosLinea;
+                });
+                return total;
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+            
+        }
+
+        function DeducirMontos() {
             try {
-                if(repite != "true")
-                {
-                    TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
+                TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
+                let subtotalGeneral = 0;
+                Detalles.forEach(detalle => {
+                    subtotalGeneral += detalle.PrecioUnitario * detalle.Cantidad;
+                });
 
-                } 
-                // Variables iniciales
-                const subtotal = parseFloat($("#SubtotalGeneral").text());
-                const totalDeseado = TotalDeseadoGlobal;
-                const montoImpuesto = parseFloat($("#ImpGeneral").text()); // Suponiendo un monto de impuesto conocido
+                // Buscar el descuento necesario
+                let descuentoMin = 0;
+                let descuentoMax = subtotalGeneral;
+                let descuentoNecesario = 0;
+                const tolerancia = 0.01; // Para evitar problemas de redondeo
 
-                 
-                // Cálculo del descuento
-                const descuento = subtotal + montoImpuesto - totalDeseado;
-                const porcentajeDescuento = (descuento / subtotal) * 100;
-                if (parseFloat(porcentajeDescuento.toFixed(2)) < 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Ha ocurrido un error: El porcentaje de descuento no puede quedar negativo '
+                while (descuentoMax - descuentoMin > tolerancia) {
+                    const descuentoMedio = (descuentoMin + descuentoMax) / 2;
+                    const totalCalculado = calcularTotalConDescuento(descuentoMedio, subtotalGeneral);
 
-                    });
-                } else {
-                    $("#descGeneral").val(parseFloat(porcentajeDescuento.toFixed(2)));
-                    $("#DescGeneral").text(parseFloat(descuento.toFixed(2)));
-                    var cantidadPermitidos = 5;
-                    var i = 0;
-                    ModificaTodo();
-                    while (totalDeseado != parseFloat($("#TotalGeneral").val()) && i < cantidadPermitidos) {
-                        DeducirMontos("true");
-                        i++;
+                    if (totalCalculado > TotalDeseadoGlobal) {
+                        descuentoMin = descuentoMedio;
+                    } else {
+                        descuentoMax = descuentoMedio;
                     }
                 }
-                
+
+                descuentoNecesario = (descuentoMin + descuentoMax) / 2;
+
+                // Actualizar los detalles con el descuento calculado
+                Detalles.forEach(detalle => {
+                    const descuentoProporcional = descuentoNecesario * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                    detalle.Descuento = descuentoProporcional;
+                    detalle.TotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) - descuentoProporcional;
+                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
+                    detalle.Impuestos = detalle.TotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA
+
+                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                            detalle.Impuestos -= TarifaExonerado;
+
+                        }
+                    }
+
+                    detalle.PorDescuento = (descuentoProporcional / (detalle.PrecioUnitario * detalle.Cantidad)) * 100;
+                });
+
+                const porcentajeDescuento = (descuentoNecesario / subtotalGeneral) * 100;
+                $("#descGeneral").val(parseFloat(porcentajeDescuento.toFixed(6)));
+                $("#DescGeneral").text(parseFloat(descuentoNecesario.toFixed(2)));
 
 
             } catch (e) {
@@ -608,7 +664,10 @@
                 })
             }
         }
-       
+
+        
+
+        
         function Validar(Detalles) {
             try {
                 var bandera = true;
@@ -2068,7 +2127,7 @@
                 <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
                 <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
                 <input hidden id="Exoneraciones" value="@JsonConvert.SerializeObject(Model.Exoneraciones.Exoneraciones)" />
-                <input hidden id="PorDescto" asp-for="Input.PorDescuento" />
+                <input hidden id="PorDescto" value="@JsonConvert.SerializeObject(Model.Input.PorDescuento)"  />
                 <input hidden id="idLlamada" value="@Model.Llamada.id" />
 
 
@@ -2095,17 +2154,17 @@
                             {
                                 case 1:
                                     {
-                                            <h3 class="text-dark mb-1">Oferta de Venta</h3>
+                                        <h3 class="text-dark mb-1">Oferta de Venta</h3>
                                         break;
                                     }
                                 case 2:
                                     {
-                                            <h3 class="text-dark mb-1">Entrega</h3>
+                                        <h3 class="text-dark mb-1">Entrega</h3>
                                         break;
                                     }
                                 case 3:
                                     {
-                                            <h3 class="text-dark mb-1">Cotización BackOffice</h3>
+                                        <h3 class="text-dark mb-1">Cotización BackOffice</h3>
                                         break;
                                     }
                             }
@@ -2418,37 +2477,37 @@
                                         {
                                             case 1:
                                                 {
-                                                        <td> Llamada Telefónica</td>
+                                                    <td> Llamada Telefónica</td>
 
                                                     break;
                                                 }
                                             case 2:
                                                 {
-                                                        <td> Reunión</td>
+                                                    <td> Reunión</td>
 
                                                     break;
                                                 }
                                             case 3:
                                                 {
-                                                        <td> Tarea</td>
+                                                    <td> Tarea</td>
 
                                                     break;
                                                 }
                                             case 4:
                                                 {
-                                                        <td>Nota</td>
+                                                    <td>Nota</td>
 
                                                     break;
                                                 }
                                             case 5:
                                                 {
-                                                        <td> Campaña</td>
+                                                    <td> Campaña</td>
 
                                                     break;
                                                 }
                                             case 6:
                                                 {
-                                                        <td> Otros</td>
+                                                    <td> Otros</td>
 
                                                     break;
                                                 }
