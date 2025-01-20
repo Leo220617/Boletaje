@@ -72,6 +72,7 @@
         var Errores = [];
         var TipoCambio = [];
         var Exoneraciones = [];
+        var TotalDeseadoGlobal = 0;
         function RecuperarTipoCambio() {
 
             try {
@@ -121,6 +122,7 @@
         }
         function Recuperar() {
             try {
+                $("#descGeneral").val(parseFloat($("#PorDescto").val().replace(",", ".")));
                 var detalles = JSON.parse($("#Detalle").val());
                 ManoObra = JSON.parse($("#ManoObra").val());
                 ImpuestosS = JSON.parse($("#Impuestos").val());
@@ -499,6 +501,7 @@
                 var Impuestos = 0;
                 var Total = 0;
                 var PorDescuento = 0;
+                var redondeo = 0;
 
                 PorDescuento = $("#descGeneral").val();
                 // for (var i = 0; i < Detalles.length; i++)
@@ -511,6 +514,7 @@
                         $("#" + i + "PorDesc").val(PorDescuento);
                         ModificaLinea(i, false, false, true);
                     }
+
                     var ImpLocal = parseFloat($("#" + i + "Imp").text());
 
 
@@ -538,10 +542,15 @@
                 //     Total = (SubTotal - Descuentos) + Impuestos;
                 // }
 
+                var TotalAntesRedondeo = Total;
+               // Total = redondearAl5(Total, $("#Moneda").val());
+                redondeo = Total - TotalAntesRedondeo;
+
                 $("#SubtotalGeneral").text(SubTotal.toFixed(2));
                 $("#DescGeneral").text(Descuentos.toFixed(2));
                 $("#ImpGeneral").text(Impuestos.toFixed(2));
-                $("#TotalGeneral").text(Total.toFixed(2));
+                $("#TotalGeneral").val(Total.toFixed(2));
+                $("#RedondeoGeneral").text(redondeo.toFixed(2));
                 CalculaSemaforo();
             } catch (e) {
                 Swal.fire({
@@ -553,7 +562,53 @@
             }
 
         }
+        function DeducirMontos(repite) {
+            try {
+                if(repite != "true")
+                {
+                    TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
 
+                } 
+                // Variables iniciales
+                const subtotal = parseFloat($("#SubtotalGeneral").text());
+                const totalDeseado = TotalDeseadoGlobal;
+                const montoImpuesto = parseFloat($("#ImpGeneral").text()); // Suponiendo un monto de impuesto conocido
+
+                 
+                // Cálculo del descuento
+                const descuento = subtotal + montoImpuesto - totalDeseado;
+                const porcentajeDescuento = (descuento / subtotal) * 100;
+                if (parseFloat(porcentajeDescuento.toFixed(2)) < 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Ha ocurrido un error: El porcentaje de descuento no puede quedar negativo '
+
+                    });
+                } else {
+                    $("#descGeneral").val(parseFloat(porcentajeDescuento.toFixed(2)));
+                    $("#DescGeneral").text(parseFloat(descuento.toFixed(2)));
+                    var cantidadPermitidos = 5;
+                    var i = 0;
+                    ModificaTodo();
+                    while (totalDeseado != parseFloat($("#TotalGeneral").val()) && i < cantidadPermitidos) {
+                        DeducirMontos("true");
+                        i++;
+                    }
+                }
+                
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
+       
         function Validar(Detalles) {
             try {
                 var bandera = true;
@@ -616,7 +671,7 @@
                     PorDescuento: $("#descGeneral").val(),
                     Descuento: $("#DescGeneral").text(),
                     Impuestos: $("#ImpGeneral").text(),
-                    TotalComprobante: $("#TotalGeneral").text(),
+                    TotalComprobante: $("#TotalGeneral").val(),
                     Moneda: $("#Moneda").val(),
                     idCondPago: $("#condPago").val(),
                     idGarantia: $("#tipoGarantia").val(),
@@ -627,6 +682,7 @@
                     idLlamada: $("#idLlamada").val(),
                     StatusLlamada: $("#statusLlamada").val(),
                     TipoCaso: $("#tipoCaso").val(),
+                    Redondeo: $("#RedondeoGeneral").text(),
                     Detalle: Detalles
 
                 }
@@ -1114,20 +1170,19 @@
                 };
 
                 if (Detalles.find(a => a.ItemCode == ManoObra.codSAP) == undefined) {
-                    if (parseFloat("@Model.CantidadHoras") > 0 ) {
+                    if (parseFloat("@Model.CantidadHoras") > 0) {
                         Detalles.push(detalle);
                         RellenaTabla();
                         var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
                         ModificaLinea(posicion, "false");
                     }
-                    
-                }else
-                {
+
+                } else {
                     var posicion = Detalles.indexOf(Detalles.find(a => a.ItemCode == detalle.ItemCode));
                     ModificaLinea(posicion, "false");
 
                 }
-               
+
 
             } catch (e) {
                 Swal.fire({
@@ -1288,7 +1343,7 @@
                     total += Detalles[i].TotalLinea;
                 }
                 var descuento = parseFloat($("#DescGeneral").text());
-                total = parseFloat($("#TotalGeneral").text());
+                total = parseFloat($("#TotalGeneral").val());
                 return total;
             } catch (e) {
                 Swal.fire({
@@ -2013,7 +2068,7 @@
                 <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
                 <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
                 <input hidden id="Exoneraciones" value="@JsonConvert.SerializeObject(Model.Exoneraciones.Exoneraciones)" />
-
+                <input hidden id="PorDescto" asp-for="Input.PorDescuento" />
                 <input hidden id="idLlamada" value="@Model.Llamada.id" />
 
 
@@ -2244,7 +2299,7 @@
                                     <td align="left">
                                         <strong class="text-dark">% Descuento</strong>
                                     </td>
-                                    <td align="right"><input class="form-control input" value="@(Convert.ToInt32(Model.Input.PorDescuento))" type="number" step="1" id="descGeneral" onchange="javascript: ModificaTodo()"></td>
+                                    <td align="right"><input class="form-control input" type="number" step="1" id="descGeneral" onchange="javascript: ModificaTodo()"></td>
                                 </tr>
                                 <tr>
                                     <td align="left">
@@ -2269,13 +2324,24 @@
                                 </tr>
                                 <tr>
                                     <td align="left">
-                                        <strong class="text-dark">Total</strong>
+                                        <strong class="text-dark">Redondeo</strong>
                                     </td>
                                     <td align="right">
                                         <span class="moneda"></span>
-                                        <strong class="text-dark" id="TotalGeneral"></strong>
+                                        <strong class="text-dark" id="RedondeoGeneral"></strong>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td align="left">
+                                        <strong class="text-dark">Total</strong>
+                                    </td>
+                                    <td align="right">
+                                        <span class="moneda" style="display: inline-block; vertical-align: middle;"></span>
+                                        <input class="form-control" type="number" size="5" style="width: 38%; display: inline-block; vertical-align: middle;" onchange="javascript: DeducirMontos()" id="TotalGeneral" />
+                                        @*  <strong class="text-dark" id="TotalGeneral"></strong> *@
+                                    </td>
+                                </tr>
+
                                 <tr>
                                     <td>
                                         <span id="spanSemaforo" style="font-weight: bold; color: white;" class="badge bg-success">0%</span>

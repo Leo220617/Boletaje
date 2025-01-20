@@ -30,6 +30,7 @@ namespace Boletaje.Models
         public int StatusLlamada { get; set; }
         public int idLlamada { get; set; }
         public int TipoCaso { get; set; }
+        public decimal Redondeo { get; set; }
         public DetMovimientoViewModel[] Detalle { get; set; }
     }
 }

@@ -334,7 +334,7 @@ namespace Boletaje.Pages.Movimientos
                 coleccion.idGarantia = recibido.idGarantia;
                 coleccion.idTiemposEntregas = recibido.idTiemposEntregas;
                 coleccion.idDiasValidos = recibido.idDiasValidos;
-
+                coleccion.Redondeo = recibido.Redondeo;
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)
                 {

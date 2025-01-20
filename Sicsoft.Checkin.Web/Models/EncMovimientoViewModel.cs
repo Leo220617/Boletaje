@@ -39,6 +39,8 @@ namespace Boletaje.Models
         public bool Facturado { get; set; }
         public int DocEntryDevolucion { get; set; }
         public string PrioridadAtencion { get; set; }
+        public decimal Redondeo { get; set; }
+
         public DetMovimientoViewModel[] Detalle { get; set; }
     }
 }

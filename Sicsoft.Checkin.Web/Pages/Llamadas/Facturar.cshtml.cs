@@ -163,6 +163,7 @@ namespace Boletaje.Pages.Llamadas
                 Factura.NumLlamada = "";
                 Factura.Moneda = "COL";
                 Factura.PorDesc = 0;
+                Factura.Redondeo = 0;
                 Factura.DetFactura = new DetFacturasViewModel[ProdFacturacionInicial.ProductosFacturar.Count()];
                 var i = 0;
                 foreach (var item in ProdFacturacionInicial.ProductosFacturar.ToList())
@@ -252,6 +253,7 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.PorDesc = recibido.PorDesc;
                 coleccion.ItemCode = recibido.ItemCode;
                 coleccion.Serie = recibido.SerieFacturar;
+                coleccion.Redondeo = recibido.Redondeo;
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)
                 {
