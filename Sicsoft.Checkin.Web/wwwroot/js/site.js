@@ -14,6 +14,14 @@ const htmlInyectadoEntrega = "";
 
 const BuscarPor = "C";
 
+function redondearAl5(numero, Moneda) {
+    if (Moneda != "USD") {
+        return Math.round(numero / 5) * 5;
+
+    } else {
+        return numero;
+    }
+}
 function formatoDecimal(numero) {
     var number = numero;
 

@@ -17,6 +17,7 @@ namespace Boletaje.Models
         public string EmailPersonaContacto { get; set; }
         public int StatusLlamada { get; set; }
         public int TipoCaso { get; set; }
+        public int GarantiaLlamada { get; set; }
         public DateTime Fecha { get; set; }
         public int TipoMovimiento { get; set; }
         public string Comentarios { get; set; }
@@ -38,6 +39,9 @@ namespace Boletaje.Models
         public int idDiasValidos { get; set; }
         public bool Facturado { get; set; }
         public int DocEntryDevolucion { get; set; }
+        public string PrioridadAtencion { get; set; }
+        public decimal Redondeo { get; set; }
+
         public DetMovimientoViewModel[] Detalle { get; set; }
     }
 }

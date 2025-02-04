@@ -454,6 +454,7 @@
                 var Impuestos = 0;
                 var Total = 0;
                 var PorDescuento = 0;
+                var redondeo = 0;
 
                 PorDescuento = $("#descGeneral").val();
                 for (var i = 0; i < Detalles.length; i++) {
@@ -476,11 +477,15 @@
                     Impuestos = (SubTotal - Descuentos) * 0.13;
                     Total = (SubTotal - Descuentos) + Impuestos;
                 }
-
+                var TotalAntesRedondeo = Total;
+                Total = redondearAl5(Total, $("#Moneda").val());
+                redondeo = Total - TotalAntesRedondeo;
                 $("#SubtotalGeneral").text(SubTotal.toFixed(2));
                 $("#DescGeneral").text(Descuentos.toFixed(2));
                 $("#ImpGeneral").text(Impuestos.toFixed(2));
                 $("#TotalGeneral").text(Total.toFixed(2));
+                $("#RedondeoGeneral").text(redondeo.toFixed(2));
+
 
             } catch (e) {
                 Swal.fire({
@@ -688,6 +693,7 @@
                     PorDesc: $("#descGeneral").val(),
                     ItemCode: "@Model.ItemCodeFacturar",
                     SerieFacturar: "@Model.SerieFacturar",
+                    Redondeo: $("#RedondeoGeneral").text(),
                     Detalle: DetFactura,
                     Metodos: MetodosPagosAbonos
 
@@ -2167,6 +2173,17 @@
                                         <span class="moneda"></span>
 
                                         <strong style="font-weight: inherit;" id="ImpGeneral"></strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left">
+                                        <strong class="text-dark">Redondeo</strong>
+                                    </td>
+
+                                    <td align="right">
+                                        <span class="moneda"></span>
+
+                                        <strong style="font-weight: inherit;" id="RedondeoGeneral"></strong>
                                     </td>
                                 </tr>
                                 <tr>

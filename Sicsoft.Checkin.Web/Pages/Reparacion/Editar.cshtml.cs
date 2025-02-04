@@ -41,6 +41,7 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<UsuariosViewModel, int> login;
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
         private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
+        private readonly ICrudApi<GarantiasViewModel, int> garantias;
 
 
         [BindProperty]
@@ -107,12 +108,15 @@ namespace Boletaje.Pages.Reparacion
 
         [BindProperty]
         public UbicacionesViewModel[] Ubicaciones { get; set; }
+
+        [BindProperty]
+        public GarantiasViewModel[] Garantias { get; set; }
         [BindProperty]
         public HistoricoDetalladoViewModel HistoricoDetallado { get; set; }
         public EditarModel(ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
             ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico,
-           ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado)
+           ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<GarantiasViewModel, int> garantias)
         {
             this.service = service;
             this.serviceL = serviceL;
@@ -135,6 +139,7 @@ namespace Boletaje.Pages.Reparacion
             this.login = login;
             this.ubicaciones = ubicaciones;
             this.historicoDetallado = historicoDetallado;
+            this.garantias = garantias;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -247,7 +252,7 @@ namespace Boletaje.Pages.Reparacion
                 filtro2.Codigo1 = InputLlamada.id;
                 Actividades = await actividades.ObtenerLista(filtro2);
                 Usuarios = await login.ObtenerLista("");
-
+                Garantias = await garantias.ObtenerLista("");
                 return Page();
             }
             catch (ApiException ex)
@@ -373,10 +378,12 @@ namespace Boletaje.Pages.Reparacion
                     var Status = recibido.StatusLlamada;
                     var Horas = recibido.HorasLlamada;
                     var TP = recibido.TipoCasoLlamada;
+                    var Garantia = recibido.Garantia;
                     InputLlamada = await serviceL.ObtenerPorId(recibido.idLlamada);
                     InputLlamada.Status = Status;
                     InputLlamada.Horas = Horas;
                     InputLlamada.TipoCaso = TP;
+                    InputLlamada.Garantia = Garantia;
                     await serviceL.Editar(InputLlamada);
                 }
                 catch (Exception ex)

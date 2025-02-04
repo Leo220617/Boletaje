@@ -140,6 +140,7 @@ namespace Boletaje.Pages.EntregasFacturar
                     Factura.NumLlamada = Movimientos.NumLlamada;
                     Factura.Moneda = Movimientos.Moneda;
                     Factura.PorDesc = Movimientos.PorDescuento;
+                    Factura.Redondeo = 0;
                     Factura.DetFactura = new DetFacturasViewModel[Movimientos.Detalle.Where(a => a.Garantia == false).Count()];
                     var i = 0;
                     foreach (var item in Movimientos.Detalle.Where(a => a.Garantia == false).ToList())
@@ -228,7 +229,7 @@ namespace Boletaje.Pages.EntregasFacturar
                 coleccion.TotalCompra = recibido.TotalCompra;
                 coleccion.PorDesc = recibido.PorDesc;
                 coleccion.idSucursal = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
-
+                coleccion.Redondeo = recibido.Redondeo;
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)
                 {

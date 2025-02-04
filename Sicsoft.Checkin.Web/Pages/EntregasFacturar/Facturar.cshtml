@@ -146,6 +146,9 @@
                 RolAceptacion = true;
                 $("#Moneda").val("@Model.Factura.Moneda");
                 console.log(detalles);
+                $("#descGeneral").val(parseFloat(JSON.parse($("#PorDescto").val())));
+
+
                 for (var i = 0; i < detalles.length; i++) {
                     var IMP = ImpuestosS.find(a => a.id == detalles[i].idImpuesto);
                     var calculoIMP = IMP.Tarifa;
@@ -178,7 +181,6 @@
                     Detalles.push(detalle);
 
                 }
-                $("#descGeneral").val(parseFloat("@Model.Factura.PorDesc"));
                 RellenaTabla();
                 ModificaMoneda(true);
             } catch (e) {
@@ -442,6 +444,7 @@
                 var Impuestos = 0;
                 var Total = 0;
                 var PorDescuento = 0;
+                var redondeo = 0;
 
                 PorDescuento = $("#descGeneral").val();
                 for (var i = 0; i < Detalles.length; i++) {
@@ -464,11 +467,14 @@
                     Impuestos = (SubTotal - Descuentos) * 0.13;
                     Total = (SubTotal - Descuentos) + Impuestos;
                 }
-
+                var TotalAntesRedondeo = Total;
+                //Total = redondearAl5(Total, $("#Moneda").val());
+                redondeo = Total - TotalAntesRedondeo;
                 $("#SubtotalGeneral").text(SubTotal.toFixed(2));
                 $("#DescGeneral").text(Descuentos.toFixed(2));
                 $("#ImpGeneral").text(Impuestos.toFixed(2));
-                $("#TotalGeneral").text(Total.toFixed(2));
+                $("#TotalGeneral").val(Total.toFixed(2));
+                $("#RedondeoGeneral").text(redondeo.toFixed(2));
 
             } catch (e) {
                 Swal.fire({
@@ -480,7 +486,104 @@
             }
 
         }
+        function calcularTotalConDescuento(descuento, subtotalGeneral) {
+            try {
+                let total = 0;
+                Detalles.forEach(detalle => {
+                    const subtotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) -
+                        descuento * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
+                    const impuestosLinea = subtotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA por línea
+                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                            impuestosLinea -= TarifaExonerado;
 
+                        }
+                    }
+
+                    total += subtotalLinea + impuestosLinea;
+                });
+                return total;
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+
+        }
+
+        function DeducirMontos() {
+            try {
+                TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
+                let subtotalGeneral = 0;
+                Detalles.forEach(detalle => {
+                    subtotalGeneral += detalle.PrecioUnitario * detalle.Cantidad;
+                });
+
+                // Buscar el descuento necesario
+                let descuentoMin = 0;
+                let descuentoMax = subtotalGeneral;
+                let descuentoNecesario = 0;
+                const tolerancia = 0.01; // Para evitar problemas de redondeo
+
+                while (descuentoMax - descuentoMin > tolerancia) {
+                    const descuentoMedio = (descuentoMin + descuentoMax) / 2;
+                    const totalCalculado = calcularTotalConDescuento(descuentoMedio, subtotalGeneral);
+
+                    if (totalCalculado > TotalDeseadoGlobal) {
+                        descuentoMin = descuentoMedio;
+                    } else {
+                        descuentoMax = descuentoMedio;
+                    }
+                }
+
+                descuentoNecesario = (descuentoMin + descuentoMax) / 2;
+
+                // Actualizar los detalles con el descuento calculado
+                Detalles.forEach(detalle => {
+                    const descuentoProporcional = descuentoNecesario * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                    detalle.Descuento = descuentoProporcional;
+                    detalle.TotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) - descuentoProporcional;
+                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
+                    detalle.Impuestos = detalle.TotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA
+
+                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                    if (EX != undefined) {
+                        if ((13 - EX.Prcnt) < calculoIMP) {
+                            var ValorExonerado = (EX.Prcnt / 100);
+                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                            detalle.Impuestos -= TarifaExonerado;
+
+                        }
+                    }
+
+                    detalle.PorDescuento = (descuentoProporcional / (detalle.PrecioUnitario * detalle.Cantidad)) * 100;
+                });
+
+                const porcentajeDescuento = (descuentoNecesario / subtotalGeneral) * 100;
+                $("#descGeneral").val(parseFloat(porcentajeDescuento.toFixed(6)));
+                $("#DescGeneral").text(parseFloat(descuentoNecesario.toFixed(2)));
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
         function Validar(recibido) {
             try {
                 var bandera = true;
@@ -672,8 +775,9 @@
                     Subtotal: $("#SubtotalGeneral").text(),
                     TotalImpuestos: $("#ImpGeneral").text(),
                     TotalDescuento: $("#DescGeneral").text(),
-                    TotalCompra: $("#TotalGeneral").text(),
+                    TotalCompra: $("#TotalGeneral").val(),
                     PorDesc: $("#descGeneral").val(),
+                    Redondeo: $("#RedondeoGeneral").text(),
                     Detalle: DetFactura,
                     Metodos: MetodosPagosAbonos
 
@@ -1053,7 +1157,7 @@
                     total += Detalles[i].TotalLinea;
                 }
                 var descuento = parseFloat($("#DescGeneral").text());
-                total = parseFloat($("#TotalGeneral").text());
+                total = parseFloat($("#TotalGeneral").val());
                 return total;
             } catch (e) {
                 Swal.fire({
@@ -1072,7 +1176,7 @@
             try {
                 var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
                 $(".MetodosPagoRellenar").hide();
-                var totalG = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                var totalG = parseFloat(ReplaceLetra($("#TotalGeneral").val()));
 
                 if ($("#Moneda").val() != "COL") {
                     totalG = totalG * TipodeCambio.TipoCambio;
@@ -1085,7 +1189,7 @@
 
                 if (Cond.Dias == 0) {
                     if ($("#Moneda").val() == "COL") {
-                        var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                        var Total = parseFloat(ReplaceLetra($("#TotalGeneral").val()));
                         $("#totPago").text(formatoDecimal(Total));
                         $("#fatPago").text(formatoDecimal(Total));
                         $("#selectMonedaP").val($("#Moneda").val());
@@ -1101,7 +1205,7 @@
 
                         $("#modalPagos").modal("show");
                     } else {
-                        var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                        var Total = parseFloat(ReplaceLetra($("#TotalGeneral").val()));
                         $("#totPagoD").text(formatoDecimal(Total));
                         $("#fatPagoD").text(formatoDecimal(Total));
                         $("#selectMonedaP").val($("#Moneda").val());
@@ -1474,8 +1578,8 @@
                 var MonedaDoc = $("#Moneda").val();
                 var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
 
-                var Total = MonedaDoc == "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPago").text())) : 0; //Total En Colones
-                var TotalD = MonedaDoc != "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").text())) - parseFloat(ReplaceLetra($("#pagPagoD").text())) : 0;
+                var Total = MonedaDoc == "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").val())) - parseFloat(ReplaceLetra($("#pagPago").text())) : 0; //Total En Colones
+                var TotalD = MonedaDoc != "COL" ? parseFloat(ReplaceLetra($("#TotalGeneral").val())) - parseFloat(ReplaceLetra($("#pagPagoD").text())) : 0;
 
                 if (Total <= 0 && TotalD <= 0) {
                     Swal.fire({
@@ -1700,10 +1804,10 @@
 
 
                 if (MonedaDoc != "COL") {
-                    TotalD = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                    TotalD = parseFloat(ReplaceLetra($("#TotalGeneral").val()));
                     Total = TotalD * TipodeCambio.TipoCambio;
                 } else {
-                    Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                    Total = parseFloat(ReplaceLetra($("#TotalGeneral").val()));
                     TotalD = Total / TipodeCambio.TipoCambio;
                 }
 
@@ -1819,7 +1923,7 @@
                 var Monto = parseFloat($("#MontoPago").val()); //Monto que se pone el input
                 var MonedaDoc = $("#Moneda").val(); //Moneda del documento
                 var TipodeCambio = TipoCambio.find(a => a.Moneda == "USD");
-                var Total = parseFloat(ReplaceLetra($("#TotalGeneral").text()));
+                var Total = parseFloat(ReplaceLetra($("#TotalGeneral").val()));
                 var Metodo = $("#MetodoSeleccionado").val();
 
 
@@ -1892,9 +1996,8 @@
                 <input hidden id="ProductosHijosInsertar" value="@JsonConvert.SerializeObject(Model.ProductosHijosInsertar)" />
                 <input hidden id="CB" value="@JsonConvert.SerializeObject(Model.CuentasBancarias)" />
                 <input hidden id="Exoneraciones" value="@JsonConvert.SerializeObject(Model.Exoneraciones.Exoneraciones)" />
-                <input hidden id="CondicionesPagos" value="@JsonConvert.SerializeObject(Model.Condiciones)" />
-
-
+                <input hidden id="CondicionesPagos" value="@JsonConvert.SerializeObject(Model.Condiciones)" /> 
+                <input hidden id="PorDescto" value="@JsonConvert.SerializeObject(Model.Factura.PorDesc)" />
 
 
 
@@ -2152,11 +2255,24 @@
                                 </tr>
                                 <tr>
                                     <td align="left">
+                                        <strong class="text-dark">Redondeo</strong>
+                                    </td>
+
+                                    <td align="right">
+                                        <span class="moneda"></span>
+
+                                        <strong style="font-weight: inherit;" id="RedondeoGeneral"></strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left">
                                         <strong class="text-dark">Total</strong>
                                     </td>
                                     <td align="right">
-                                        <span class="moneda"></span>
-                                        <strong class="text-dark" id="TotalGeneral"></strong>
+                                        <span class="moneda" style="display: inline-block; vertical-align: middle;"></span>
+                                        <input class="form-control" type="number" size="5" style="width: 38%; display: inline-block; vertical-align: middle;" onchange="javascript: DeducirMontos()" id="TotalGeneral" />
+
+                                       @*  <strong class="text-dark" id="TotalGeneral"></strong> *@
                                     </td>
                                 </tr>
 

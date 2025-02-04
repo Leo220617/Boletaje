@@ -218,6 +218,7 @@
             RecuperarProductosGenerales();
             $("#idTraslado").val("5");
             onChangeTipoMovimiento();
+            onChangeTipoCaso();
         });
 
 
@@ -428,7 +429,27 @@
                 })
             }
         }
+        function onChangeTipoCaso(){
+            try{
+                var valorTP = $("#TPLlamada").val();
+                if(valorTP == "2" || valorTP == "9" ) //Presupuesto o reparado en garantia
+                {
+                    $("#tipoGarantia").removeAttr("hidden");
+                }else{
+                    $("#tipoGarantia").attr("hidden", true);
+                }
 
+
+            }catch(e)
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error ' + e
+
+                })
+            }
+        }
         function onChangeDiagnostico() {
             try {
 
@@ -870,6 +891,7 @@
                     Status: status,
                     StatusLlamada: $("#statusLlamada").val(),
                     TipoCasoLlamada: $("#TPLlamada").val(),
+                    Garantia: $("#TipoGarantia").val(),
                     HorasLlamada: $("#horasLlamada").val(),
                     idLlamada: $("#idLlamada").val(),
                     comentarios: comentarios,
@@ -880,6 +902,13 @@
                     Adjuntos: bases64
                 }
                 var cantidadAdjuntos = parseFloat("@Model.Encabezado.Adjuntos.Count()");
+
+                if ((recibido.TipoCasoLlamada == "2" || recibido.TipoCasoLlamada == "9") && recibido.Garantia == "") 
+                {
+                    throw new Error("Debe seleccionar el tipo de Garantia");
+                } else if ((recibido.TipoCasoLlamada != "2" && recibido.TipoCasoLlamada != "9")) {
+                    recibido.Garantia = 0;
+                } 
                 if (recibido.StatusLlamada == "48" && documentosbase64.length == 0)
                 {
                     throw new Error("Llamada en status POR PROCESAR, debe llevar adjuntos");
@@ -2261,10 +2290,21 @@
                         <div class="col-md-3 pr-1">
                             <div class="form-group">
                                 <label>Tipo de Caso:</label>
-                                <select id="TPLlamada" class="form-control" asp-for="InputLlamada.TipoCaso" required>
+                                <select id="TPLlamada" class="form-control" asp-for="InputLlamada.TipoCaso" required onchange="javascript: onChangeTipoCaso();">
                                     @foreach (var item in Model.TP.Where(a => a.Taller)) //.Where(a => a.idSAP == "1" || a.idSAP == "2" || a.idSAP == "9"))
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1" hidden id="tipoGarantia">
+                            <div class="form-group">
+                                <label>Tipo de Garantia:</label>
+                                <select id="TipoGarantia" class="form-control" asp-for="InputLlamada.Garantia" required>
+                                    @foreach (var item in Model.Garantias) //.Where(a => a.idSAP == "1" || a.idSAP == "2" || a.idSAP == "9"))
+                                    {
+                                        <option value="@item.id">@item.Nombre</option>
                                     }
                                 </select>
                             </div>
@@ -2863,37 +2903,37 @@
                                         {
                                             case 1:
                                                 {
-                                                            <td> Llamada Telefónica</td>
+                                                                <td> Llamada Telefónica</td>
 
                                                     break;
                                                 }
                                             case 2:
                                                 {
-                                                            <td> Reunión</td>
+                                                                <td> Reunión</td>
 
                                                     break;
                                                 }
                                             case 3:
                                                 {
-                                                            <td> Tarea</td>
+                                                                <td> Tarea</td>
 
                                                     break;
                                                 }
                                             case 4:
                                                 {
-                                                            <td>Nota</td>
+                                                                <td>Nota</td>
 
                                                     break;
                                                 }
                                             case 5:
                                                 {
-                                                            <td> Campaña</td>
+                                                                <td> Campaña</td>
 
                                                     break;
                                                 }
                                             case 6:
                                                 {
-                                                            <td> Otros</td>
+                                                                <td> Otros</td>
 
                                                     break;
                                                 }

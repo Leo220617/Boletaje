@@ -17,6 +17,8 @@ namespace InversionGloblalWeb.Models
         public int Codigo2 { get; set; }
         public int Codigo3 { get; set; }
         public int Codigo4 { get; set; }
+        public int Codigo5 { get; set; }
+
 
         public string ListPrice { get; set; }
         public string ItemCode { get; set; }

@@ -42,10 +42,12 @@
     <script>
         $(document).ready(function () {
             jQuery(document).ready(function ($) {
-
+                $('table.firstAct').DataTable({
+                    "order": [[0, "asc"]],
+                    "displayLength": 100,
+                });
             });
-
-
+             
 
         });
         function enviarSAP(id) {
@@ -312,7 +314,7 @@
 
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered first">
+                    <table class="table table-striped table-bordered firstAct">
                         <thead>
                             <tr>
                                 <th>No. Actividad</th>
