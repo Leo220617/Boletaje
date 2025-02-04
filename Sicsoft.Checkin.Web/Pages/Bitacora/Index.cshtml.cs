@@ -61,7 +61,8 @@ namespace ConectorEcommerce.Pages.Bitacora
 
                     filtro.FechaFinal = ultimoDia;
 
-
+                    filtro.FechaInicial = DateTime.Now.AddDays(-2);
+                    filtro.FechaFinal = DateTime.Now.AddDays(1);
 
                 }
 

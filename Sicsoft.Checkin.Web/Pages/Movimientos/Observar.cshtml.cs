@@ -25,7 +25,10 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<HistoricoViewModel, int> historico;
         private readonly ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado;
         private readonly ICrudApi<DiagnosticosViewModel, int> serviceD;
-       
+        private readonly ICrudApi<TecnicosViewModel, int> tecnicos;
+        private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
+        private readonly ICrudApi<GarantiasViewModel, int> garan;
+
 
 
         [BindProperty]
@@ -63,8 +66,17 @@ namespace Boletaje.Pages.Movimientos
 
         [BindProperty]
         public DiagnosticosViewModel[] Diagnosticos { get; set; }
+
+        [BindProperty]
+        public TecnicosViewModel[] Tecnicos { get; set; }
+        [BindProperty]
+        public CondicionesPagosViewModel[] Condiciones { get; set; }
+        [BindProperty]
+        public GarantiasViewModel[] Garantias { get; set; }
         public ObservarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ErroresViewModel, int> serviceErrores, ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, 
-            ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<DiagnosticosViewModel, int> serviceD)
+            ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<UbicacionesViewModel, int> ubicaciones, 
+            ICrudApi<HistoricoViewModel, int> historico, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<DiagnosticosViewModel, int> serviceD, ICrudApi<TecnicosViewModel, int> tecnicos
+            , ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<GarantiasViewModel, int> garan)
         {
             this.service = service;
             this.clientes = clientes;
@@ -78,6 +90,9 @@ namespace Boletaje.Pages.Movimientos
             this.historico = historico;
             this.historicoDetallado = historicoDetallado;
             this.serviceD = serviceD;
+            this.tecnicos = tecnicos;
+            this.conds = conds;
+            this.garan = garan;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -92,7 +107,7 @@ namespace Boletaje.Pages.Movimientos
                 Cliente = Clientes.Clientes.Where(a => a.CardCode == Input.CardCode).FirstOrDefault();
                 Errores = await serviceErrores.ObtenerLista("");
                 Diagnosticos = await serviceD.ObtenerLista("");
-
+                Garantias = await garan.ObtenerLista("");
                 ParametrosFiltros filtro2 = new ParametrosFiltros();
                 filtro2.Codigo1 = Llamada.id;
                 Actividades = await actividades.ObtenerLista(filtro2);
@@ -148,6 +163,10 @@ namespace Boletaje.Pages.Movimientos
                     HistoricoDetallado.Historico[0].Facturado = 0;
 
                 }
+                Condiciones = await conds.ObtenerLista("");
+                Tecnicos = await tecnicos.ObtenerLista("");
+                var tec = Llamada.Tecnico.ToString();
+                Tecnicos = Tecnicos != null ? Tecnicos.Where(a => a.idSAP == tec).ToArray() : Tecnicos;
 
                 Productos = await service2.ObtenerLista("");
                 return Page();

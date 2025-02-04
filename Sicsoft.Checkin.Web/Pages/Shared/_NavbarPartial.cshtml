@@ -311,7 +311,11 @@
 
                                             <a class="nav-link" asp-page="/Reparacion/Index">Reparaciones</a>
                                         }
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "85").FirstOrDefault()))
+                                        {
 
+                                            <a class="nav-link" asp-page="/Movimientos/Validacion">Validar Movimientos</a>
+                                        }
                                     }
 
                                 </li>
@@ -355,7 +359,7 @@
 
                                             <a class="nav-link" asp-page="/Movimientos/Index">Movimientos</a>
                                         }
-
+                                      
                                     }
 
                                 </li>

@@ -17,6 +17,7 @@ namespace Boletaje.Models
         public string EmailPersonaContacto { get; set; }
         public int StatusLlamada { get; set; }
         public int TipoCaso { get; set; }
+        public int GarantiaLlamada { get; set; }
         public DateTime Fecha { get; set; }
         public int TipoMovimiento { get; set; }
         public string Comentarios { get; set; }

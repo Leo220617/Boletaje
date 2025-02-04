@@ -1,8 +1,24 @@
 ﻿@page
-@model Boletaje.Pages.Movimientos.IndexModel
+@model Boletaje.Pages.Movimientos.ValidacionModel
 @{
-    ViewData["Title"] = "Movimientos";
+    ViewData["Title"] = "Aprobar Movimientos";
 }
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@using Newtonsoft.Json;
+@inject IHttpContextAccessor httpContextAccessor
+ 
 @using System.Globalization;
 @{
     NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
@@ -12,7 +28,7 @@
     var Roles1 = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
 
 }
-@section breadcrumb{
+@section breadcrumb {
 
     <li class="breadcrumb-item">
         <a asp-page="./Index">BackOffice</a>
@@ -24,7 +40,7 @@
 
 
 
-@section styles{
+@section styles {
 
     <style>
         .tableFixHead th {
@@ -45,7 +61,7 @@
 }
 
 
-@section scripts{
+@section scripts {
 
 
     <script>
@@ -203,17 +219,68 @@
 
         }
 
-        function onClickModalAprobarSuperior(id) {
+        function onClickModalAprobarSuperior(id, idGarantia,idTipoCaso) {
 
             ids = id;
+            var Garantia = JSON.parse($("#Garantias").val());
+            var TipoCasoS = JSON.parse($("#TipoCasos").val());
+            var idGarantiaS = parseInt(idGarantia);
+            var idTipoCasoS = parseInt(idTipoCaso); 
 
+            var html = "<label for='miSelect'>Escoja un tipo de garantía: </label><select id='miSelect' class='swal2 - input'>";
+            if(idGarantiaS == 0)
+            {
+                html += " <option selected value='0'>Sin Garantia</option>";
+
+            }
+            for (var i = 0; i < Garantia.length; i++) {
+                
+                if(idGarantiaS == Garantia[i].id){
+                    html += " <option selected value=" + Garantia[i].id + ">" + Garantia[i].Nombre + "</option>";
+
+                }else
+                {
+                    html += " <option value=" + Garantia[i].id + ">" + Garantia[i].Nombre + "</option>";
+
+                }
+            }
+            html += "</select>   <br><br>";
+
+            html += "<label for='miSelect'>Escoja un tipo de caso: </label><select id='miSelectTP' class='swal2 - input'>";
+            if (idTipoCasoS == 0) {
+                html += " <option selected value='0'>Sin Tipo Caso</option>";
+
+            }
+            for (var i = 0; i < TipoCasoS.length; i++) {
+                if (TipoCasoS[i].Taller) {
+                    if (idTipoCasoS == TipoCasoS[i].idSAP) {
+                        html += " <option selected value=" + TipoCasoS[i].idSAP + ">" + TipoCasoS[i].Nombre + "</option>";
+
+                    } else {
+                        html += " <option value=" + TipoCasoS[i].idSAP + ">" + TipoCasoS[i].Nombre + "</option>";
+
+                    }
+                }
+
+               
+            }
+            html += "</select>";
 
             Swal.fire({
-                title: '¿Desea validar esta cotización?',
+                title: '¿Desea validar este movimiento?',
+                html: html,
                 showDenyButton: true,
                 showCancelButton: false,
                 confirmButtonText: `Aceptar`,
                 denyButtonText: `Cancelar`,
+                preConfirm: () => {
+                    const seleccion1 = $('#miSelect').val();
+                    const seleccion2 = $('#miSelectTP').val();
+                    if (!seleccion1 || !seleccion2) {
+                        Swal.showValidationMessage('Debe seleccionar una opción en ambos campos');
+                    }
+                    return { seleccion1, seleccion2 };
+                },
                 customClass: {
                     confirmButton: 'swalBtnColor',
                     denyButton: 'swalDeny'
@@ -222,7 +289,7 @@
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
 
-                    AprobarSuperior(id);
+                    AprobarSuperior(id, result.value.seleccion1, result.value.seleccion2);
 
                 }
             })
@@ -324,7 +391,7 @@
 
 
 
-            var btn = document.getElementById('btnAprobar_'+id);
+            var btn = document.getElementById('btnAprobar_' + id);
             var idEnviar = id;
             Swal.fire({
                 title: '¿Desea Aprobar esta movimiento?',
@@ -391,17 +458,19 @@
 
                 }
             })
-          
+
         }
 
 
-        function AprobarSuperior(id) {
+        function AprobarSuperior(id, idGarantia,idTipoCaso) {
             var idEnviar = id;
+            var idGarantiaS = idGarantia;
+            var idTipoCasoS = idTipoCaso;
             $.ajax({
                 type: 'GET',
                 dataType: 'json',
-                url: '@Url.Page("Index", "AprobarSuperior")',
-                data: { id: idEnviar },
+                url: '@Url.Page("Validacion", "AprobarSuperior")',
+                data: { id: idEnviar, idGarantia: idGarantiaS, idTipoCaso: idTipoCasoS },
                 success: function (result) {
                     console.log(result);
                     if (result == false) {
@@ -463,6 +532,10 @@
             </div>
             <div class="card-body">
                 <form method="get">
+                    <input hidden id="Garantias" value="@JsonConvert.SerializeObject(Model.Garantias)" />
+                    <input hidden id="TipoCasos" value="@JsonConvert.SerializeObject(Model.TP)" />
+
+
                     <div class="row">
                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "66").FirstOrDefault()))
                         {
@@ -487,7 +560,7 @@
                         <div class="col-md-4 pl-1">
                             <div class="form-group">
                                 <label>Estado de la Llamada</label>
-                                
+
                                 <select class="js-example-basic-multiple form-control" id="estadoLlamada" asp-for="filtro.seleccionMultiple" multiple="multiple">
                                     @foreach (var item in Model.Status)
                                     {
@@ -518,7 +591,7 @@
 
                         </div>
 
-                   
+
                         <div class="col-sm-12">
                             <br />
                         </div>
@@ -535,7 +608,7 @@
                             <div class="form-group">
                                 <label>Cliente:</label>
 
-                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="filtro.CardCode"  autocomplete="off">
+                                <input type="text" list="cardcodes" class="form-control form-control-lg" id="cardcode" placeholder="Nombre Cliente" asp-for="filtro.CardCode" autocomplete="off">
 
                                 <datalist id="cardcodes">
 
@@ -575,7 +648,7 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col-md-8">
-                        <h5>BackOffice</h5>
+                        <h5>Aprobación de Movimientos</h5>
                     </div>
                     <div class="col-md-4">
                         <div><span class="badge">Prioridad ALTA</span></div>
@@ -602,9 +675,9 @@
                                 <th>Impuestos</th>
 
                                 <th>Descuento</th>
-                                <th>Total</th>
-                                <th>Aprobada</th>
-                                <th>Devuelta</th>
+                                <th>Total</th> 
+                                <th>Tipo Garantia</th>
+
                                 <th>Acción</th>
 
                             </tr>
@@ -623,10 +696,10 @@
                                     @{
                                         var DocEntry = Convert.ToInt32(item.NumLlamada);
                                     }
-                                   @*  <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault().Nombre) </td>
-                                    <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault().Nombre) </td>
- *@
-                                    <td> @(  Model.Status.Where(b => b.idSAP == @item.StatusLlamada.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == item.StatusLlamada.ToString()).FirstOrDefault().Nombre) </td>
+                                    @*  <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().Status.Value.ToString()).FirstOrDefault().Nombre) </td>
+                                <td> @(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "0" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().TipoCaso.Value.ToString()).FirstOrDefault().Nombre) </td>
+                                *@
+                                    <td> @(Model.Status.Where(b => b.idSAP == @item.StatusLlamada.ToString()).FirstOrDefault() == null ? "Sin Status" : Model.Status.Where(b => b.idSAP == item.StatusLlamada.ToString()).FirstOrDefault().Nombre) </td>
                                     <td> @(Model.TP.Where(b => b.idSAP == @item.TipoCaso.ToString().ToString()).FirstOrDefault() == null ? "Sin Tipo Caso" : Model.TP.Where(b => b.idSAP == item.TipoCaso.ToString()).FirstOrDefault().Nombre) </td>
 
 
@@ -637,26 +710,26 @@
                                         {
                                             case 1:
                                                 {
-                                                    <td>Oferta de Venta</td>
+                                                                            <td>Oferta de Venta</td>
                                                     break;
                                                 }
                                             case 2:
                                                 {
-                                                    if(item.idGarantia > 0)
+                                                    if (item.idGarantia > 0)
                                                     {
-                                                        <td>Entrega por Garantía</td>
+                                                                                <td>Entrega por Garantía</td>
 
                                                     }
                                                     else
                                                     {
-                                                        <td>Entrega</td>
+                                                                                <td>Entrega</td>
 
                                                     }
                                                     break;
                                                 }
                                             case 3:
                                                 {
-                                                    <td>Cotización BackOffice</td>
+                                                                            <td>Cotización BackOffice</td>
                                                     break;
                                                 }
 
@@ -667,80 +740,13 @@
 
                                     <td align="right">@decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
                                     <td align="right">@decimal.Round(item.TotalComprobante, 2).ToString("N", formato)</td>
-                                    @if (item.Aprobada)
-                                    {
-                                        <td>
-                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Aprobada</span>
-                                        </td>
-                                    }
-                                    else
-                                    {
-                                        if(item.TipoMovimiento != 3)
-                                        {
-                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>No Aplica</span></td>
+                                   
+                                  
+                                    <td> @(Model.Garantias.Where(b => b.id == @item.GarantiaLlamada).FirstOrDefault() == null ? "Sin Tipo Garantia" : Model.Garantias.Where(b => b.id == item.GarantiaLlamada).FirstOrDefault().Nombre) </td>
 
-                                        }
-                                        else
-                                        {
-                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Aprobar</span></td>
-
-                                        }
-                                    }
-                                    @if (item.DocEntryDevolucion > 0)
-                                    {
-                                        <td>
-                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Devuelta</span>
-                                        </td>
-                                    }
-                                    else
-                                    {
-                                        if (item.TipoMovimiento != 2)
-                                        {
-                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>No Aplica</span></td>
-
-                                        }
-                                        else
-                                        {
-                                            <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Devolver</span></td>
-
-                                        }
-                                    }
                                     <td>
-                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "63").FirstOrDefault()))
-                                        {
-                                            @if (item.DocEntry == 0)
-                                            {
-                                                @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2) && Model.RequiereAprobacion == 1)
-                                                {
-                                                    @if (item.AprobadaSuperior)
-                                                    {
-                                                        <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Generar</a>
-                                                }
+                                         
 
-
-
-
-                                            }
-                                            else
-                                            {
-
-                                                @* <a onclick="javascript: onClickModal('@item.id', '@(Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault() == null ? "" : Model.InputLlamada.Where(a => a.DocEntry == DocEntry).FirstOrDefault().EmailPersonaContacto )')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a> *@
-                                                <a onclick="javascript: onClickModal('@item.id', '@item.EmailPersonaContacto')" title="Reenviar" class="btn btn-rounded btn-outline-warning">Reenviar Correo</a>
-
-                                                @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3))
-                                                {
-                                                    <a asp-page="./Editar" asp-route-id="@item.id" title="Generar" class="btn btn-rounded btn-outline-warning"> Regenerar</a>
-
-                                                }
-                                            }
-                                        }
-                                            &nbsp;
-                                        
                                         <a asp-page="./Observar" asp-route-id="@item.id" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
                                         &nbsp;
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "64").FirstOrDefault()))
@@ -749,9 +755,10 @@
                                             {
                                                 <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
 
-                                            }else
+                                            }
+                                            else
                                             {
-                                                if (item.Facturado == false && item.idGarantia == 0)
+                                                if (item.Facturado == false)
                                                 //if(item.DocEntry <= 0 || item.DocEntry == null)
                                                 {
                                                     <a onclick="javascript: onClickModalEliminar('@item.id')" title="Activar/Desactivar" class="btn btn-rounded btn-outline-danger">Eliminar</a>
@@ -759,44 +766,23 @@
                                                 }
                                             }
                                         }
-                                        
 
-                                        &nbsp;
-                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "65").FirstOrDefault()))
-                                        {
-                                            @if (item.TipoMovimiento == 3)
-                                            {
-                                                @if (!item.Aprobada && (item.AprobadaSuperior && item.DocEntry != 0))
-                                                {
-                                                    <a id="btnAprobar_@item.id" onclick="javascript: Aprobar('@item.id')" title="Aprobar Cotizacion" class="btn btn-rounded btn-outline-secondary">Aprobar</a>
 
-                                                }
-
-                                            }
-                                        }
                                        
+
                                         &nbsp;
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "58").FirstOrDefault()))
                                         {
-                                            @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2 )&& item.DocEntry == 0)
+                                            @if ((item.TipoMovimiento == 1 || item.TipoMovimiento == 3 || item.TipoMovimiento == 2) && item.DocEntry == 0)
                                             {
                                                 @if (item.AprobadaSuperior == false)
                                                 {
-                                                    <a onclick="javascript: onClickModalAprobarSuperior('@item.id')" title="Aprobar Superior" class="btn btn-rounded btn-outline-secondary">Validado</a>
+                                                    <a onclick="javascript: onClickModalAprobarSuperior('@item.id', '@item.GarantiaLlamada', '@item.TipoCaso')" title="Aprobar Superior" class="btn btn-rounded btn-outline-secondary">Validado</a>
                                                 }
                                             }
                                         }
-                                        
-                                        &nbsp;
-                                        @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "84").FirstOrDefault()))
-                                        {
-                                            @if ((item.TipoMovimiento == 2) && item.DocEntry > 0 && item.DocEntryDevolucion == 0 && item.Facturado == false)
-                                            {
 
-                                                <a onclick="javascript: onClickModalDevolucion('@item.id')" title="Generar Devolucion" class="btn btn-rounded btn-outline-danger">Devolución</a>
-                                            
-                                            }
-                                        }
+                                      
                                         &nbsp;
                                         @{
                                             var NumLlamada = 0;
@@ -838,9 +824,9 @@
                                 <th>Impuestos</th>
 
                                 <th>Descuento</th>
-                                <th>Total</th>
-                                <th>Aprobada</th>
-                                <th>Devuelta</th>
+                                <th>Total</th> 
+                                <th>Tipo Garantia</th>
+
 
                                 <th>Acción</th>
 

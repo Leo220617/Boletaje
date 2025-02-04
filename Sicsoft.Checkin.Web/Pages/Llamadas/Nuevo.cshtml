@@ -590,7 +590,7 @@
         function ValidaForm(recibido1) {
             if (recibido1.PersonaContacto == undefined || recibido1.PersonaContacto == "") {
                 return false;
-            } else if (recibido1.NumeroPersonaContacto == undefined || recibido1.NumeroPersonaContacto == "" || recibido1.NumeroPersonaContacto.length > 10) {
+            } else if (recibido1.NumeroPersonaContacto == undefined || recibido1.NumeroPersonaContacto == "" || recibido1.NumeroPersonaContacto.replace("-", "").replace(" ", "").length > 10 || recibido1.NumeroPersonaContacto.replace("-", "").replace(" ", "").length < 8) {
                 return false;
 
             } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {
