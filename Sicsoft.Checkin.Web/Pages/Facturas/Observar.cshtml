@@ -316,6 +316,8 @@
                         <div>Telefono: @Model.Cliente.Phone1</div>
                         <div>Persona Contacto: @Model.Llamada.PersonaContacto</div>
                         <div>Email: @Model.Input.Correo</div>
+                        <div>Condición de Pago: @(Model.Condiciones.Where(a => a.id == Model.Input.idCondicionVenta).FirstOrDefault() == null ? "" : Model.Condiciones.Where(a => a.id == Model.Input.idCondicionVenta).FirstOrDefault().Nombre )</div>
+
 
                         <div class="row col-sm-4">
 

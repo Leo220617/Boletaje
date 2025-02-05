@@ -790,7 +790,7 @@
                                         &nbsp;
                                         @if (!string.IsNullOrEmpty(Roles1.Where(a => a == "84").FirstOrDefault()))
                                         {
-                                            @if ((item.TipoMovimiento == 2) && item.DocEntry > 0 && item.DocEntryDevolucion == 0 && item.Facturado == false)
+                                            @if ((item.TipoMovimiento == 2) && item.DocEntry > 0 && item.DocEntryDevolucion == 0 && (item.Facturado == false || item.idGarantia > 0))
                                             {
 
                                                 <a onclick="javascript: onClickModalDevolucion('@item.id')" title="Generar Devolucion" class="btn btn-rounded btn-outline-danger">Devolución</a>

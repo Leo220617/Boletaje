@@ -519,6 +519,16 @@
                 if (recibido.Cedula == "") {
                     bandera = false;
                 }
+                var CondicionActual = recibido.idCondicionVenta;
+                var Cond = CondicionesPagos.find(a => a.id == CondicionActual);
+                if(Cond != undefined)
+                {
+                    if (recibido.Metodos.length == 0 && Cond.Dias == 0) {
+                        bandera = false;
+                    }
+                }
+                
+
                 var TP = TipoCambio.find(a => a.Moneda == "USD");
                 for (var i = 0; i < recibido.Detalle.length; i++) {
                     var producto = ProductosHijos.filter(a => a.codSAP == recibido.Detalle[i].ItemCode)[0];

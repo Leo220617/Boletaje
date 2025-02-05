@@ -1115,7 +1115,7 @@
 
                         </div>
 
-
+                       
                         <div class="col-md-4 pr-1">
 
                             <div class="form-group">
@@ -1167,6 +1167,17 @@
 
 
                         </div>
+
+                        <div class="col-md-4 pr-1">
+
+                            <div class="form-group">
+                                <label>Oferta Aprobada</label>
+                                <input type="text" class="form-control form-control-lg" id="oAprobada" asp-for="DocNumOfertaAprobada" readonly>
+
+                            </div>
+
+
+                        </div>
                     </div>
 
 
@@ -1199,7 +1210,7 @@
                                     <th>Ubicación</th>
 
                                     <th>Cantidad Faltante</th>
-
+                                    <th>Stock</th> 
 
                                 </tr>
                             </thead>
@@ -1218,6 +1229,8 @@
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion)</td>
 
                                         <td>@item.CantidadFaltante.ToString("N",formato)</td>
+                                        <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "0" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Stock.ToString("N", formato))</td>
+                                         
                                     </tr>
                                 }
 
@@ -1230,7 +1243,7 @@
                                     <th>Cantidad</th>
                                     <th>Ubicación</th>
                                     <th>Cantidad Faltante</th>
-
+                                    <th>Stock</th> 
                                 </tr>
                             </tfoot>
                         </table>
