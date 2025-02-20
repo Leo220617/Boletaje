@@ -88,6 +88,7 @@
         var Exoneraciones = [];
         var CondicionesPagos = [];
         var ModificarProductos = '@(!string.IsNullOrEmpty(Roles.Where(a => a == "78").FirstOrDefault()))';
+        var TotalAntiguo = 0;
 
         function RecuperarTipoCambio() {
 
@@ -520,9 +521,28 @@
 
         }
 
+        function onFocusDeducirMontos() {
+            try {
+                TotalAntiguo = parseFloat($("#TotalGeneral").val());
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
         function DeducirMontos() {
             try {
                 TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
+                 
+                if (parseFloat($("#SubtotalGeneral").text()) + parseFloat($("#ImpGeneral").text()) < TotalDeseadoGlobal) {
+                    $("#TotalGeneral").val(TotalAntiguo);
+                    TotalAntiguo = 0;
+                    throw new Error("El total deseado no debe ser mayor al total anterior, ya que produce descuentos negativos");
+                }
                 let subtotalGeneral = 0;
                 Detalles.forEach(detalle => {
                     subtotalGeneral += detalle.PrecioUnitario * detalle.Cantidad;
@@ -634,7 +654,7 @@
 
 
                     if (ganancia < producto.PorMinimo) {
-                       // bandera = false;
+                        // bandera = false;
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
@@ -2004,7 +2024,7 @@
                 <input hidden id="ProductosHijosInsertar" value="@JsonConvert.SerializeObject(Model.ProductosHijosInsertar)" />
                 <input hidden id="CB" value="@JsonConvert.SerializeObject(Model.CuentasBancarias)" />
                 <input hidden id="Exoneraciones" value="@JsonConvert.SerializeObject(Model.Exoneraciones.Exoneraciones)" />
-                <input hidden id="CondicionesPagos" value="@JsonConvert.SerializeObject(Model.Condiciones)" /> 
+                <input hidden id="CondicionesPagos" value="@JsonConvert.SerializeObject(Model.Condiciones)" />
                 <input hidden id="PorDescto" value="@JsonConvert.SerializeObject(Model.Factura.PorDesc)" />
 
 
@@ -2071,11 +2091,13 @@
 
                                         @foreach (var item in Model.Condiciones)
                                         {
-                                            @if(item.Nombre.ToUpper().Contains("Contado".ToUpper()))
+                                            @if (item.Nombre.ToUpper().Contains("Contado".ToUpper()))
                                             {
                                                 <option value="@item.id">@item.Nombre</option>
-                                                
-                                            }else if(item.codSAP == Model.Cliente.idCondPago){
+
+                                            }
+                                            else if (item.codSAP == Model.Cliente.idCondPago)
+                                            {
                                                 <option value="@item.id">@item.Nombre</option>
                                             }
                                         }
@@ -2278,9 +2300,9 @@
                                     </td>
                                     <td align="right">
                                         <span class="moneda" style="display: inline-block; vertical-align: middle;"></span>
-                                        <input class="form-control" type="number" size="5" style="width: 38%; display: inline-block; vertical-align: middle;" onchange="javascript: DeducirMontos()" id="TotalGeneral" />
+                                        <input class="form-control" type="number" size="5" style="width: 38%; display: inline-block; vertical-align: middle;" onfocus="javascript: onFocusDeducirMontos();" onchange="javascript: DeducirMontos()" id="TotalGeneral" />
 
-                                       @*  <strong class="text-dark" id="TotalGeneral"></strong> *@
+                                        @*  <strong class="text-dark" id="TotalGeneral"></strong> *@
                                     </td>
                                 </tr>
 

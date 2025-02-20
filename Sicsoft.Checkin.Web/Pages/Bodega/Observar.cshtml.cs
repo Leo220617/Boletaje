@@ -28,6 +28,8 @@ namespace Boletaje.Pages.Bodega
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login;
         private readonly ICrudApi<FacturasAprobadasViewModel, int> fa;
+        private readonly ICrudApi<SolicitudesComprasViewModel, int> sc;
+
 
         [BindProperty]
 
@@ -60,13 +62,16 @@ namespace Boletaje.Pages.Bodega
         public ActividadesViewModel[] Actividades { get; set; }
         [BindProperty]
         public UsuariosViewModel[] Usuarios { get; set; }
+
+        [BindProperty]
+        public SolicitudesComprasViewModel[] SolicitudesCompras { get; set; }
         [BindProperty]
         public string DocNumOfertaAprobada { get; set; }
 
 
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<ProductosHijosViewModel, int> prodHijos,
             ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<StatusViewModel, int> status, ICrudApi<ActividadesViewModel, int> actividades,
-            ICrudApi<UsuariosViewModel, int> login, ICrudApi<FacturasAprobadasViewModel, int> fa)
+            ICrudApi<UsuariosViewModel, int> login, ICrudApi<FacturasAprobadasViewModel, int> fa, ICrudApi<SolicitudesComprasViewModel, int> sc)
         {
             this.service = service;
             this.prods = prods;
@@ -79,6 +84,7 @@ namespace Boletaje.Pages.Bodega
             this.actividades = actividades; 
             this.login = login;
             this.fa = fa;
+            this.sc = sc;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -122,6 +128,12 @@ namespace Boletaje.Pages.Bodega
                 filtroOFerta.CardCode = Llamada.DocEntry.ToString();
                 var facApro = await fa.ObtenerListaEspecial(filtroOFerta);
                 DocNumOfertaAprobada = facApro.Oferta.FirstOrDefault() == null ? "" : facApro.Oferta.FirstOrDefault().DocNum;
+
+                ParametrosFiltros filtroSolicitudes = new ParametrosFiltros();
+                filtroSolicitudes.Codigo1 = BTS.id;
+                SolicitudesCompras = await sc.ObtenerLista(filtroSolicitudes);
+
+
                 return Page();
             }
             catch (Exception ex)

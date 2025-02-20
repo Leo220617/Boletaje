@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Boletaje.Models;
 using Castle.Core.Configuration;
 using ConectorEcommerce.Models;
 using InversionGloblalWeb.Models;
@@ -18,9 +19,12 @@ namespace ConectorEcommerce.Pages.Bitacora
     {
         private readonly IConfiguration configuration;
         private readonly ICrudApi<BitacoraViewModel, int> bitacora;
+     
+
 
         [BindProperty]
         public BitacoraViewModel[] Bitacora { get; set; }
+        
 
 
         [BindProperty(SupportsGet = true)]
@@ -29,7 +33,6 @@ namespace ConectorEcommerce.Pages.Bitacora
         public IndexModel(ICrudApi<BitacoraViewModel, int> bitacora)
         {
             this.bitacora = bitacora;
-
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -69,7 +72,7 @@ namespace ConectorEcommerce.Pages.Bitacora
 
 
                 Bitacora = await bitacora.ObtenerLista(filtro);
-
+                
 
 
                 return Page();

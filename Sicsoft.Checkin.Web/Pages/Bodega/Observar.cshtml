@@ -42,18 +42,7 @@
 
 }
 @section scripts {
-    @*    <script>
-        var btn = document.getElementById('Guardar');
-        function onGuardar() {
-            btn.disabled = true;
-            $("#formTipos").submit();
-            btn.disabled = false;
 
-        }
-    </script> *@
-
-
-    @*    <script type ="text/javascript" src="/js/Bodega/ObservarBodega.js"> </script> *@
     <script>
 
         var html = '';
@@ -77,10 +66,13 @@
         });
         var Detalle = [];
         var Encabezado = [];
+        var SolicitudesC = [];
         function Recuperar() {
             try {
                 var det = JSON.parse($("#Detalle").val());
                 Encabezado = JSON.parse($("#BTS").val());
+                SolicitudesC = JSON.parse($("#SC").val());
+
 
 
 
@@ -95,13 +87,17 @@
                         Cantidad: det[i].Cantidad,
                         ItemCode: det[i].ItemCode,
                         CantidadEnviar: det[i].CantidadEnviar,
-                        CantidadFaltante: det[i].CantidadFaltante
+                        CantidadFaltante: det[i].CantidadFaltante,
+                        SolicitudCompra: det[i].SolicitudCompra,
+                        SolicitudProcesada: det[i].SolicitudProcesada
+
 
 
                     }
                     Detalle.push(detalle);
                     onChangeRevisado(i, true);
                     $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante);
+                    detalle.SolicitudCompra ? $("#md_checkbox_Soli_" + i).prop('checked', true) : $("#md_checkbox_Soli_" + i).prop('checked', false);
                 }
 
 
@@ -162,14 +158,14 @@
                     Detalle[i].Enviar = valorCheck;
                     if (valorCheck == true) {
                         Detalle[i].CantidadEnviar = parseFloat(Detalle[i].CantidadFaltante);
-                       // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
+                        // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
                         $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
 
                         $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
 
                     } else {
                         Detalle[i].CantidadEnviar = 0;
-                       // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
+                        // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
                         $("#cantidadEnviado_" + i).val(Detalle[i].CantidadEnviar);
 
                         $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
@@ -189,19 +185,54 @@
             }
 
         }
+        function onChangeSolicitud(i) {
+            try {
+
+
+
+
+                var valorCheck = $("#md_checkbox_Soli_" + i).prop('checked');
+                if (valorCheck == true) {
+                    if (Detalle[i].SolicitudProcesada) {
+                        throw new Error("Este articulo ya fue procesada en una solicitud de compra previamente");
+                    } else {
+
+                        Detalle[i].SolicitudCompra = true;
+                    }
+
+
+                } else {
+                    Detalle[i].SolicitudCompra = false;
+
+                }
+
+
+
+
+
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: e
+
+                });
+            }
+
+        }
         function onChangeCantidadEnviar(i) {
             try {
 
                 if (Detalle[i].CantidadFaltante >= parseFloat($("#cantidadEnviado_" + i).val())) {
                     Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
-                  //  Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
+                    //  Detalle[i].CantidadFaltante = parseFloat(Detalle[i].CantidadFaltante) - Detalle[i].CantidadEnviar;
 
                     $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
                 } else {
                     var cantidad = parseFloat($("#cantidadEnviado_" + i).val());
                     $("#cantidadEnviado_" + i).val(0);
                     Detalle[i].CantidadEnviar = parseFloat($("#cantidadEnviado_" + i).val());
-                   // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
+                    // Detalle[i].CantidadFaltante = parseFloat(Detalle[i].Cantidad) - Detalle[i].CantidadEnviar;
 
 
                     $("#cantidadFaltante_" + i).val(Detalle[i].CantidadFaltante - Detalle[i].CantidadEnviar);
@@ -336,7 +367,43 @@
             }
         }
 
+        function AbrirModalSC(id) {
+            try {
+                var Solicitud = SolicitudesC.find(a => a.id == id);
+                if (Solicitud != undefined) {
+                    $('#solicitudId').val(Solicitud.id);
+                    $('#proveedor').val(Solicitud.CardCode);
+                    $('#fechaSolicitud').val(Solicitud.Fecha);
+                    $('#fechaEntrega').val(Solicitud.DocNum);
 
+                    // Limpiar la tabla antes de agregar nuevas filas
+                    $('#articulosTabla tbody').empty();
+
+                    // Agregar las filas de artículos a la tabla
+                    Solicitud.Detalle.forEach(function (articulo) {
+                        var fila = `<tr>
+                                                                <td>${articulo.ItemCode}</td>
+                                                                <td>${articulo.Cantidad}</td>
+
+                                                    </tr>`;
+                        $('#articulosTabla tbody').append(fila);
+                    });
+
+
+                    $('#solicitudModal').modal('show');
+                    $('.modal-backdrop').remove();
+                } else {
+                    throw new Error("No se encuentra la solicitud");
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: e
+
+                });
+            }
+        }
 
 
 
@@ -584,6 +651,8 @@
     <input type="text" class="form-control form-control-lg" id="id" asp-for="BTS.id" hidden>
     <input hidden id="Detalle" value="@JsonConvert.SerializeObject(Model.BTS.Detalle)" />
     <input hidden id="BTS" value="@JsonConvert.SerializeObject(Model.BTS)" />
+    <input hidden id="SC" value="@JsonConvert.SerializeObject(Model.SolicitudesCompras)" />
+
 
     <div class="row ">
         <div class="col-md-12">
@@ -624,7 +693,7 @@
                             <div class="form-group">
                                 <label>Status</label>
 
-                                @if(Model.BTS.Status != "1")
+                                @if (Model.BTS.Status != "1")
                                 {
                                     <select id="status" class="form-control" asp-for="BTS.Status">
 
@@ -641,7 +710,8 @@
 
 
                                     </select>
-                                }else
+                                }
+                                else
                                 {
                                     <select id="status" class="form-control" asp-for="BTS.Status" readonly disabled>
 
@@ -659,7 +729,7 @@
 
                                     </select>
                                 }
-                                
+
 
 
 
@@ -764,7 +834,7 @@
                                 <label>Estado de la Llamada:</label>
                                 <select id="statusLlamada" class="form-control" asp-for="InputLlamada.Status" required>
                                     <option value="0">Seleccione</option>
-                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "7" || a.idSAP == "10" ||  a.idSAP == "56"))
+                                    @foreach (var item in Model.Status.Where(a => a.idSAP == "7" || a.idSAP == "10" || a.idSAP == "56"))
                                     {
                                         <option value="@item.idSAP">@item.Nombre</option>
                                     }
@@ -806,6 +876,8 @@
                                     <th>Cantidad Faltante</th>
 
                                     <th>Enviar Todo</th>
+                                    <th>Solicitud Compra</th>
+                                    <th>Solicitud</th>
 
 
 
@@ -845,6 +917,30 @@
                                             <label for="md_checkbox_@i"></label>
 
                                         </td>
+                                        <td style="text-align: center">
+                                            @if (Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode) != null).FirstOrDefault() != null)
+                                            {
+                                                <input type="checkbox" id="md_checkbox_Soli_@i" class="chk-col-green" onchange="javascript: onChangeSolicitud('@i', false)" disabled>
+
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" id="md_checkbox_Soli_@i" class="chk-col-green" onchange="javascript: onChangeSolicitud('@i', false)">
+
+                                            }
+                                            <label for="md_checkbox_Soli_@i"></label>
+
+                                        </td>
+                                        <td>
+
+                                            @if (Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode) != null).FirstOrDefault() != null)
+                                            {
+
+                                                <a href="javascript:void(0);" onclick="javascript: AbrirModalSC('@Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode) != null).FirstOrDefault().id');" id="openModalButton">
+                                                    <i class="fas fa-info-circle" style="font-size: 30px; color: #007bff;"></i>
+                                                </a>
+                                            }
+                                        </td>
                                     </tr>
                                     i++;
                                 }
@@ -863,6 +959,8 @@
                                     <th>Cantidad Faltante</th>
 
                                     <th>Enviar Todo</th>
+                                    <th>Solicitud Compra</th>
+                                    <th>Solicitud</th>
 
                                 </tr>
                             </tfoot>
@@ -1027,7 +1125,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label> Detalle:</label>
-                                <textarea class="form-control form-control-lg" id="DetalleActividad"></textarea> 
+                                <textarea class="form-control form-control-lg" id="DetalleActividad"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1044,11 +1142,61 @@
 
 
     <button type="button" onclick="javascript: ImprimirPantalla()" class="btn btn-rounded btn-outline-brand"> Imprimir</button> &nbsp;
-    
-        <button type="button" id="Guardar" onclick="javascript: Generar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
 
-  
+    <button type="button" id="Guardar" onclick="javascript: Generar();" class="btn btn-rounded btn-outline-success">Guardar Cambios</button>
+
+
 </form>
+
+<!-- Modal -->
+<div class="modal" id="solicitudModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="solicitudModalLabel">Detalles de la Solicitud de Compra</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Información de la solicitud de compra -->
+                <div class="form-group">
+                    <label for="solicitudId">ID de la Solicitud:</label>
+                    <input type="text" class="form-control" id="solicitudId" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="proveedor">Proveedor:</label>
+                    <input type="text" class="form-control" id="proveedor" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="fechaSolicitud">Fecha de la Solicitud:</label>
+                    <input type="text" class="form-control" id="fechaSolicitud" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="fechaEntrega">Consecutivo SAP:</label>
+                    <input type="text" class="form-control" id="fechaEntrega" readonly>
+                </div>
+
+                <!-- Tabla con los artículos de la solicitud -->
+                <table class="table table-bordered" id="articulosTabla">
+                    <thead>
+                        <tr>
+                            <th>Código de Artículo</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyModalSC">
+
+                        <!-- Puedes agregar más filas aquí según la solicitud -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!--HTML PARA IMPRIMIR-->
@@ -1115,7 +1263,7 @@
 
                         </div>
 
-                       
+
                         <div class="col-md-4 pr-1">
 
                             <div class="form-group">
@@ -1136,7 +1284,7 @@
 
 
                         </div>
-                      
+
                         <div class="col-md-4 pr-1">
 
                             <div class="form-group">
@@ -1210,7 +1358,8 @@
                                     <th>Ubicación</th>
 
                                     <th>Cantidad Faltante</th>
-                                    <th>Stock</th> 
+                                    <th>Stock</th>
+
 
                                 </tr>
                             </thead>
@@ -1228,9 +1377,9 @@
                                         }
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Localizacion)</td>
 
-                                        <td>@item.CantidadFaltante.ToString("N",formato)</td>
+                                        <td>@item.CantidadFaltante.ToString("N", formato)</td>
                                         <td>@(Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault() == null ? "0" : Model.ProductosHijos.Where(a => a.codSAP == itemCode).FirstOrDefault().Stock.ToString("N", formato))</td>
-                                         
+
                                     </tr>
                                 }
 
@@ -1243,7 +1392,7 @@
                                     <th>Cantidad</th>
                                     <th>Ubicación</th>
                                     <th>Cantidad Faltante</th>
-                                    <th>Stock</th> 
+                                    <th>Stock</th>
                                 </tr>
                             </tfoot>
                         </table>

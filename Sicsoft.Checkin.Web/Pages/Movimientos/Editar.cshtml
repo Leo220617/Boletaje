@@ -73,6 +73,8 @@
         var TipoCambio = [];
         var Exoneraciones = [];
         var TotalDeseadoGlobal = 0;
+        var TotalAntiguo = 0;
+
         function RecuperarTipoCambio() {
 
             try {
@@ -599,10 +601,27 @@
             }
             
         }
+        function onFocusDeducirMontos() {
+            try {
+                TotalAntiguo = parseFloat($("#TotalGeneral").val());
 
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+        }
         function DeducirMontos() {
             try {
                 TotalDeseadoGlobal = parseFloat($("#TotalGeneral").val());
+                if (parseFloat($("#SubtotalGeneral").text()) + parseFloat($("#ImpGeneral").text()) < TotalDeseadoGlobal) {
+                    $("#TotalGeneral").val(TotalAntiguo);
+                    TotalAntiguo = 0;
+                    throw new Error("El total deseado no debe ser mayor al total anterior, ya que produce descuentos negativos");
+                }
                 let subtotalGeneral = 0;
                 Detalles.forEach(detalle => {
                     subtotalGeneral += detalle.PrecioUnitario * detalle.Cantidad;
@@ -2405,7 +2424,7 @@
                                     </td>
                                     <td align="right">
                                         <span class="moneda" style="display: inline-block; vertical-align: middle;"></span>
-                                        <input class="form-control" type="number" size="5" style="width: 38%; display: inline-block; vertical-align: middle;" onchange="javascript: DeducirMontos()" id="TotalGeneral" />
+                                        <input class="form-control" type="number" size="5" style="width: 38%; display: inline-block; vertical-align: middle;" onfocus="javascript: onFocusDeducirMontos();" onchange="javascript: DeducirMontos()" id="TotalGeneral" />
                                         @*  <strong class="text-dark" id="TotalGeneral"></strong> *@
                                     </td>
                                 </tr>
