@@ -918,7 +918,7 @@
 
                                         </td>
                                         <td style="text-align: center">
-                                            @if (Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode) != null).FirstOrDefault() != null)
+                                            @if (Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode).FirstOrDefault() != null).FirstOrDefault() != null)
                                             {
                                                 <input type="checkbox" id="md_checkbox_Soli_@i" class="chk-col-green" onchange="javascript: onChangeSolicitud('@i', false)" disabled>
 
@@ -933,10 +933,10 @@
                                         </td>
                                         <td>
 
-                                            @if (Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode) != null).FirstOrDefault() != null)
+                                            @if (Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode).FirstOrDefault() != null).FirstOrDefault() != null)
                                             {
 
-                                                <a href="javascript:void(0);" onclick="javascript: AbrirModalSC('@Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode) != null).FirstOrDefault().id');" id="openModalButton">
+                                                <a href="javascript:void(0);" onclick="javascript: AbrirModalSC('@Model.SolicitudesCompras.Where(a => a.Detalle.Where(x => x.ItemCode == itemCode).FirstOrDefault() != null).FirstOrDefault().id');" id="openModalButton">
                                                     <i class="fas fa-info-circle" style="font-size: 30px; color: #007bff;"></i>
                                                 </a>
                                             }
