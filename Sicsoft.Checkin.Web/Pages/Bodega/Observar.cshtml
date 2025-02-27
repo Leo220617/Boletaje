@@ -874,7 +874,7 @@
                                     <th>Ubicación</th>
                                     <th>Cantidad Enviar</th>
                                     <th>Cantidad Faltante</th>
-
+                                    <th>Cantidad Enviado</th>
                                     <th>Enviar Todo</th>
                                     <th>Solicitud Compra</th>
                                     <th>Solicitud</th>
@@ -911,6 +911,14 @@
                                         </td>
                                         <td>
                                             <input class="form-control form-control-lg" type="number" value="@item.CantidadFaltante" id="cantidadFaltante_@i" readonly disabled />
+                                        </td>
+                                        @{
+                                            var CantidadEnviado = 0.0m;
+
+                                           CantidadEnviado = Model.BTSHistorico.Sum(a => a.Detalle.Where(c => c.idProducto == item.idProducto).Sum(c => c.Cantidad - c.CantidadFaltante));
+                                        }
+                                        <td>
+                                            <input class="form-control form-control-lg" type="text" value="@CantidadEnviado.ToString()" id="cantidadEnviado_@i" readonly disabled />
                                         </td>
                                         <td style="text-align: center">
                                             <input type="checkbox" id="md_checkbox_@i" class="chk-col-green" onchange="javascript: onChangeRevisado('@i', false)">
@@ -957,7 +965,7 @@
                                     <th>Ubicación</th>
                                     <th>Cantidad Enviar</th>
                                     <th>Cantidad Faltante</th>
-
+                                    <th>Cantidad Enviado</th>
                                     <th>Enviar Todo</th>
                                     <th>Solicitud Compra</th>
                                     <th>Solicitud</th>

@@ -8,6 +8,7 @@ using Castle.Core.Configuration;
 using InversionGloblalWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
@@ -68,6 +69,8 @@ namespace Boletaje.Pages.Bodega
         [BindProperty]
         public string DocNumOfertaAprobada { get; set; }
 
+        [BindProperty]
+        public BitacoraMovimientosViewModel[] BTSHistorico { get; set; }
 
         public ObservarModel(ICrudApi<EncReparacionViewModel, int> service, ICrudApi<ProductosViewModel, int> prods, ICrudApi<TecnicosViewModel, int> serviceT, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<ProductosHijosViewModel, int> prodHijos,
             ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> llamada, ICrudApi<StatusViewModel, int> status, ICrudApi<ActividadesViewModel, int> actividades,
@@ -133,6 +136,11 @@ namespace Boletaje.Pages.Bodega
                 filtroSolicitudes.Codigo1 = BTS.id;
                 SolicitudesCompras = await sc.ObtenerLista(filtroSolicitudes);
 
+                ParametrosFiltros filtroHistoricos = new ParametrosFiltros();
+                filtroHistoricos.CardCode = Llamada.DocEntry.ToString();
+                BTSHistorico = await bt.ObtenerLista(filtroHistoricos);
+
+
 
                 return Page();
             }
@@ -146,6 +154,10 @@ namespace Boletaje.Pages.Bodega
         {
             try
             {
+                if(BTS.Status == "1" && BTS.Detalle.Where(a => a.CantidadEnviar > 0 || a.CantidadFaltante < 1).Count() < 1)
+                {
+                    throw new Exception("No se puede poner Entregado al tecnico sin enviar repuestos");
+                }
                 await bt.Agregar(BTS);
 
 
@@ -197,7 +209,10 @@ namespace Boletaje.Pages.Bodega
 
             try
             {
-
+                if (recibidos.Status == "1" && recibidos.Detalle.Where(a => a.CantidadEnviar > 0 || a.CantidadFaltante < 1).Count() < 1)
+                {
+                    throw new Exception("No se puede poner Entregado al tecnico sin enviar repuestos");
+                }
 
                 var resp = await bt.Agregar(recibidos);
                 try
