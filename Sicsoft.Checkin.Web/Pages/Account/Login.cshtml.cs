@@ -66,7 +66,10 @@ namespace Sicsoft.Checkin.Web
                 identity.AddClaim(new Claim("PIN", resultado.PIN));
                 identity.AddClaim(new Claim("idTecnico", resultado.idTecnico));
                 identity.AddClaim(new Claim("Sucursal", resultado.idSucursal.ToString()));
-
+                //Agregar Claims de tiempo de autenticación
+                var expirationTime = DateTimeOffset.UtcNow.AddMinutes(90000); // Expira en 30 minutos
+                identity.AddClaim(new Claim("auth_time", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()));
+                identity.AddClaim(new Claim("exp", expirationTime.ToUnixTimeSeconds().ToString()));
 
 
                 var principal = new ClaimsPrincipal(identity);

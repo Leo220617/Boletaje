@@ -43,7 +43,7 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" />
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <link rel="stylesheet" href="~/css/assets/vendor/fonts/circular-std/style.css" />
     <link rel="stylesheet" href="~/css/assets/vendor/datatables/css/dataTables.bootstrap4.css" />
@@ -64,7 +64,37 @@
 
     <link rel="icon" href="~/img/icon.png" type="image/png" />
 
+    <script>
 
+        let logoutWarningShown = false;
+
+        function checkSession() {
+            fetch('@Url.Page("/Index", "Sesion")')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "active") {
+                        const expirationTime = new Date(data.expiresAt).getTime();
+                        const currentTime = new Date().getTime();
+                        const timeLeft = expirationTime - currentTime;
+
+                        if (timeLeft <= 5 * 60 * 1000 && !logoutWarningShown) {
+                            // Muestra advertencia 5 minutos antes
+                            alert("Tu sesión está por expirar. Guarda tu trabajo o renueva tu sesión.");
+                            logoutWarningShown = true;
+                        }
+
+                    } else {
+                        // Si la sesión expiró, redirige
+                        alert("Tu sesión ha expirado. Serás redirigido al inicio de sesión.");
+                        window.location.href = '/Account/Login';
+                    }
+                })
+                .catch(error => console.error('Error verificando la sesión:', error));
+        }
+
+        // Verifica la sesión cada 30 segundos
+        setInterval(checkSession, 30000);
+    </script>
 </head>
 
 @*<div class="col-md-3 left_col">

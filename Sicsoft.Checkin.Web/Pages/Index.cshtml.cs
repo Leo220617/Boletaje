@@ -67,5 +67,48 @@ namespace Sicsoft.Checkin.Web.Pages
                 return Page();
             }
         }
+
+        //Obtiene el tiempo en sesion
+        public async Task<IActionResult> OnGetSesion()
+        {
+            try
+            {
+
+
+                var authTime = User.Claims.FirstOrDefault(c => c.Type == "auth_time")?.Value;
+                var expTime = User.Claims.FirstOrDefault(c => c.Type == "exp")?.Value;
+
+                if (string.IsNullOrEmpty(expTime) || !User.Identity.IsAuthenticated)
+                {
+                    var objeto2 =
+                   new { status = "Inactive", expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expTime)) }; // Si la sesión expiró, devuelve 401
+                    return new JsonResult(objeto2);
+
+                }
+
+                var expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expTime));
+
+
+                var objeto =
+                    new { status = "active", expiresAt = expiration };
+
+
+                return new JsonResult(objeto);
+            }
+            catch (ApiException ex)
+            {
+
+
+
+                return new JsonResult(ex.Content.ToString());
+            }
+            catch (Exception ex)
+            {
+
+
+
+                return new JsonResult(ex.Message.ToString());
+            }
+        }
     }
 }
