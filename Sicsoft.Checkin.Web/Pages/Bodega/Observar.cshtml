@@ -129,8 +129,8 @@
                     padding: 0,
                     filename: 'Movimientos.pdf',
                     image: { type: 'jpeg', quality: 1 },
-                    html2canvas: { scale: 2, logging: true },
-                    jsPDF: { unit: 'in', format: 'A2', orientation: 'P' },
+                    html2canvas: { scale: 3, logging: true },
+                    jsPDF: { unit: 'in', format: 'A3', orientation: 'P' },
                     class: ImprimirPantalla
                 });
 
@@ -1329,6 +1329,17 @@
                             <div class="form-group">
                                 <label>Oferta Aprobada</label>
                                 <input type="text" class="form-control form-control-lg" id="oAprobada" asp-for="DocNumOfertaAprobada" readonly>
+
+                            </div>
+
+
+                        </div>
+
+                        <div class="col-md-4 pr-1">
+
+                            <div class="form-group">
+                                <label>Solicitud</label>
+                                <input type="text" class="form-control form-control-lg"  readonly>
 
                             </div>
 
