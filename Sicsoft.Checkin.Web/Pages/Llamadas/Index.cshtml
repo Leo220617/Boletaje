@@ -462,7 +462,7 @@
 
                                 <th>Status</th>
                                 <th>Tipo de Caso</th>
-
+                                <th>Fecha Creación</th>
                                 <th>Lugar Reparación</th>
                                 <th>PIN</th>
                                 <th>Factura Revisión</th>
@@ -495,7 +495,7 @@
 
                                     <td>@(Model.Status.Where(a => a.idSAP == status).FirstOrDefault() == null ? "" : Model.Status.Where(a => a.idSAP == status).FirstOrDefault().Nombre) </td>
                                     <td>@(Model.TipoCaso.Where(a => a.idSAP == tp).FirstOrDefault() == null ? "" : Model.TipoCaso.Where(a => a.idSAP == tp).FirstOrDefault().Nombre) </td>
-
+                                    <td> @item.FechaCreacion.ToString("dd/MM/yyyy") </td>
                                     <td>@(item.LugarReparacion == 1 ? "Taller" : "Visita")</td>
 
                                     @if (item.PIN)
@@ -557,6 +557,7 @@
                                 <th>Sucursal</th>
                                 <th>Status</th>
                                 <th>Tipo de Caso</th>
+                                <th>Fecha Creación</th>
 
                                 <th>Lugar Reparación</th>
                                 <th>PIN</th>

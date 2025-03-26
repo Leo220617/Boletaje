@@ -25,6 +25,7 @@ namespace Boletaje.Models
         public string ItemCode { get; set; }
         public string SerieFacturar { get; set; }
         public decimal Redondeo { get; set; }
+        public string OC { get; set; }
         public DetFacturasViewModel[] Detalle { get; set; }
         public MetodosPagosViewModel[] Metodos { get; set; }
 

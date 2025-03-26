@@ -33,6 +33,7 @@ namespace Boletaje.Models
         public string ItemCode { get; set; }
         public string Serie { get; set; }
         public decimal Redondeo { get; set; }
+        public string OC { get; set; } 
         public EncMovimientoViewModel Entrega { get; set; }
         public DetFacturasViewModel[] DetFactura { get; set; }
         public MetodosPagosViewModel[] MetodosPagos { get; set; }

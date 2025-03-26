@@ -89,11 +89,50 @@
         var Exoneraciones = [];
         var CondicionesPagos = [];
         var ModificarProductos = '@(!string.IsNullOrEmpty(Roles.Where(a => a == "78").FirstOrDefault()))';
+        var ErrorValidacion = "";
 
         function RecuperarTipoCambio() {
 
             try {
                 fetch('https://apis.gometa.org/tdc/tdc.json?fbclid=IwAR1Wfr6SFwV8_0-x9n5JrjMmNTkOcUIWdekp1Sc6sFpTnIuP29ok-aVuQWI')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json(); // Parsea la respuesta como JSON
+                    })
+                    .then(data => {
+                        // Maneja los datos obtenidos
+                        console.log(data);
+                        var det = {
+                            Moneda: "USD",
+                            TipoCambio: parseFloat(data.venta)
+                        }
+                        TipoCambio.push(det);
+                    })
+                    .catch(error => {
+                        // Maneja errores
+
+
+                        console.error('Fetch error:', error);
+                    });
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ha ocurrido un error  ' + e
+
+                })
+            }
+
+        }
+        function RecuperarTipoCambio2() {
+            try {
+                const today = new Date();
+                const formattedDate = today.toLocaleDateString('es-CR'); // Formato de Costa Rica
+                console.log(formattedDate);
+                var url = "https://tipodecambio.paginasweb.cr/api//" + formattedDate;
+                fetch(url)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -121,7 +160,6 @@
 
                 })
             }
-
         }
 
         function Recuperar() {
@@ -501,7 +539,7 @@
         function Validar(recibido) {
             try {
                 var bandera = true;
-
+                 ErrorValidacion = "";
                 if (recibido.Correo == "") {
                     bandera = false;
                 } else {
@@ -512,12 +550,13 @@
                             text: 'Correo invalido '
 
                         });
-
+                         ErrorValidacion = "Correo invalido";
                         bandera = false;
                     }
                 }
                 if (recibido.Cedula == "") {
                     bandera = false;
+                     ErrorValidacion = "Cedula vacia";
                 }
                 var CondicionActual = recibido.idCondicionVenta;
                 var Cond = CondicionesPagos.find(a => a.id == CondicionActual);
@@ -525,6 +564,7 @@
                 {
                     if (recibido.Metodos.length == 0 && Cond.Dias == 0) {
                         bandera = false;
+                        ErrorValidacion = "Falta rellenar los metodos de pago";
                     }
                 }
                 
@@ -557,6 +597,8 @@
                             text: 'Los margenes de ganancia no son correcto, favor verificar '
 
                         });
+                        ErrorValidacion = "Los margenes de ganancia no son correcto, favor verificar";
+
                     }
 
 
@@ -704,6 +746,7 @@
                     ItemCode: "@Model.ItemCodeFacturar",
                     SerieFacturar: "@Model.SerieFacturar",
                     Redondeo: $("#RedondeoGeneral").text(),
+                    OC: $("#OrdenCompra").val(),
                     Detalle: DetFactura,
                     Metodos: MetodosPagosAbonos
 
@@ -2021,6 +2064,13 @@
                                         }
 
                                     </select>
+
+                                </div>
+                            </div>
+                               <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Orden de Compra:</label>
+                                    <input id="OrdenCompra" asp-for="Factura.OC" class="form-control" type="text" maxlength="50" />
 
                                 </div>
                             </div>

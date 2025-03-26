@@ -45,7 +45,7 @@ namespace Boletaje.Models
         public int? SucRetiro { get; set; }
 
         public string Comentarios { get; set; }
-
+        public DateTime FechaCreacion { get; set; }
         public int? TratadoPor { get; set; }
 
         public int? Garantia { get; set; }

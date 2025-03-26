@@ -254,6 +254,7 @@ namespace Boletaje.Pages.Llamadas
                 coleccion.ItemCode = recibido.ItemCode;
                 coleccion.Serie = recibido.SerieFacturar;
                 coleccion.Redondeo = recibido.Redondeo;
+                coleccion.OC = recibido.OC; 
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)
                 {

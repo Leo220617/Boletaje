@@ -230,6 +230,7 @@ namespace Boletaje.Pages.EntregasFacturar
                 coleccion.PorDesc = recibido.PorDesc;
                 coleccion.idSucursal = Convert.ToInt32(((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Sucursal").Select(s1 => s1.Value).FirstOrDefault());
                 coleccion.Redondeo = recibido.Redondeo;
+                coleccion.OC = recibido.OC;
                 short cantidad = 1;
                 foreach (var item in recibido.Detalle)
                 {
