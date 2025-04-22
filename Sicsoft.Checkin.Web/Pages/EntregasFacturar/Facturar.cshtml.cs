@@ -29,6 +29,8 @@ namespace Boletaje.Pages.EntregasFacturar
         private readonly ICrudApi<ProductosHijosViewModel, int> service2;
         private readonly ICrudApi<CuentasBancariasViewModel, int> cuentasB;
         private readonly ICrudApi<ExoneracionesViewModel, int> exonera;
+        private readonly ICrudApi<TipoCambiosViewModel, int> TP;
+
 
 
 
@@ -69,9 +71,12 @@ namespace Boletaje.Pages.EntregasFacturar
         [BindProperty]
         public CuentasBancariasViewModel[] CuentasBancarias { get; set; }
 
+        [BindProperty]
+        public decimal TC { get; set; }
+
         public FacturarModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<PlazosCreditosViewModel, int> plazos,
             ICrudApi<EncMovimientoViewModel, int> movimientos, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<CuentasBancariasViewModel, int> cuentasB, ICrudApi<ExoneracionesViewModel, int> exonera
-            )
+            , ICrudApi<TipoCambiosViewModel, int> TP)
         {
             this.service = service;
             this.impuestos = impuestos;
@@ -82,6 +87,7 @@ namespace Boletaje.Pages.EntregasFacturar
             this.service2 = service2;
             this.cuentasB = cuentasB;
             this.exonera = exonera;
+            this.TP = TP;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -93,6 +99,10 @@ namespace Boletaje.Pages.EntregasFacturar
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                ParametrosFiltros filtroTC = new ParametrosFiltros();
+                filtroTC.FechaInicial = DateTime.Now.Date;
+                var TC1 = await TP.ObtenerLista(filtroTC);
+                TC = TC1.FirstOrDefault() == null ? 0 : TC1.FirstOrDefault().TipoCambio;
                 Movimientos = await movimientos.ObtenerPorId(id);
                 Clientes = await clientes.ObtenerListaEspecial("");
                 PlazosCreditos = await plazos.ObtenerLista("");

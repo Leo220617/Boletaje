@@ -31,6 +31,7 @@ namespace Boletaje.Pages.Llamadas
         private readonly ICrudApi<ProductosFacturacionInicialViewModel, int> prodInicio;
         private readonly ICrudApi<ProductosGarantiasViewModel, int> prodHoras;
         private readonly ICrudApi<LlamadasFacturasViewModel, int> llamadaFac;
+        private readonly ICrudApi<TipoCambiosViewModel, int> TP;
 
 
 
@@ -85,11 +86,12 @@ namespace Boletaje.Pages.Llamadas
 
         [BindProperty]
         public string SerieFacturar { get; set; }
-
+        [BindProperty]
+        public decimal TC { get; set; }
         public FacturarModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<PlazosCreditosViewModel, int> plazos,
             ICrudApi<EncMovimientoViewModel, int> movimientos, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<CuentasBancariasViewModel, int> cuentasB, ICrudApi<ExoneracionesViewModel, int> exonera,
             ICrudApi<ProductosFacturacionInicialViewModel, int> prodInicio, ICrudApi<ProductosGarantiasViewModel, int> prodHoras, ICrudApi<LlamadasFacturasViewModel, int> llamadaFac
-            )
+            , ICrudApi<TipoCambiosViewModel, int> TP)
         {
             this.service = service;
             this.impuestos = impuestos;
@@ -103,6 +105,8 @@ namespace Boletaje.Pages.Llamadas
             this.prodInicio = prodInicio;
             this.prodHoras = prodHoras;
             this.llamadaFac = llamadaFac;
+            this.TP = TP;
+
         }
 
         public async Task<IActionResult> OnGetAsync(string id )
@@ -117,6 +121,10 @@ namespace Boletaje.Pages.Llamadas
                 var CardCode = id.Split("|")[1].TrimStart().TrimEnd();
                 var ItemCode = id.Split("|")[0].TrimEnd();
                 var Serie = id.Split("|")[2].TrimStart().TrimEnd();
+                ParametrosFiltros filtroTC = new ParametrosFiltros();
+                filtroTC.FechaInicial = DateTime.Now.Date;
+                var TC1 = await TP.ObtenerLista(filtroTC);
+                TC = TC1.FirstOrDefault() == null ? 0 : TC1.FirstOrDefault().TipoCambio;
                 SerieFacturar = Serie;
                 ItemCodeFacturar = ItemCode;
                 Clientes = await clientes.ObtenerListaEspecial("");

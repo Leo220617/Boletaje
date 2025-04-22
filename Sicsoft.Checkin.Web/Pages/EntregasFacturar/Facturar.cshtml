@@ -69,7 +69,7 @@
                 $(document).ready(function () {
                 });
             });
-            RecuperarTipoCambio();
+           // RecuperarTipoCambio();
             Recuperar();
             //selectOpcional();
 
@@ -90,6 +90,10 @@
         var ModificarProductos = '@(!string.IsNullOrEmpty(Roles.Where(a => a == "78").FirstOrDefault()))';
         var TotalAntiguo = 0;
         var ErrorValidacion = "";
+        var TC = 0;
+
+        
+
         function RecuperarTipoCambio() {
 
             try {
@@ -171,6 +175,12 @@
                 CB = JSON.parse($("#CB").val());
                 Exoneraciones = JSON.parse($("#Exoneraciones").val());
                 CondicionesPagos = JSON.parse($("#CondicionesPagos").val());
+                TC = parseFloat("@Model.TC");
+                var det = {
+                    Moneda: "USD",
+                    TipoCambio: parseFloat(TC)
+                }
+                TipoCambio.push(det);
                 for (var i = 0; i < ProductosHijos.length; i++) {
                     if (ProductosHijos[i] != undefined) {
                         if (ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)) > 0) {

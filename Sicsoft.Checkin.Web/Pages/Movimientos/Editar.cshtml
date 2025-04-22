@@ -124,7 +124,7 @@
         }
         function Recuperar() {
             try {
-              
+
                 $("#descGeneral").val(parseFloat(JSON.parse($("#PorDescto").val())));
                 var detalles = JSON.parse($("#Detalle").val());
                 ManoObra = JSON.parse($("#ManoObra").val());
@@ -567,31 +567,33 @@
         }
 
         function calcularTotalConDescuento(descuento, subtotalGeneral) {
-            try
-            {
+            try {
                 let total = 0;
                 Detalles.forEach(detalle => {
-                    const subtotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) -
-                        descuento * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
-                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
-                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
-                    var calculoIMP = IMP.Tarifa;
-                    const impuestosLinea = subtotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA por línea
-                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
-                    if (EX != undefined) {
-                        if ((13 - EX.Prcnt) < calculoIMP) {
-                            var ValorExonerado = (EX.Prcnt / 100);
-                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
-                            impuestosLinea -= TarifaExonerado;
+                    if(!detalle.Garantia)
+                    {
+                        const subtotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) -
+                            descuento * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                        var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                        var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                        var calculoIMP = IMP.Tarifa;
+                        const impuestosLinea = subtotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA por línea
+                        var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                        if (EX != undefined) {
+                            if ((13 - EX.Prcnt) < calculoIMP) {
+                                var ValorExonerado = (EX.Prcnt / 100);
+                                var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                                impuestosLinea -= TarifaExonerado;
 
+                            }
                         }
-                    }
 
-                    total += subtotalLinea + impuestosLinea;
+                        total += subtotalLinea + impuestosLinea;
+                    }
+                    
                 });
                 return total;
-            }catch(e)
-            {
+            } catch (e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -599,7 +601,7 @@
 
                 })
             }
-            
+
         }
         function onFocusDeducirMontos() {
             try {
@@ -623,8 +625,12 @@
                     throw new Error("El total deseado no debe ser mayor al total anterior, ya que produce descuentos negativos");
                 }
                 let subtotalGeneral = 0;
+                let sumatoriaImp = 0;
                 Detalles.forEach(detalle => {
-                    subtotalGeneral += detalle.PrecioUnitario * detalle.Cantidad;
+                    if (!detalle.Garantia) {
+                        subtotalGeneral += detalle.PrecioUnitario * detalle.Cantidad;
+
+                    }
                 });
 
                 // Buscar el descuento necesario
@@ -648,32 +654,36 @@
 
                 // Actualizar los detalles con el descuento calculado
                 Detalles.forEach(detalle => {
-                    const descuentoProporcional = descuentoNecesario * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
-                    detalle.Descuento = descuentoProporcional;
-                    detalle.TotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) - descuentoProporcional;
-                    var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
-                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
-                    var calculoIMP = IMP.Tarifa;
-                    detalle.Impuestos = detalle.TotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA
+                    if(detalle.Garantia == false)
+                    {
+                        const descuentoProporcional = descuentoNecesario * (detalle.PrecioUnitario * detalle.Cantidad / subtotalGeneral);
+                        detalle.Descuento = descuentoProporcional;
+                        detalle.TotalLinea = (detalle.PrecioUnitario * detalle.Cantidad) - descuentoProporcional;
+                        var idImpuesto = ImpuestosS.find(a => a.id == detalle.idImpuesto);
+                        var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                        var calculoIMP = IMP.Tarifa;
+                        detalle.Impuestos = detalle.TotalLinea * (idImpuesto.Tarifa / 100); // 13% de IVA
 
-                    var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
-                    if (EX != undefined) {
-                        if ((13 - EX.Prcnt) < calculoIMP) {
-                            var ValorExonerado = (EX.Prcnt / 100);
-                            var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
-                            detalle.Impuestos -= TarifaExonerado;
+                        var EX = Exoneraciones.find(a => a.ItemCode == detalle.ItemCode);
+                        if (EX != undefined) {
+                            if ((13 - EX.Prcnt) < calculoIMP) {
+                                var ValorExonerado = (EX.Prcnt / 100);
+                                var TarifaExonerado = ((detalle.Cantidad * detalle.PrecioUnitario) - detalle.Descuento) * ValorExonerado;
+                                detalle.Impuestos -= TarifaExonerado;
 
+                            }
                         }
-                    }
 
-                    detalle.PorDescuento = (descuentoProporcional / (detalle.PrecioUnitario * detalle.Cantidad)) * 100;
+                        detalle.PorDescuento = (descuentoProporcional / (detalle.PrecioUnitario * detalle.Cantidad)) * 100;
+                        sumatoriaImp += detalle.Impuestos;
+                    }
+                    
                 });
 
                 const porcentajeDescuento = (descuentoNecesario / subtotalGeneral) * 100;
                 $("#descGeneral").val(parseFloat(porcentajeDescuento.toFixed(6)));
-                $("#DescGeneral").text(parseFloat(descuentoNecesario.toFixed(2)));
-
-
+                $("#DescGeneral").text(parseFloat(descuentoNecesario.toFixed(2))); 
+                $("#ImpGeneral").text(parseFloat(sumatoriaImp.toFixed(2)))
             } catch (e) {
                 Swal.fire({
                     icon: 'error',
@@ -684,9 +694,9 @@
             }
         }
 
-        
 
-        
+
+
         function Validar(Detalles) {
             try {
                 var bandera = true;
@@ -2146,7 +2156,7 @@
                 <input hidden id="ProductoPadre" value="@JsonConvert.SerializeObject(Model.ProductoPadre)" />
                 <input hidden id="Errores" value="@JsonConvert.SerializeObject(Model.Errores)" />
                 <input hidden id="Exoneraciones" value="@JsonConvert.SerializeObject(Model.Exoneraciones.Exoneraciones)" />
-                <input hidden id="PorDescto" value="@JsonConvert.SerializeObject(Model.Input.PorDescuento)"  />
+                <input hidden id="PorDescto" value="@JsonConvert.SerializeObject(Model.Input.PorDescuento)" />
                 <input hidden id="idLlamada" value="@Model.Llamada.id" />
 
 
@@ -2197,7 +2207,7 @@
                         <div>Email Persona Contacto: @Model.Llamada.EmailPersonaContacto</div>
                         <div>Producto: @Model.ProductoPadre.codSAP - @Model.ProductoPadre.Nombre</div>
                         @{
-                            var idCond =  Model.Cliente.idCondPago ;
+                            var idCond = Model.Cliente.idCondPago;
                         }
                         <div>Condición de Pago: @(Model.Condiciones.Where(a => a.codSAP == idCond).FirstOrDefault() == null ? "" : Model.Condiciones.Where(a => a.codSAP == idCond).FirstOrDefault().Nombre)</div>
 
