@@ -1,0 +1,205 @@
+﻿@page
+@model Boletaje.Pages.PlanificadorDiario.IndexModel
+@{
+    ViewData["Title"] = "Planificador Diario";
+}
+@using System.Globalization;
+@{
+    NumberFormatInfo formato = new CultureInfo("en-US").NumberFormat;
+    formato.CurrencyGroupSeparator = ",";
+    formato.NumberDecimalSeparator = ".";
+
+    var Roles1 = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">BackOffice</a>
+    </li>
+
+
+}
+
+
+
+
+@section styles {
+
+    <style>
+        .tableFixHead th {
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+
+        .badge {
+            background-color: #ffed00;
+            color: black;
+            padding: 4px 8px;
+            text-align: center;
+            border-radius: 5px;
+        }
+    </style>
+
+}
+
+
+@section scripts {
+
+
+    <script>
+        $(document).ready(function () {
+            jQuery(document).ready(function ($) {
+
+            });
+
+
+
+            $(document).ready(function () {
+                $('#tablita').DataTable();
+                $('.js-example-basic-multiple').select2();
+            });
+            
+
+        });
+    
+    </script>
+
+}
+
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@inject IHttpContextAccessor httpContextAccessor
+
+ 
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Planificador Diario</h5>
+                    </div>
+                    <div class="col-md-4">
+                         
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered first">
+                        <thead>
+                            <tr>
+                                
+                              
+                                <th>Llamada</th>
+                                <th>Acción</th>
+                                <th>Clase Cliente</th>  
+                                <th>Tipo Caso</th>
+                                <th>Status Actual</th>
+                                <th>Dias Status Act</th>
+                                <th>Fecha Creacion</th>
+                                <th>Fecha Act</th> 
+                                <th>Ult. Status</th>
+                                <th>Dias Acumulados</th>
+                                <th>Serie</th>
+                                <th>Equipo</th>
+                                <th>Persona Contacto</th>
+                                <th>Cliente</th>
+                                <th>Telefono</th>
+                                <th>Fecha Compra</th>
+                                <th>Tecnico</th>
+                                <th>Sucursal Recibo</th>
+                                <th>Sucursal Entrega</th>
+                                <th>Categoria Cliente</th>  
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Planificador.Planificador)
+                            {
+
+
+                                <tr >
+
+                                    <td>@item.callID</td>
+                                    <td>
+
+                                        <a asp-page="./Observar" asp-route-id="@item.callID" title="Observar" class="btn btn-rounded btn-outline-primary"> Observar</a>
+
+
+                                    </td>
+                                   
+                                    <td>@item.Clase_CLiente</td>
+                                    <td>@item.Tipo_Caso</td>
+                                    <td>@item.Status_Actual</td>
+                                    <td>@item.Dias_Status_Actual</td>
+                                    <td>@item.Fecha_Creacion.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.Fecha_de_actualizacion.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.Ultimo_Status</td>
+                                    <td>@item.Dias_acumulados</td>
+                                    <td>@item.Serie_del_Equipo</td>
+                                    <td>@item.Codigo_Articulo - @item.Descripcion_Articulo</td>
+                                    <td>@item.Persona_Contacto</td>
+                                    <td>@item.Cliente</td>
+                                    <td>@item.Telefono</td>
+                                    <td>@item.Fecha_Compra.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.TECNICO</td>
+                                    <td>@item.Sucursal_Recibo</td>
+                                    <td>@item.Sucursal_Entrega</td>
+                                    <td>@item.Categoria_Cliente</td>
+                                     
+                                    
+                                   
+                                </tr>
+
+
+
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Llamada</th>
+                                <th>Acción</th>
+                                <th>Clase Cliente</th>
+                                <th>Tipo Caso</th>
+                                <th>Status Actual</th>
+                                <th>Dias Status Act</th>
+                                <th>Fecha Creacion</th>
+                                <th>Fecha Act</th>
+                                <th>Ult. Status</th>
+                                <th>Dias Acumulados</th>
+                                <th>Serie</th>
+                                <th>Equipo</th>
+                                <th>Persona Contacto</th>
+                                <th>Cliente</th>
+                                <th>Telefono</th>
+                                <th>Fecha Compra</th>
+                                <th>Tecnico</th>
+                                <th>Sucursal Recibo</th>
+                                <th>Sucursal Entrega</th>
+                                <th>Categoria Cliente</th>
+
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

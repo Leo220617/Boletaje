@@ -31,6 +31,7 @@ namespace Boletaje.Models
         public int idLlamada { get; set; }
         public int TipoCaso { get; set; }
         public decimal Redondeo { get; set; }
+        public bool BorrarFechaProximoContacto { get; set; }
         public DetMovimientoViewModel[] Detalle { get; set; }
     }
 }

@@ -64,6 +64,10 @@ namespace Boletaje.Models
         public bool SinFacturar { get; set; }
         public bool Credito { get; set; }
         public string PrioridadAtencion { get; set; }
+
+        public DateTime FechaProximoContacto { get; set; }
+        public bool BorrarFechaProximoContacto { get; set; }
+
         public List<EncFacturasViewModel> Factura { get; set; }
         public List<AdjuntosViewModel> Adjuntos { get; set; }
         public List<AdjuntosIdentificacionViewModel> AdjuntosIdentificacion { get; set; }
