@@ -47,19 +47,24 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Cod SAP</label>
                                 <input type="text" class="form-control form-control-lg" id="codsap" placeholder="Cod. SAP" asp-for="Input.codSAP" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="nombre">Nombre</label>
                                 <input type="text" id="nombre" class="form-control form-control-lg" asp-for="Input.Nombre" required placeholder="Nombre">
                             </div>
                         </div>
-
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="dias">Dias</label>
+                                <input type="number" id="dias" class="form-control form-control-lg" asp-for="Input.Dias" required placeholder="Dias">
+                            </div>
+                        </div>
                     </div>
 
 

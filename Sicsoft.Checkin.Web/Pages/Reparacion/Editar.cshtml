@@ -879,10 +879,7 @@
                     Adjuntos: bases64
                 }
                 var cantidadAdjuntos = parseFloat("@Model.Encabezado.Adjuntos.Count()");
-                if (recibido.StatusLlamada == "48" && documentosbase64.length == 0)
-                {
-                    throw new Error("Llamada en status POR PROCESAR, debe llevar adjuntos");
-                }
+                
                 console.log(JSON.stringify(recibido));
 
                 Swal.fire({

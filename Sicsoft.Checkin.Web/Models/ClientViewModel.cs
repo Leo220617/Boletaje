@@ -15,5 +15,6 @@ namespace Boletaje.Models
         public string NombreContacto { get; set; }
         public string NumeroContacto { get; set; }
         public string Direccion { get; set; }
+        public string Moneda { get; set; }
     }
 }
