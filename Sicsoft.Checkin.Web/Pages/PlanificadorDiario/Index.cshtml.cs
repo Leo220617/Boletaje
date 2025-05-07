@@ -15,12 +15,21 @@ namespace Boletaje.Pages.PlanificadorDiario
     public class IndexModel : PageModel
     {
         private readonly ICrudApi<PlanificadorDiarioViewModel, int> service;
+        private readonly ICrudApi<TiposCasosViewModel, int> tp;
+
         [BindProperty]
         public PlanificadorDiarioViewModel Planificador { get; set; }
 
-        public IndexModel(ICrudApi<PlanificadorDiarioViewModel, int> service)
+        [BindProperty]
+
+        public TiposCasosViewModel[] TP { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public ParametrosFiltros filtro { get; set; }
+        public IndexModel(ICrudApi<PlanificadorDiarioViewModel, int> service, ICrudApi<TiposCasosViewModel, int> tp)
         {
-            this.service = service;    
+            this.service = service;
+            this.tp = tp;
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -31,9 +40,14 @@ namespace Boletaje.Pages.PlanificadorDiario
                 {
                     return RedirectToPage("/NoPermiso");
                 }
-                
+                TP = await tp.ObtenerLista("");
 
                 Planificador = await service.ObtenerListaEspecial("");
+
+                if (filtro.seleccionMultiple.Count > 0)
+                {
+                    Planificador.Planificador = Planificador.Planificador.Where(a => filtro.seleccionMultiple.Contains(a.idSAPTP)).ToArray();
+                }
 
                 return Page();
             }

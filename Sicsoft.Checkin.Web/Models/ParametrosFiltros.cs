@@ -32,5 +32,7 @@ namespace InversionGloblalWeb.Models
         public bool FiltrarFacturado { get; set; }
 
         public List<int> seleccionMultiple { get; set; } = new List<int>();
+        public List<string> seleccionMultipleString { get; set; } = new List<string>();
+
     }
 }

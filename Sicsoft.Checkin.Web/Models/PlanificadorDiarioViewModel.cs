@@ -12,6 +12,8 @@ namespace Boletaje.Models
         public string Clase_CLiente { get; set; }
         public string ASESOR_ASIGNADO { get; set; }
         public string Tipo_Caso { get; set; }
+        public int idSAPTP { get; set; }
+        public int DiasHabiles { get; set; }
         public string Status_Actual { get; set; }
         public int Dias_Status_Actual { get; set; }
         public DateTime Fecha_Creacion { get; set; }
