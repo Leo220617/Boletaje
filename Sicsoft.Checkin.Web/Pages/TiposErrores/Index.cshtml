@@ -160,7 +160,7 @@
                                 {
                                 <tr>
                                     <td>@item.id</td>
-                                    <td>@(Model.Diagnosticos.Where(a => a.id == item.idDiagnostico).FirstOrDefault().Descripcion) </td>
+                                    <td>@(Model.Diagnosticos.Where(a => a.id == item.idDiagnostico).FirstOrDefault() == null ? "" : Model.Diagnosticos.Where(a => a.id == item.idDiagnostico).FirstOrDefault().Descripcion) </td>
 
                                     <td>@item.Descripcion</td>
 
