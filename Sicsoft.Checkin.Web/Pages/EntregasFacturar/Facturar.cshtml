@@ -423,10 +423,11 @@
                 Detalles[i].PrecioUnitario = parseFloat($("#" + i + "PrecioU").val());
                 Descuentos = ($("#" + i + "PorDesc").val() / 100) * Subtotal;
                 var idImpuesto = ImpuestosS.find(a => a.id == $("#" + i + "impSelector").val());
-                var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
-                var calculoIMP = IMP.Tarifa;
+               
 
                 if (idImpuesto != undefined) {
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
                     Detalles[i].idImpuesto = idImpuesto.id;
                     Impuestos = (Subtotal - Descuentos) * (idImpuesto.Tarifa / 100);
 
@@ -2131,10 +2132,17 @@
 
                             <div class="form-group">
                                 <label>Moneda</label>
-                                <select id="Moneda" class="form-control" asp-for="Factura.Moneda" required onchange="javascript: ModificaMoneda()">
-                                    <option value="COL" selected>Colones</option>
-                                    <option value="USD">Dólares</option>
+                                <select id="Moneda" class="form-control" asp-for="Factura.Moneda" required onchange="javascript: ModificaMoneda()"> 
+                                    @if (Model.Empresa == "C")
+                                    {
+                                        <option value="COL" selected>COL</option>
+                                        <option value="USD">USD</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="USD" selected>USD</option>
 
+                                    }
                                 </select>
 
                             </div>
@@ -2453,10 +2461,16 @@
 
                             <select class="form-control" id="selectMonedaP" onchange="javascript: onChangeMonedaP()">
 
-                                <option value="COL" selected>COL</option>
+                                @if (Model.Empresa == "C")
+                                {
+                                    <option value="COL" selected>COL</option>
+                                    <option value="USD">USD</option>
+                                }
+                                else
+                                {
+                                    <option value="USD" selected>USD</option>
 
-
-                                <option value="USD">USD</option>
+                                }
 
                             </select>
 
@@ -2537,10 +2551,16 @@
                             <label>Moneda Vuelto:  </label>
                             <select class="form-control" id="selectMonedaV">
 
-                                <option value="COL" selected>COL</option>
+                                @if (Model.Empresa == "C")
+                                {
+                                    <option value="COL" selected>COL</option>
+                                    <option value="USD">USD</option>
+                                }
+                                else
+                                {
+                                    <option value="USD" selected>USD</option>
 
-
-                                <option value="USD">USD</option>
+                                }
 
                             </select>
 
@@ -2632,8 +2652,11 @@
                 <div class="row">
 
                     <div class="col-md-10">
-
-                        <h5 class="modal-title" style="text-align: right;"><b>Colones</b></h5>
+                        @if (Model.Empresa == "C")
+                        {
+                            <h5 class="modal-title" style="text-align: right;"><b>Colones</b></h5>
+                            
+                        }
 
 
                     </div>
@@ -2643,21 +2666,24 @@
                     <!-- /.col -->
                     <div class="col-10 text-right">
 
+                        @if (Model.Empresa == "C")
+                        {
+                            <div>
+                                <p>Total  : <span id="totPago">0</span> </p>
+                                <p>Faltante  : <span id="fatPago">0</span></p>
+                                <p>Pagado  : <span id="pagPago">0</span></p>
 
-                        <div>
-                            <p>Total  : <span id="totPago">0</span> </p>
-                            <p>Faltante  : <span id="fatPago">0</span></p>
-                            <p>Pagado  : <span id="pagPago">0</span></p>
 
+                            </div>
+                            <div class="total-payment">
+                                <h3><b>Vuelto :</b>  <span id="vueltoPago">0 </span></h3>
+                            </div>
 
-                        </div>
-                        <div class="total-payment">
-                            <h3><b>Vuelto :</b>  <span id="vueltoPago">0 </span></h3>
-                        </div>
-
-                        <div class="total-payment">
-                            <h4><b>Vuelto General:</b>  <span id="vueltoPagoG">0 </span></h4>
-                        </div>
+                            <div class="total-payment">
+                                <h4><b>Vuelto General:</b>  <span id="vueltoPagoG">0 </span></h4>
+                            </div>
+                        }
+                       
 
 
 

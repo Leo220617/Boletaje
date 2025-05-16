@@ -14,11 +14,13 @@ using Newtonsoft.Json;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
 using Sicsoft.CostaRica.Checkin.Web.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace Boletaje.Pages.Movimientos
 {
     public class EditarModel : PageModel
     {
+        private readonly IConfiguration configuration; 
         private readonly ICrudApi<EncMovimientoViewModel, int> service;
         private readonly ICrudApi<ClientesViewModel, int> clientes;
         private readonly ICrudApi<LlamadasViewModel, int> serviceLlamada;
@@ -43,7 +45,7 @@ namespace Boletaje.Pages.Movimientos
         private readonly ICrudApi<ProductosGarantiasViewModel, int> prodHoras;
         private readonly ICrudApi<EncFacturasViewModel, int> facturas;
         private readonly ICrudApi<TecnicosViewModel, int> tecnicos;
-
+        private readonly ICrudApi<TipoCambiosViewModel, int> Tipocambio;
 
         [BindProperty]
         public LlamadasViewModel Llamada { get; set; }
@@ -127,12 +129,15 @@ namespace Boletaje.Pages.Movimientos
         public decimal CantidadHoras { get; set; }
         [BindProperty]
         public TecnicosViewModel[] Tecnicos { get; set; }
-
-        public EditarModel(ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods,
+        [BindProperty]
+        public string Empresa { get; set; }
+        [BindProperty]
+        public decimal TC { get; set; }
+        public EditarModel(IConfiguration configuration, ICrudApi<EncMovimientoViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<LlamadasViewModel, int> serviceLlamada, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<ProductosViewModel, int> prods,
             ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico, ICrudApi<ActividadesViewModel, int> actividades, 
             ICrudApi<StatusViewModel, int> status, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<CondicionesPagosViewModel, int> conds,
             ICrudApi<GarantiasViewModel, int> garan, ICrudApi<TiemposEntregasViewModel, int> tiemp, ICrudApi<DiasValidosViewModel, int> dvalid, ICrudApi<DiagnosticosViewModel, int> serviceD
-            , ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<ExoneracionesViewModel, int> exonera, ICrudApi<ProductosGarantiasViewModel, int> prodHoras, ICrudApi<EncFacturasViewModel, int> facturas, ICrudApi<TecnicosViewModel, int> tecnicos)
+            , ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<ExoneracionesViewModel, int> exonera, ICrudApi<ProductosGarantiasViewModel, int> prodHoras, ICrudApi<EncFacturasViewModel, int> facturas, ICrudApi<TecnicosViewModel, int> tecnicos, ICrudApi<TipoCambiosViewModel, int> Tipocambio)
         {
             this.service = service;
             this.clientes = clientes;
@@ -158,6 +163,8 @@ namespace Boletaje.Pages.Movimientos
             this.prodHoras = prodHoras;
             this.facturas = facturas;
             this.tecnicos = tecnicos;
+            this.configuration = configuration;
+            this.Tipocambio = Tipocambio;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -169,9 +176,14 @@ namespace Boletaje.Pages.Movimientos
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                Empresa = configuration["Empresa"].ToString(); 
                 Diagnosticos = await serviceD.ObtenerLista("");
                 Errores = await serviceError.ObtenerLista("");
                 Status = await status.ObtenerLista("");
+                ParametrosFiltros filtroTC = new ParametrosFiltros();
+                filtroTC.FechaInicial = DateTime.Now.Date;
+                var TC1 = await Tipocambio.ObtenerLista(filtroTC);
+                TC = Empresa == "C" ? TC1.FirstOrDefault() == null ? 0 : TC1.FirstOrDefault().TipoCambio : 1;
                 TP = await tp.ObtenerLista("");
                 Imp = await impuestos.ObtenerLista("");
 

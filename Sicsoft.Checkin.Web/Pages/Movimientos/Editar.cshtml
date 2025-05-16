@@ -52,7 +52,7 @@
                 $(document).ready(function () {
                 });
             });
-            RecuperarTipoCambio();
+           // RecuperarTipoCambio();
             Recuperar();
             //selectOpcional();
             MeterManoObra();
@@ -74,6 +74,7 @@
         var Exoneraciones = [];
         var TotalDeseadoGlobal = 0;
         var TotalAntiguo = 0;
+        var TC = 0;
 
         function RecuperarTipoCambio() {
 
@@ -134,6 +135,12 @@
                 ProductoPadre = JSON.parse($("#ProductoPadre").val());
                 Errores = JSON.parse($("#Errores").val());
                 Exoneraciones = JSON.parse($("#Exoneraciones").val());
+                TC = parseFloat("@Model.TC");
+                var det = {
+                    Moneda: "USD",
+                    TipoCambio: parseFloat(TC)
+                }
+                TipoCambio.push(det);
                 for (var i = 0; i < ProductosHijos.length; i++) {
                     if (ProductosHijos[i] != undefined) {
                         if (ProductosHijosInsertar.indexOf(ProductosHijosInsertar.find(a => a.id == ProductosHijos[i].id)) > 0) {
@@ -425,9 +432,10 @@
                 }
                 Descuentos = ($("#" + i + "PorDesc").val() / 100) * Subtotal;
                 var idImpuesto = ImpuestosS.find(a => a.id == $("#" + i + "impSelector").val());
-                var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
-                var calculoIMP = IMP.Tarifa;
+                
                 if (idImpuesto != undefined) {
+                    var IMP = ImpuestosS.find(a => a.id == idImpuesto.id);
+                    var calculoIMP = IMP.Tarifa;
                     Detalles[i].idImpuesto = idImpuesto.id;
                     Impuestos = (Subtotal - Descuentos) * (idImpuesto.Tarifa / 100);
                     var EX = Exoneraciones.find(a => a.ItemCode == Detalles[i].ItemCode);
@@ -2221,8 +2229,15 @@
                             <div class="form-group">
                                 <label>Moneda</label>
                                 <select id="Moneda" class="form-control" asp-for="Input.Moneda" required onchange="javascript: ModificaMoneda()">
-                                    <option value="COL" selected>Colones</option>
-                                    <option value="USD">Dólares</option>
+                                    @if (Model.Empresa == "C")
+                                    {
+                                        <option value="COL" selected>Colones</option>
+                                        <option value="USD">Dólares</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="USD" selected>Dólares</option>
+                                    }
 
                                 </select>
 

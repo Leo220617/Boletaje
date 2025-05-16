@@ -14,12 +14,14 @@ using Newtonsoft.Json;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
 using Sicsoft.CostaRica.Checkin.Web.Models;
+using Microsoft.Extensions.Configuration;
 
 
 namespace Boletaje.Pages.EntregasFacturar
 {
     public class FacturarModel : PageModel
     {
+        private readonly IConfiguration configuration; 
         private readonly ICrudApi<EncFacturasViewModel, int> service;
         private readonly ICrudApi<ImpuestosViewModel, int> impuestos;
         private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
@@ -73,8 +75,9 @@ namespace Boletaje.Pages.EntregasFacturar
 
         [BindProperty]
         public decimal TC { get; set; }
-
-        public FacturarModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<PlazosCreditosViewModel, int> plazos,
+        [BindProperty]
+        public string Empresa { get; set; }
+        public FacturarModel(IConfiguration configuration, ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<PlazosCreditosViewModel, int> plazos,
             ICrudApi<EncMovimientoViewModel, int> movimientos, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<CuentasBancariasViewModel, int> cuentasB, ICrudApi<ExoneracionesViewModel, int> exonera
             , ICrudApi<TipoCambiosViewModel, int> TP)
         {
@@ -88,6 +91,8 @@ namespace Boletaje.Pages.EntregasFacturar
             this.cuentasB = cuentasB;
             this.exonera = exonera;
             this.TP = TP;
+            this.configuration = configuration;
+
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -99,10 +104,12 @@ namespace Boletaje.Pages.EntregasFacturar
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                Empresa = configuration["Empresa"].ToString();
+
                 ParametrosFiltros filtroTC = new ParametrosFiltros();
                 filtroTC.FechaInicial = DateTime.Now.Date;
                 var TC1 = await TP.ObtenerLista(filtroTC);
-                TC = TC1.FirstOrDefault() == null ? 0 : TC1.FirstOrDefault().TipoCambio;
+                TC = Empresa == "C" ? TC1.FirstOrDefault() == null ? 0 : TC1.FirstOrDefault().TipoCambio : 1 ;
                 Movimientos = await movimientos.ObtenerPorId(id);
                 Clientes = await clientes.ObtenerListaEspecial("");
                 PlazosCreditos = await plazos.ObtenerLista("");

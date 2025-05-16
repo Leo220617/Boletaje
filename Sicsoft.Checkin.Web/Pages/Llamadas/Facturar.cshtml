@@ -69,7 +69,7 @@
                 $(document).ready(function () {
                 });
             });
-          //  RecuperarTipoCambio();
+            //  RecuperarTipoCambio();
             Recuperar();
             //selectOpcional();
 
@@ -91,6 +91,7 @@
         var ModificarProductos = '@(!string.IsNullOrEmpty(Roles.Where(a => a == "78").FirstOrDefault()))';
         var ErrorValidacion = "";
         var TC = 0;
+        var Empresa = "@Model.Empresa";
 
         function RecuperarTipoCambio() {
 
@@ -380,7 +381,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'La cantidad no puede ser menor a la ya pactada para este equipo'  
+                        text: 'La cantidad no puede ser menor a la ya pactada para este equipo'
 
                     })
                 }
@@ -452,7 +453,7 @@
                 TotalLinea = (Subtotal - Descuentos) + Impuestos;
 
 
-               
+
 
                 if (producto.Nombre.toUpperCase().includes("mano de obra".toUpperCase()) || ProductosHijos.filter(a => a.codSAP == Detalles[i].ItemCode)[0] == undefined) {
                     Detalles[i].Cantidad = $("#" + i + "Cantidad").val();
@@ -546,7 +547,7 @@
         function Validar(recibido) {
             try {
                 var bandera = true;
-                 ErrorValidacion = "";
+                ErrorValidacion = "";
                 if (recibido.Correo == "") {
                     bandera = false;
                 } else {
@@ -557,24 +558,23 @@
                             text: 'Correo invalido '
 
                         });
-                         ErrorValidacion = "Correo invalido";
+                        ErrorValidacion = "Correo invalido";
                         bandera = false;
                     }
                 }
                 if (recibido.Cedula == "") {
                     bandera = false;
-                     ErrorValidacion = "Cedula vacia";
+                    ErrorValidacion = "Cedula vacia";
                 }
                 var CondicionActual = recibido.idCondicionVenta;
                 var Cond = CondicionesPagos.find(a => a.id == CondicionActual);
-                if(Cond != undefined)
-                {
+                if (Cond != undefined) {
                     if (recibido.Metodos.length == 0 && Cond.Dias == 0) {
                         bandera = false;
                         ErrorValidacion = "Falta rellenar los metodos de pago";
                     }
                 }
-                
+
 
                 var TP = TipoCambio.find(a => a.Moneda == "USD");
                 for (var i = 0; i < recibido.Detalle.length; i++) {
@@ -640,8 +640,8 @@
                 texto = texto.replace("$selectCondPago", cond.Nombre);
 
 
-               
-                 
+
+
                 texto = texto.replace("$CodCliente", " " + "@Model.Cliente.CardCode");
 
 
@@ -819,7 +819,7 @@
                                             if (result.isConfirmed) {
 
                                                 //location.reload();
-                                               // window.location.href = window.location.href.split("/Facturar")[0].split("/Llamadas")[0] + '/Facturas';
+                                                // window.location.href = window.location.href.split("/Facturar")[0].split("/Llamadas")[0] + '/Facturas';
                                                 window.close();
                                             }
                                         })
@@ -1967,7 +1967,7 @@
     <div class=" col-md-12 col-sm-12 col-12">
         <div class="card">
             <div class="card-header p-4">
-            
+
                 <input hidden id="Detalle" value="@JsonConvert.SerializeObject(Model.Factura.DetFactura)" />
                 <input hidden id="ProductosHijos" value="@JsonConvert.SerializeObject(Model.ProductosHijos)" />
                 <input hidden id="ManoObra" value="@JsonConvert.SerializeObject(Model.ManoObra)" />
@@ -2003,7 +2003,7 @@
                             {
                                 case "01":
                                     {
-                                            <h3 class="text-dark mb-1">Factura</h3>
+                                        <h3 class="text-dark mb-1">Factura</h3>
                                         break;
                                     }
 
@@ -2024,8 +2024,16 @@
                             <div class="form-group">
                                 <label>Moneda</label>
                                 <select id="Moneda" class="form-control" asp-for="Factura.Moneda" required onchange="javascript: ModificaMoneda()">
-                                    <option value="COL" selected>Colones</option>
-                                    <option value="USD">Dólares</option>
+                                    @if (Model.Empresa == "C")
+                                    {
+                                        <option value="COL" selected>Colones</option>
+                                        <option value="USD">Dólares</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="USD" selected>Dólares</option>
+                                    }
+
 
                                 </select>
 
@@ -2074,7 +2082,7 @@
 
                                 </div>
                             </div>
-                               <div class="col-md-4">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Orden de Compra:</label>
                                     <input id="OrdenCompra" asp-for="Factura.OC" class="form-control" type="text" maxlength="50" />
@@ -2343,10 +2351,16 @@
 
                             <select class="form-control" id="selectMonedaP" onchange="javascript: onChangeMonedaP()">
 
-                                <option value="COL" selected>COL</option>
+                                @if (Model.Empresa == "C")
+                                {
+                                    <option value="COL" selected>COL</option>
+                                    <option value="USD">USD</option>
+                                }
+                                else
+                                {
+                                    <option value="USD" selected>USD</option>
+                                }
 
-
-                                <option value="USD">USD</option>
 
                             </select>
 
@@ -2426,11 +2440,18 @@
                         <div class="form-group">
                             <label>Moneda Vuelto:  </label>
                             <select class="form-control" id="selectMonedaV">
+                                @if (Model.Empresa == "C")
+                                {
+                                    <option value="COL" selected>COL</option>
+                                    <option value="USD">USD</option>
+                                }
+                                else
+                                {
+                                    <option value="USD" selected>USD</option>
 
-                                <option value="COL" selected>COL</option>
+                                }
 
 
-                                <option value="USD">USD</option>
 
                             </select>
 
@@ -2522,8 +2543,11 @@
                 <div class="row">
 
                     <div class="col-md-10">
+                        @if (Model.Empresa == "C")
+                        {
 
-                        <h5 class="modal-title" style="text-align: right;"><b>Colones</b></h5>
+                            <h5 class="modal-title" style="text-align: right;"><b>Colones</b></h5>
+                        }
 
 
                     </div>
@@ -2532,22 +2556,25 @@
                 <div class="row">
                     <!-- /.col -->
                     <div class="col-10 text-right">
+                        @if (Model.Empresa == "C")
+                        {
+                            <div>
+                                <p>Total  : <span id="totPago">0</span> </p>
+                                <p>Faltante  : <span id="fatPago">0</span></p>
+                                <p>Pagado  : <span id="pagPago">0</span></p>
 
 
-                        <div>
-                            <p>Total  : <span id="totPago">0</span> </p>
-                            <p>Faltante  : <span id="fatPago">0</span></p>
-                            <p>Pagado  : <span id="pagPago">0</span></p>
+                            </div>
+                            <div class="total-payment">
+                                <h3><b>Vuelto :</b>  <span id="vueltoPago">0 </span></h3>
+                            </div>
 
+                            <div class="total-payment">
+                                <h4><b>Vuelto General:</b>  <span id="vueltoPagoG">0 </span></h4>
+                            </div>
 
-                        </div>
-                        <div class="total-payment">
-                            <h3><b>Vuelto :</b>  <span id="vueltoPago">0 </span></h3>
-                        </div>
+                        }
 
-                        <div class="total-payment">
-                            <h4><b>Vuelto General:</b>  <span id="vueltoPagoG">0 </span></h4>
-                        </div>
 
 
 

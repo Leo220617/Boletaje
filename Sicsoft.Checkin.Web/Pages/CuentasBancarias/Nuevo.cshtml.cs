@@ -11,11 +11,13 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
+using Microsoft.Extensions.Configuration;
 
 namespace Boletaje.Pages.CuentasBancarias
 {
     public class NuevoModel : PageModel
     {
+        private readonly IConfiguration configuration; 
         private readonly ICrudApi<CuentasBancariasViewModel, int> service;
         private readonly ICrudApi<SucursalesViewModel, int> suc;
 
@@ -25,11 +27,14 @@ namespace Boletaje.Pages.CuentasBancarias
 
         [BindProperty]
         public SucursalesViewModel[] Sucursales { get; set; }
-
-        public NuevoModel(ICrudApi<CuentasBancariasViewModel, int> service, ICrudApi<SucursalesViewModel, int> suc)
+        [BindProperty]
+        public string Empresa { get; set; }
+        public NuevoModel(IConfiguration configuration, ICrudApi<CuentasBancariasViewModel, int> service, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
             this.suc = suc;
+            this.configuration = configuration;
+
         }
         public async Task<IActionResult> OnGetAsync()
         {
@@ -40,6 +45,8 @@ namespace Boletaje.Pages.CuentasBancarias
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                Empresa = configuration["Empresa"].ToString();
+
                 Sucursales = await suc.ObtenerLista("");
                 return Page();
             }

@@ -69,9 +69,16 @@
                             <div class="form-group">
                                 <label for="nombre">Moneda</label>
                                 <select class="form-control select2" asp-for="Input.Moneda">
-                                    <option value="COL" selected>COL</option>
-                                    <option value="USD">USD</option>
+                                    @if (Model.Empresa == "C")
+                                    {
+                                        <option value="COL" selected>COL</option>
+                                        <option value="USD">USD</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="USD" selected>USD</option>
 
+                                    }
                                 </select>
                             </div>
                         </div>

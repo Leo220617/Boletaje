@@ -14,11 +14,14 @@ using Newtonsoft.Json;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
 using Sicsoft.CostaRica.Checkin.Web.Models;
+using Microsoft.Extensions.Configuration;
+
 
 namespace Boletaje.Pages.Llamadas
 {
     public class FacturarModel : PageModel
     {
+        private readonly IConfiguration configuration;
         private readonly ICrudApi<EncFacturasViewModel, int> service;
         private readonly ICrudApi<ImpuestosViewModel, int> impuestos;
         private readonly ICrudApi<CondicionesPagosViewModel, int> conds;
@@ -88,7 +91,9 @@ namespace Boletaje.Pages.Llamadas
         public string SerieFacturar { get; set; }
         [BindProperty]
         public decimal TC { get; set; }
-        public FacturarModel(ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<PlazosCreditosViewModel, int> plazos,
+        [BindProperty]
+        public string Empresa { get; set; }
+        public FacturarModel(IConfiguration configuration, ICrudApi<EncFacturasViewModel, int> service, ICrudApi<ImpuestosViewModel, int> impuestos, ICrudApi<CondicionesPagosViewModel, int> conds, ICrudApi<PlazosCreditosViewModel, int> plazos,
             ICrudApi<EncMovimientoViewModel, int> movimientos, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<CuentasBancariasViewModel, int> cuentasB, ICrudApi<ExoneracionesViewModel, int> exonera,
             ICrudApi<ProductosFacturacionInicialViewModel, int> prodInicio, ICrudApi<ProductosGarantiasViewModel, int> prodHoras, ICrudApi<LlamadasFacturasViewModel, int> llamadaFac
             , ICrudApi<TipoCambiosViewModel, int> TP)
@@ -106,7 +111,7 @@ namespace Boletaje.Pages.Llamadas
             this.prodHoras = prodHoras;
             this.llamadaFac = llamadaFac;
             this.TP = TP;
-
+            this.configuration = configuration;
         }
 
         public async Task<IActionResult> OnGetAsync(string id )
@@ -118,13 +123,14 @@ namespace Boletaje.Pages.Llamadas
                 {
                     return RedirectToPage("/NoPermiso");
                 }
+                Empresa = configuration["Empresa"].ToString();
                 var CardCode = id.Split("|")[1].TrimStart().TrimEnd();
                 var ItemCode = id.Split("|")[0].TrimEnd();
                 var Serie = id.Split("|")[2].TrimStart().TrimEnd();
                 ParametrosFiltros filtroTC = new ParametrosFiltros();
                 filtroTC.FechaInicial = DateTime.Now.Date;
                 var TC1 = await TP.ObtenerLista(filtroTC);
-                TC = TC1.FirstOrDefault() == null ? 0 : TC1.FirstOrDefault().TipoCambio;
+                TC = Empresa == "C" ? TC1.FirstOrDefault() == null ? 0 : TC1.FirstOrDefault().TipoCambio : 1;
                 SerieFacturar = Serie;
                 ItemCodeFacturar = ItemCode;
                 Clientes = await clientes.ObtenerListaEspecial("");
@@ -169,7 +175,7 @@ namespace Boletaje.Pages.Llamadas
                 Factura.TipoDocumento = "01";
                 Factura.Comentarios = "";
                 Factura.NumLlamada = "";
-                Factura.Moneda = "COL";
+                Factura.Moneda = Empresa == "C" ? "COL" : "USD"; 
                 Factura.PorDesc = 0;
                 Factura.Redondeo = 0;
                 Factura.DetFactura = new DetFacturasViewModel[ProdFacturacionInicial.ProductosFacturar.Count()];
@@ -177,7 +183,7 @@ namespace Boletaje.Pages.Llamadas
                 foreach (var item in ProdFacturacionInicial.ProductosFacturar.ToList())
                 {
                     var Detalle = new DetFacturasViewModel();
-                    Detalle.idImpuesto = Impuestos.Where(a => a.Tarifa == 13).FirstOrDefault() == null ? 0 : Impuestos.Where(a => a.Tarifa == 13).FirstOrDefault().id;
+                    Detalle.idImpuesto = Empresa == "C" ? Impuestos.Where(a => a.Tarifa == 13).FirstOrDefault() == null ? 0 : Impuestos.Where(a => a.Tarifa == 13).FirstOrDefault().id : Impuestos.Where(a => a.Tarifa == 7).FirstOrDefault() == null ? Impuestos.Where(a => a.Tarifa == 7).FirstOrDefault().id : Impuestos.Where(a => a.Tarifa == 7).FirstOrDefault().id;
                     Detalle.ItemCode = item.ItemCode;
                     Detalle.CodBodega = "";
                     Detalle.ListaPrecios = "";

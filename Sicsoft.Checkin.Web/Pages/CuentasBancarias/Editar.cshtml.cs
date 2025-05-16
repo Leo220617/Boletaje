@@ -10,11 +10,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Refit;
 using Sicsoft.Checkin.Web.Servicios;
 using Sicsoft.CostaRica.Checkin.Web.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace Boletaje.Pages.CuentasBancarias
 {
     public class EditarModel : PageModel
     {
+        private readonly IConfiguration configuration;
+
         private readonly ICrudApi<CuentasBancariasViewModel, int> service;
         private readonly ICrudApi<SucursalesViewModel, int> suc;
 
@@ -23,10 +26,13 @@ namespace Boletaje.Pages.CuentasBancarias
 
         [BindProperty]
         public SucursalesViewModel[] Sucursales { get; set; }
-        public EditarModel(ICrudApi<CuentasBancariasViewModel, int> service, ICrudApi<SucursalesViewModel, int> suc)
+        [BindProperty]
+        public string Empresa { get; set; }
+        public EditarModel(IConfiguration configuration, ICrudApi<CuentasBancariasViewModel, int> service, ICrudApi<SucursalesViewModel, int> suc)
         {
             this.service = service;
             this.suc = suc;
+            this.configuration = configuration;
 
         }
 
@@ -42,6 +48,7 @@ namespace Boletaje.Pages.CuentasBancarias
 
                 Input = await service.ObtenerPorId(id);
                 Sucursales = await suc.ObtenerLista("");
+                Empresa = configuration["Empresa"].ToString();
 
                 return Page();
             }
