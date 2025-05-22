@@ -212,13 +212,19 @@
 
                                     <td align="right">@decimal.Round(item.Descuento, 2).ToString("N", formato)</td>
                                     <td align="right">@decimal.Round(item.TotalComprobante, 2).ToString("N", formato)</td>
-                                    @if (item.Facturado)
+                                    @if (item.Facturado && item.DocEntryDevolucion == 0)
                                     {
                                         <td>
                                             <span class="mr-2"><span class="badge-dot badge-success"></span>Facturado</span>
                                         </td>
                                     }
-                                    else
+                                    else if(item.Facturado && item.DocEntryDevolucion > 0)
+                                    {
+                                        <td>
+                                            <span class="mr-2"><span class="badge-dot badge-success"></span>Devuelta</span>
+                                        </td>
+                                    }
+                                    else 
                                     {
 
                                         <td><span class="mr-2"><span class="badge-dot badge-danger"></span>Sin Facturar</span></td>

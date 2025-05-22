@@ -171,7 +171,9 @@
             html = html.replace("Fecha", '@Model.Input.Fecha.ToString("dd/MMMM/yyyy")');
             html = html.replace("NombreClienteR", "@Model.Input.NombreCliente");
             html = html.replace("TelefonoCliente", "@Model.Llamada.NumeroPersonaContacto");
-
+            html = html.replace("ItemCodeProd", "@Model.Llamada.ItemCode");
+            html = html.replace("NumBoleta", "@Model.Llamada.DocEntry");
+            html = html.replace("SerieProd", "@Model.Llamada.SerieFabricante");
 
             Diagnostico += "@Model.Llamada.Comentarios \n";
 
