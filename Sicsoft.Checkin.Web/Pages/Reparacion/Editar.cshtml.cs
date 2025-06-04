@@ -6,7 +6,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Boletaje.Models;
-using Castle.Core.Configuration;
+using Microsoft.Extensions.Configuration;
+
 using InversionGloblalWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -113,7 +114,7 @@ namespace Boletaje.Pages.Reparacion
         public GarantiasViewModel[] Garantias { get; set; }
         [BindProperty]
         public HistoricoDetalladoViewModel HistoricoDetallado { get; set; }
-        public EditarModel(ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
+        public EditarModel(IConfiguration configuration, ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
             ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico,
            ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<GarantiasViewModel, int> garantias)
@@ -140,6 +141,8 @@ namespace Boletaje.Pages.Reparacion
             this.ubicaciones = ubicaciones;
             this.historicoDetallado = historicoDetallado;
             this.garantias = garantias;
+            this.configuration = configuration;
+
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -365,11 +368,16 @@ namespace Boletaje.Pages.Reparacion
                     coleccion.Adjuntos[cantidad - 1].base64 = item.base64;
                     cantidad++;
                 }
-                // Si esta pidiendo repuestos y la llamada no esta en taller
-                if(coleccion.EncReparacion.TipoReparacion == 1 && (coleccion.EncReparacion.StatusLlamada != 47))
+                var Empresa = configuration["Empresa"].ToString();
+                if(Empresa != "P")
                 {
-                    throw new Exception("Debes colocar el status en taller  para solicitar repuestos");
+                    // Si esta pidiendo repuestos y la llamada no esta en taller
+                    if (coleccion.EncReparacion.TipoReparacion == 1 && (coleccion.EncReparacion.StatusLlamada != 47))
+                    {
+                        throw new Exception("Debes colocar el status en taller  para solicitar repuestos");
+                    }
                 }
+               
 
                 await serviceColeccion.Agregar(coleccion);
 

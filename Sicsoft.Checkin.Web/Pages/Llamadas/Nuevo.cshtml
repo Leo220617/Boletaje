@@ -588,9 +588,11 @@
             event.returnValue = message; 
         });
         function ValidaForm(recibido1) {
+            var Pais = "@Model.Pais";
             if (recibido1.PersonaContacto == undefined || recibido1.PersonaContacto == "") {
                 return false;
-            } else if (recibido1.NumeroPersonaContacto == undefined || recibido1.NumeroPersonaContacto == "" || recibido1.NumeroPersonaContacto.replace("-", "").replace(" ", "").length > 10 || recibido1.NumeroPersonaContacto.replace("-", "").replace(" ", "").length < 8) {
+            } else if (recibido1.NumeroPersonaContacto == undefined || recibido1.NumeroPersonaContacto == "" ||  (Pais == "C" && (recibido1.NumeroPersonaContacto.replace("-", "").replace(" ", "").length > 10 || recibido1.NumeroPersonaContacto.replace("-", "").replace(" ", "").length < 8)))
+            {
                 return false;
 
             } else if (recibido1.EmailPersonaContacto == undefined || recibido1.EmailPersonaContacto == "") {

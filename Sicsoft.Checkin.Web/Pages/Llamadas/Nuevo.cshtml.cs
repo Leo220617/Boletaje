@@ -82,6 +82,8 @@ namespace Boletaje.Pages.Llamadas
         [BindProperty]
         public string EmpiezaPor { get; set; }
 
+        [BindProperty]
+        public string Pais { get; set; }
 
 
         public NuevoModel(IConfiguration configuration, ICrudApi<LlamadasViewModel, int> service, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods, ICrudApi<GarantiasViewModel, int> garantias,
@@ -110,7 +112,7 @@ namespace Boletaje.Pages.Llamadas
                 {
                     return RedirectToPage("/NoPermiso");
                 }
-
+                Pais = configuration["Empresa"].ToString();
                 EmpiezaPor = configuration["BusquedaPor"].ToString();
                 CondicionesPagos = await conds.ObtenerLista("");
 
