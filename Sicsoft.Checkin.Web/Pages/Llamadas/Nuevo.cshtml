@@ -1083,7 +1083,10 @@
                         rellenaClientes(json);
                     },
                     complete: function () {
-                        $("#divProcesando").modal("hide");
+                        // Asegurarse de ocultar correctamente el modal y remover backdrop 
+                        $('#divProcesando').modal('hide');
+                        $('body').removeClass('modal-open');
+                        $('.modal-backdrop').remove();
                     },
                     error: function (error) {
                         console.error("Error:", error);
