@@ -1,0 +1,243 @@
+﻿@page  
+@model Boletaje.Pages.ParametrosOptimizacionSemaforo.EditarModel
+@{
+    ViewData["Title"] = "Edición de Parametros Optimizacion por semáforo";
+}
+@section breadcrumb {
+
+    <li class="breadcrumb-item">
+        <a asp-page="./Index">Edición de Parametros Optimizacion por semáforo</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a>Edición</a>
+    </li>
+
+}
+@using Microsoft.AspNetCore.Http
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Security.Claims;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.Extensions.Configuration;
+@using Refit;
+@using Sicsoft.Checkin.Web.Models;
+@using Newtonsoft.Json;
+
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    var Roles = ((ClaimsIdentity)User.Identity).Claims.Where(d => d.Type == "Roles").Select(s1 => s1.Value).FirstOrDefault().Split("|");
+}
+@section styles
+{
+
+}
+@section scripts {
+    <script>
+        var btn = document.getElementById('Guardar');
+        function onGuardar() {
+           btn.disabled = true;
+
+
+
+           $("#formTipos").submit();
+
+           btn.disabled = false;
+        }
+    </script>
+}
+<form method="post" id="formTipos" role="form" novalidate class="needs-validation " enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="title">Edición de Parametros Optimizacion por semáforo</h5>
+                        </div>
+
+                        <div class="col-sm-6" style="text-align: right">
+
+                             
+
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="Parametros.id" hidden id="idLlamada" />
+
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Porcentaje Semáforo:</label>
+                                <input class="form-control form-control-lg" type="number" placeholder="Porcentaje maximo para aplicar optimizacion" asp-for="Parametros.PorcentajeSemaforo">
+
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status Cotización en Garantia:</label>
+                                <select id="status" class="form-control" asp-for="Parametros.StatusCotizacionGarantia" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status Entrega en Garantia:</label>
+                                <select id="status" class="form-control" asp-for="Parametros.StatusEntregaGarantia" required >
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Entrega en Garantia:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoEntregaGarantia" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                       
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status Cotización sin Garantia:</label>
+                                <select id="status" class="form-control" asp-for="Parametros.StatusCotizacionSinGarantia" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status Entrega sin Garantia:</label>
+                                <select id="status" class="form-control" asp-for="Parametros.StatusEntregaSinGarantia" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Entrega sin Garantia:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoEntregaSinGarantia" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status Cotizacion Máquina GT:</label>
+                                <select id="status" class="form-control" asp-for="Parametros.StatusCotizacionMGT" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Cotizacion Máquina GT:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoCotizacionMGT" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status Entrega Máquina GT:</label>
+                                <select id="status" class="form-control" asp-for="Parametros.StatusEntregaMGT" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.Status)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Entrega Máquina GT:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoEntregaMGT" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                    </div>
+                
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                
+                <button type="button" id="Guardar" class="btn btn-rounded btn-outline-success" onclick="javascript: onGuardar()"> Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</form>

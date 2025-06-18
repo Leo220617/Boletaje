@@ -266,6 +266,17 @@
                                     }
 
                                 </li>
+                                <li class="nav-item">
+                                    @{
+                                        if (!string.IsNullOrEmpty(Roles.Where(a => a == "88").FirstOrDefault()))
+                                        {
+
+                                            <a class="nav-link" asp-page="/ParametrosOptimizacion/Editar">Parametros Optimizacion</a>
+                                        }
+
+                                    }
+
+                                </li>
                             </ul>
                         </div>
                     </li>

@@ -368,7 +368,9 @@ namespace Sicsoft.Checkin.Web
             services.AddRefitClient<ICrudApi<PlanificadorDiarioViewModel, int>>()
 .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{Configuration["UrlWebApi"]}/api/PlanificadorDiario"))
 .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
-
+            services.AddRefitClient<ICrudApi<ParametrosOptimizacionSemaforos, int>>()
+.ConfigureHttpClient(c => c.BaseAddress = new Uri($"{Configuration["UrlWebApi"]}/api/ParametrosOptimizacionSemaforo"))
+.AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
             return services;
         }
     }
