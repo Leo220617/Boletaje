@@ -17,5 +17,10 @@
         public decimal PorcentajeSemaforo { get; set; }
         public string StatusCotizacionGarantia { get; set; }
 
+        public string TipoCasoCotizacionGarantiaV { get; set; }
+        public string TipoCasoCotizacionSinGarantiaV { get; set; }
+        public string TipoCasoEntregaGarantiaV { get; set; }
+        public string TipoCasoEntregaSinGarantiaV { get; set; }
+
     }
 }

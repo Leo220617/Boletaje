@@ -224,6 +224,63 @@
 
                             </div>
                         </div>
+                        <!--Parametros para OV Y Entregas-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Verifica Cot. Garantia:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoCotizacionGarantiaV" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Verifica Cot. Sin Garantia:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoCotizacionSinGarantiaV" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                             <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Verifica Entrega Garantia:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoEntregaGarantiaV" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tipo Caso Verifica Entrega Sin Garantia:</label>
+                                <select id="tp" class="form-control" asp-for="Parametros.TipoCasoEntregaSinGarantiaV" required>
+                                    <!-- <option value="0">Seleccione</option> -->
+                                    @foreach (var item in Model.TiposCasos)
+                                    {
+                                        <option value="@item.idSAP">@item.idSAP - @item.Nombre</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                        </div>
                     </div>
                 
 

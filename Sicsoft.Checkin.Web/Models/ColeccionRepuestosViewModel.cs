@@ -11,5 +11,7 @@ namespace Boletaje.Models
         public DetReparacionViewModel[] DetReparacion { get; set; }
         public AdjuntosViewModel[] Adjuntos { get; set; }
         public int EstadoLlamada { get; set; }
+        public int TipoCasoLlamada { get; set; }
+        public int TipoGarantiaLlamada { get; set; }
     }
 }
