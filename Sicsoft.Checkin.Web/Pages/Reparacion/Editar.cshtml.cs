@@ -37,7 +37,7 @@ namespace Boletaje.Pages.Reparacion
         private readonly ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones;
         private readonly ICrudApi<TiposCasosViewModel, int> tp;
         private readonly ICrudApi<ProductosPadresViewModel, int> prodsPadre;
-        private readonly ICrudApi<HistoricoViewModel, int> historico; 
+        private readonly ICrudApi<HistoricoViewModel, int> historico;
         private readonly ICrudApi<ActividadesViewModel, int> actividades;
         private readonly ICrudApi<UsuariosViewModel, int> login;
         private readonly ICrudApi<UbicacionesViewModel, int> ubicaciones;
@@ -116,7 +116,7 @@ namespace Boletaje.Pages.Reparacion
         public HistoricoDetalladoViewModel HistoricoDetallado { get; set; }
         public EditarModel(IConfiguration configuration, ICrudApi<DetReparacionViewModel, int> service, ICrudApi<LlamadasViewModel, int> serviceL, ICrudApi<ClientesViewModel, int> clientes, ICrudApi<ProductosViewModel, int> prods,
            ICrudApi<ProductosHijosViewModel, int> service2, ICrudApi<EncReparacionViewModel, int> serviceE, ICrudApi<ColeccionRepuestosViewModel, int> serviceColeccion, ICrudApi<BodegasViewModel, int> serviceBodegas, ICrudApi<BitacoraMovimientosViewModel, int> bt, ICrudApi<DiagnosticosViewModel, int> serviceD
-            ,ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico,
+            , ICrudApi<ErroresViewModel, int> serviceError, ICrudApi<StatusViewModel, int> status, ICrudApi<ControlProductosViewModel, int> control, ICrudApi<CotizacionesAprobadasViewModel, int> cotizaciones, ICrudApi<TiposCasosViewModel, int> tp, ICrudApi<ProductosPadresViewModel, int> prodsPadre, ICrudApi<HistoricoViewModel, int> historico,
            ICrudApi<ActividadesViewModel, int> actividades, ICrudApi<UsuariosViewModel, int> login, ICrudApi<UbicacionesViewModel, int> ubicaciones, ICrudApi<HistoricoDetalladoViewModel, int> historicoDetallado, ICrudApi<GarantiasViewModel, int> garantias)
         {
             this.service = service;
@@ -182,11 +182,11 @@ namespace Boletaje.Pages.Reparacion
                     foreach (var item in Input)
                     {
                         Input[i].Stock = ProductosGenerales.Where(a => a.id == item.idProducto).FirstOrDefault() == null ? 0 : ProductosGenerales.Where(a => a.id == item.idProducto).FirstOrDefault().Stock;
-                        
+
                         i++;
                     }
                 }
-                   
+
 
                 Productos = await prods.ObtenerListaEspecial("");
                 Producto = Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemCode + " - " + Productos.Productos.Where(a => a.itemCode == Encabezado.idProductoArreglar).FirstOrDefault().itemName;
@@ -263,7 +263,7 @@ namespace Boletaje.Pages.Reparacion
 
                 ModelState.AddModelError(string.Empty, ex.Content.ToString());
 
-               
+
                 return Page();
             }
             catch (Exception ex)
@@ -281,7 +281,7 @@ namespace Boletaje.Pages.Reparacion
 
                 var Productos = await service2.ObtenerLista("");
 
-                 
+
 
 
 
@@ -341,6 +341,8 @@ namespace Boletaje.Pages.Reparacion
                 coleccion.EncReparacion.Status = recibido.Status;
                 coleccion.EncReparacion.StatusLlamada = recibido.StatusLlamada;
                 coleccion.EstadoLlamada = recibido.StatusLlamada;
+                coleccion.TipoCasoLlamada = recibido.TipoCasoLlamada;
+                coleccion.TipoGarantiaLlamada = recibido.Garantia;
                 coleccion.EncReparacion.Comentarios = recibido.comentarios;
                 coleccion.EncReparacion.BodegaOrigen = recibido.BodegaInicial;
                 coleccion.EncReparacion.BodegaFinal = recibido.BodegaFinal;
@@ -362,14 +364,14 @@ namespace Boletaje.Pages.Reparacion
                 }
 
                 cantidad = 1;
-                foreach(var item in recibido.Adjuntos)
+                foreach (var item in recibido.Adjuntos)
                 {
                     coleccion.Adjuntos[cantidad - 1] = new AdjuntosViewModel();
                     coleccion.Adjuntos[cantidad - 1].base64 = item.base64;
                     cantidad++;
                 }
                 var Empresa = configuration["Empresa"].ToString();
-                if(Empresa != "P")
+                if (Empresa != "P")
                 {
                     // Si esta pidiendo repuestos y la llamada no esta en taller
                     if (coleccion.EncReparacion.TipoReparacion == 1 && (coleccion.EncReparacion.StatusLlamada != 47))
@@ -377,9 +379,10 @@ namespace Boletaje.Pages.Reparacion
                         throw new Exception("Debes colocar el status en taller  para solicitar repuestos");
                     }
                 }
-               
+                coleccion.Semaforo = false;
 
-                await serviceColeccion.Agregar(coleccion);
+                var resp = await serviceColeccion.Agregar(coleccion);
+
 
                 try
                 {
@@ -388,9 +391,13 @@ namespace Boletaje.Pages.Reparacion
                     var TP = recibido.TipoCasoLlamada;
                     var Garantia = recibido.Garantia;
                     InputLlamada = await serviceL.ObtenerPorId(recibido.idLlamada);
-                    InputLlamada.Status = Status;
+                    if (!resp.Semaforo)
+                    {
+                        InputLlamada.Status = Status;
+                        InputLlamada.TipoCaso = TP;
+
+                    }
                     InputLlamada.Horas = Horas;
-                    InputLlamada.TipoCaso = TP;
                     InputLlamada.Garantia = Garantia;
                     await serviceL.Editar(InputLlamada);
                 }
@@ -404,7 +411,7 @@ namespace Boletaje.Pages.Reparacion
 
                     return new JsonResult(obj2);
                 }
-             
+
 
 
                 var obj = new
@@ -436,7 +443,7 @@ namespace Boletaje.Pages.Reparacion
                 var obj = new
                 {
                     success = false,
-                    mensaje = "Error en el exception: -> " + ex.Message.ToString()  
+                    mensaje = "Error en el exception: -> " + ex.Message.ToString()
                 };
                 return new JsonResult(obj);
             }

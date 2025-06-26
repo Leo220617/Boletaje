@@ -432,10 +432,10 @@
         function onChangeTipoCaso(){
             try{
                 var valorTP = $("#TPLlamada").val();
-                if(valorTP == "2" || valorTP == "9" ) //Presupuesto o reparado en garantia
+                if(valorTP == "10" || valorTP == "9" ) //Presupuesto o reparado en garantia
                 {
                     $("#tipoGarantia").removeAttr("hidden");
-                    if(valorTP == "2")
+                    if(valorTP == "10")
                     {
                         $("#TipoGarantia").val(3);
                     }
